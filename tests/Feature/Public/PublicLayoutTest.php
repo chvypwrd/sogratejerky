@@ -55,6 +55,17 @@ class PublicLayoutTest extends TestCase
         $response->assertSee('SOGRATE');
     }
 
+    public function test_default_brand_assets_are_rendered(): void
+    {
+        $response = $this->get(route('home'));
+
+        $response->assertSee('brand/sograte-wordmark.png', false);
+        $response->assertSee('brand/sograte-logo.png', false);
+        $response->assertSee('brand/sograte-logo-reversed.png', false);
+        $response->assertSee('favicon/favicon-32.png', false);
+        $response->assertSee('apple-touch-icon', false);
+    }
+
     public function test_footer_contains_copyright_year(): void
     {
         $response = $this->get(route('home'));

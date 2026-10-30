@@ -33,8 +33,9 @@
 @section('content')
 <article class="py-5">
     <div class="container">
-        <header class="mb-5">
+        <header class="page-header">
             <a href="{{ route('gallery.index') }}" class="text-muted small mb-4 d-inline-block">&larr; Back to Gallery</a>
+            <span class="eyebrow">Gallery</span>
             <h1>{{ $gallery->title }}</h1>
             @if($gallery->description)
                 <p class="lead text-muted">{{ $gallery->description }}</p>

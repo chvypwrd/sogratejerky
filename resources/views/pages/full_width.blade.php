@@ -34,7 +34,8 @@
             <div class="col-xl-10">
                 <a href="{{ route('home') }}" class="text-muted small mb-4 d-inline-block">&larr; Back to home</a>
 
-                <header class="mb-5">
+                <header class="page-header">
+                    <span class="eyebrow">SOGRATE</span>
                     <h1>{{ $page->title }}</h1>
                     @if($page->excerpt)
                         <p class="lead text-muted">{{ $page->excerpt }}</p>

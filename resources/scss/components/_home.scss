@@ -1,0 +1,230 @@
+// ==========================================================================
+// Homepage
+// ==========================================================================
+
+.home-hero {
+    padding: clamp(3rem, 7vw, 6rem) 0;
+    background-color: $warm-cream;
+    border-bottom: 1px solid $pale-sage;
+
+    .home-hero__logo {
+        display: block;
+        width: min(100%, 440px);
+        height: auto;
+        margin-bottom: 1.75rem;
+    }
+
+    .home-hero__script {
+        margin-bottom: 0.75rem;
+        color: $brand-secondary;
+        font-family: $font-family-accent;
+        font-size: clamp(1.5rem, 3vw, 2.1rem);
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .home-hero__title {
+        max-width: 760px;
+        margin-bottom: 1.25rem;
+        font-size: clamp(2.4rem, 5.2vw, 3.75rem);
+        line-height: 1.05;
+    }
+
+    .home-hero__text {
+        max-width: 620px;
+        margin-bottom: 2rem;
+        color: $text-muted;
+        font-size: $font-size-lead;
+        line-height: 1.65;
+    }
+
+    .home-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Proof points
+// --------------------------------------------------------------------------
+
+.home-proof {
+    padding: 1.5rem 0;
+    background-color: $white;
+    border-bottom: 1px solid $pale-sage;
+
+    .home-proof__item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        height: 100%;
+        color: $body-text;
+        font-size: $font-size-sm;
+        font-weight: 600;
+    }
+
+    .home-proof__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        flex: 0 0 auto;
+        color: $brand-secondary;
+        background-color: $pale-sage;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Featured jerky / commerce placeholder
+// --------------------------------------------------------------------------
+
+.home-featured {
+    padding: $section-padding-y 0;
+    background-color: $pale-sage;
+
+    @media (max-width: 767.98px) {
+        padding: $section-padding-y-sm 0;
+    }
+
+    .home-featured__card {
+        padding: clamp(2rem, 5vw, 3.5rem);
+        background-color: $white;
+        border: 1px solid rgba($dark, 0.08);
+        border-radius: $border-radius-lg;
+        box-shadow: $card-shadow;
+    }
+
+    .home-featured__badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        margin-bottom: 1rem;
+        color: $white;
+        background-color: $brand-primary;
+        border-radius: $border-radius-pill;
+        font-size: $font-size-eyebrow;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .home-featured__title {
+        margin-bottom: 0.75rem;
+    }
+
+    .home-featured__text {
+        max-width: 620px;
+        margin-bottom: 1.5rem;
+        color: $text-muted;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Quick order promotional band
+// --------------------------------------------------------------------------
+
+.home-quick-order {
+    padding: $section-padding-y 0;
+    background-color: $dark;
+    color: $warm-cream;
+
+    @media (max-width: 767.98px) {
+        padding: $section-padding-y-sm 0;
+    }
+
+    h2 {
+        color: $white;
+    }
+
+    .home-quick-order__text {
+        max-width: 620px;
+        margin-bottom: 1.5rem;
+        color: rgba($warm-cream, 0.8);
+        font-size: $font-size-lg;
+    }
+
+    .home-quick-order__tag {
+        display: inline-block;
+        margin-bottom: 0.75rem;
+        color: $sage;
+        font-family: $font-family-accent;
+        font-size: 1.6rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Our story
+// --------------------------------------------------------------------------
+
+.home-story {
+    padding: $section-padding-y 0;
+    background-color: $white;
+
+    @media (max-width: 767.98px) {
+        padding: $section-padding-y-sm 0;
+    }
+
+    .home-story__text {
+        color: $text-muted;
+        font-size: 1.05rem;
+        line-height: 1.8;
+    }
+
+    .home-story__quote {
+        height: 100%;
+        padding: 2rem;
+        background-color: $warm-cream;
+        border: 1px solid $pale-sage;
+        border-radius: $border-radius-lg;
+    }
+
+    .home-story__quote-text {
+        margin-bottom: 1rem;
+        color: $brand-primary;
+        font-family: $font-family-accent;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 600;
+        line-height: 1.1;
+    }
+
+    .home-story__quote-caption {
+        margin-bottom: 0;
+        color: $text-muted;
+        font-size: $font-size-sm;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Blog placeholder
+// --------------------------------------------------------------------------
+
+.home-blog {
+    padding: $section-padding-y 0;
+    background-color: $warm-cream;
+
+    @media (max-width: 767.98px) {
+        padding: $section-padding-y-sm 0;
+    }
+}
+
+// --------------------------------------------------------------------------
+// FAQ
+// --------------------------------------------------------------------------
+
+.home-faq {
+    padding: $section-padding-y 0;
+    background-color: $white;
+
+    @media (max-width: 767.98px) {
+        padding: $section-padding-y-sm 0;
+    }
+}

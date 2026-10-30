@@ -5,14 +5,15 @@
 @section('meta')
     <link rel="canonical" href="{{ route('faq.index', [], false) }}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ e(config('app.name')) }} — Frequently Asked Questions">
+    <meta property="og:title" content="{{ e(config('app.name')) }} - Frequently Asked Questions">
     <meta property="og:url" content="{{ route('faq.index', [], false) }}">
 @endsection
 
 @section('content')
 <section class="py-5">
     <div class="container">
-        <header class="mb-5">
+        <header class="page-header">
+            <span class="eyebrow">FAQs</span>
             <h1>Frequently Asked Questions</h1>
             <p class="lead text-muted">Find answers to common questions.</p>
         </header>

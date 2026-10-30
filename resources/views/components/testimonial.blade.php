@@ -2,12 +2,12 @@
     'testimonial',
 ])
 
-<blockquote class="testimonial blockquote">
-    <p class="mb-3">{{ $testimonial->quote }}</p>
-    <footer class="blockquote-footer">
-        {{ $testimonial->name }}
+<blockquote class="testimonial-card">
+    <p class="testimonial-card__quote">{{ $testimonial->quote }}</p>
+    <footer class="testimonial-card__author">
+        <p class="testimonial-card__name">{{ $testimonial->name }}</p>
         @if($testimonial->attribution)
-            <cite class="d-block small text-muted">{{ $testimonial->attribution }}</cite>
+            <span class="testimonial-card__role">{{ $testimonial->attribution }}</span>
         @endif
     </footer>
 </blockquote>

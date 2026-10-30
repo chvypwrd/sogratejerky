@@ -16,11 +16,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ $metaDescription ?? $defaultDescription }}">
+    <meta name="theme-color" content="#9B300F">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     @if($branding && $branding->hasMedia('favicon'))
         <link rel="icon" href="{{ $branding->getFirstMediaUrl('favicon') }}">
+        <link rel="apple-touch-icon" href="{{ $branding->getFirstMediaUrl('favicon') }}">
     @else
-        <link rel="icon" href="{{ asset('favicon/icon.svg') }}" type="image/svg+xml">
+        <link rel="icon" href="{{ asset('favicon/favicon-32.png') }}" sizes="32x32" type="image/png">
+        <link rel="icon" href="{{ asset('favicon/favicon-192.png') }}" sizes="192x192" type="image/png">
+        <link rel="apple-touch-icon" href="{{ asset('favicon/apple-touch-icon.png') }}">
     @endif
 
     @php

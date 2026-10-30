@@ -2,6 +2,7 @@
     try {
         $settingsService = app(\App\Services\SettingsService::class);
         $siteName = $settingsService->get('general.site_name', config('app.name', 'SOGRATE'));
+        $tagline = $settingsService->get('general.tagline', 'Texas Made. Seriously Good Jerky.');
         $contactEmail = $settingsService->get('contact.email', '');
         $contactPhone = $settingsService->get('contact.phone', '');
         $contactAddress = $settingsService->get('contact.address', '');
@@ -11,6 +12,7 @@
         $footerText = $settingsService->get('appearance.footer_text', '');
     } catch (\Throwable $e) {
         $siteName = config('app.name', 'SOGRATE');
+        $tagline = 'Texas Made. Seriously Good Jerky.';
         $contactEmail = '';
         $contactPhone = '';
         $contactAddress = '';
@@ -26,35 +28,42 @@
         $footerMenu = '';
     }
 
+    $branding = \App\Models\SiteBranding::getOrCreateSafely();
+    $hasLogo = $branding ? $branding->hasLogo() : false;
+    $footerLogo = $hasLogo
+        ? $branding->getLogoUrl()
+        : asset('brand/sograte-logo-reversed.png');
+
     $hasContact = $contactEmail || $contactPhone || $contactAddress;
     $hasSocial = $facebook || $instagram || $youtube;
 @endphp
 
 <footer class="site-footer">
     <div class="container">
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="footer-brand">
-                    {{ $siteName }}
-                </div>
+        <div class="row gy-4">
+            <div class="col-lg-4">
+                <a href="{{ route('home') }}" class="footer-logo-link" aria-label="{{ $siteName }} home">
+                    <img src="{{ $footerLogo }}" alt="{{ $siteName }}" class="footer-logo {{ $hasLogo ? 'footer-logo--uploaded' : '' }}" loading="lazy" decoding="async">
+                </a>
+                <p class="footer-tagline">{{ $tagline }}</p>
                 @if($footerText)
                     <p class="footer-text">{!! nl2br(e($footerText)) !!}</p>
                 @endif
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                @if($footerMenu)
+            @if($footerMenu)
+                <div class="col-6 col-lg-2">
                     <div class="footer-nav">
-                        <h6 class="footer-heading">Navigation</h6>
+                        <h2 class="footer-heading">Explore</h2>
                         {!! $footerMenu !!}
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
 
-            <div class="col-lg-3 col-md-6">
-                @if($hasContact)
+            @if($hasContact)
+                <div class="col-6 col-lg-3">
                     <div class="footer-contact">
-                        <h6 class="footer-heading">Contact</h6>
+                        <h2 class="footer-heading">Contact</h2>
                         @if($contactPhone)
                             <p><a href="tel:{{ $contactPhone }}">{{ $contactPhone }}</a></p>
                         @endif
@@ -65,31 +74,32 @@
                             <p>{!! nl2br(e($contactAddress)) !!}</p>
                         @endif
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
 
-            <div class="col-lg-3 col-md-6">
-                @if($hasSocial)
+            @if($hasSocial)
+                <div class="col-lg-3">
                     <div class="footer-social">
-                        <h6 class="footer-heading">Follow Us</h6>
-                        <ul class="list-unstyled">
+                        <h2 class="footer-heading">Follow Us</h2>
+                        <ul>
                             @if($facebook)
-                                <li><a href="{{ $facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">Facebook</a></li>
+                                <li><a href="{{ $facebook }}" target="_blank" rel="noopener noreferrer">Facebook</a></li>
                             @endif
                             @if($instagram)
-                                <li><a href="{{ $instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a></li>
+                                <li><a href="{{ $instagram }}" target="_blank" rel="noopener noreferrer">Instagram</a></li>
                             @endif
                             @if($youtube)
-                                <li><a href="{{ $youtube }}" target="_blank" rel="noopener noreferrer" aria-label="YouTube">YouTube</a></li>
+                                <li><a href="{{ $youtube }}" target="_blank" rel="noopener noreferrer">YouTube</a></li>
                             @endif
                         </ul>
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
         </div>
 
-        <div class="footer-copyright mt-4 pt-3 border-top">
-            &copy; {{ date('Y') }} {{ $siteName }}. All rights reserved.
+        <div class="footer-bottom">
+            <p class="footer-copyright">&copy; {{ date('Y') }} {{ $siteName }}. All rights reserved.</p>
+            <p class="footer-made">Texas Made. Seriously Good Jerky.</p>
         </div>
     </div>
 </footer>

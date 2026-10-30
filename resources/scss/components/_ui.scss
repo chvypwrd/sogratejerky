@@ -1,0 +1,135 @@
+// ==========================================================================
+// Forms, Alerts, and Accordions
+// ==========================================================================
+
+.form-label {
+    margin-bottom: 0.4rem;
+    color: $body-text;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    padding: 0.75rem 0.9rem;
+    color: $body-text;
+    background-color: $white;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    transition: border-color $transition-speed $transition-ease,
+                box-shadow $transition-speed $transition-ease;
+
+    &::placeholder {
+        color: rgba($text-muted, 0.75);
+    }
+
+    &:focus {
+        color: $body-text;
+        background-color: $white;
+        border-color: $brand-primary;
+        box-shadow: 0 0 0 0.2rem rgba($brand-primary, 0.12);
+    }
+
+    &.is-invalid {
+        border-color: $danger;
+
+        &:focus {
+            box-shadow: 0 0 0 0.2rem rgba($danger, 0.12);
+        }
+    }
+}
+
+.form-check-input {
+    border-color: $border-color;
+
+    &:checked {
+        background-color: $brand-primary;
+        border-color: $brand-primary;
+    }
+
+    &:focus {
+        border-color: $brand-primary;
+        box-shadow: 0 0 0 0.2rem rgba($brand-primary, 0.12);
+    }
+}
+
+.invalid-feedback {
+    color: $danger;
+}
+
+// --------------------------------------------------------------------------
+// Alerts
+// --------------------------------------------------------------------------
+
+.alert {
+    border: 1px solid transparent;
+    border-radius: $border-radius-lg;
+}
+
+.alert-success {
+    color: #244A2E;
+    background-color: rgba($sage, 0.25);
+    border-color: rgba($sage, 0.55);
+}
+
+.alert-danger {
+    color: #7A1B12;
+    background-color: #FBE9E7;
+    border-color: #E1B4AE;
+}
+
+.alert-warning {
+    color: #6B3A0E;
+    background-color: $warm-cream;
+    border-color: #E4C797;
+}
+
+.alert-info {
+    color: #244E57;
+    background-color: #E8F0F0;
+    border-color: #B7D1D6;
+}
+
+// --------------------------------------------------------------------------
+// Accordion
+// --------------------------------------------------------------------------
+
+.accordion {
+    --bs-accordion-border-color: #{$pale-sage};
+    --bs-accordion-border-radius: #{$border-radius-lg};
+    --bs-accordion-inner-border-radius: #{$border-radius-lg};
+    --bs-accordion-bg: #{$white};
+    --bs-accordion-color: #{$body-text};
+    --bs-accordion-btn-color: #{$headings-color};
+    --bs-accordion-btn-bg: #{$white};
+    --bs-accordion-active-color: #{$brand-primary};
+    --bs-accordion-active-bg: #{$warm-cream};
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.2rem rgba(155, 48, 15, 0.12);
+}
+
+.accordion-item {
+    overflow: hidden;
+    background-color: $white;
+    border-color: $pale-sage;
+}
+
+.accordion-button {
+    color: $headings-color;
+    font-weight: 700;
+
+    &:not(.collapsed) {
+        color: $brand-primary;
+        background-color: $warm-cream;
+        box-shadow: inset 0 -1px 0 $pale-sage;
+    }
+
+    &:focus {
+        z-index: 3;
+        border-color: $brand-primary;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba($brand-primary, 0.12);
+    }
+}
+
+.accordion-body {
+    color: $body-text;
+}

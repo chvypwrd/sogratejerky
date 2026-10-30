@@ -9,72 +9,144 @@
     <meta property="og:url" content="{{ route('home', [], false) }}">
 @endsection
 
+@php
+    try {
+        $settingsService = app(\App\Services\SettingsService::class);
+        $tagline = $settingsService->get('general.tagline', 'Texas Made. Seriously Good Jerky.');
+    } catch (\Throwable $e) {
+        $tagline = 'Texas Made. Seriously Good Jerky.';
+    }
+
+    $branding = \App\Models\SiteBranding::getOrCreateSafely();
+    $heroLogo = $branding && $branding->hasLogo()
+        ? $branding->getLogoUrl()
+        : asset('brand/sograte-logo.png');
+@endphp
+
 @section('content')
-{{-- Hero --}}
-<section class="hero-section py-5">
+<section class="home-hero">
     <div class="container">
-        <div class="row align-items-center py-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <h1>Texas Made. Seriously Good Jerky.</h1>
-                <p class="lead mt-3 mb-4">
-                    SOGRATE is a Texas-made BBQ and beef jerky brand built on serious flavor and honest craft.
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <p class="home-hero__script">BBQ &amp; Beef Jerky</p>
+                <h1 class="home-hero__title">{{ $tagline }}</h1>
+                <p class="home-hero__text">
+                    Small-batch beef jerky with bold BBQ flavor, made in Texas and built for sharing.
                 </p>
-                <div class="d-flex gap-3 justify-content-center flex-wrap">
-                    <a href="{{ route('contact.show') }}" class="btn btn-coral btn-lg">Contact Us</a>
+                <div class="home-hero__actions">
+                    <a href="{{ route('contact.show') }}" class="btn btn-brand btn-lg">Contact Us</a>
+                    <a href="{{ route('gallery.index') }}" class="btn btn-brand-outline btn-lg">View Gallery</a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center text-lg-end">
+                <img src="{{ $heroLogo }}" alt="SOGRATE BBQ and Beef Jerky" class="home-hero__logo mx-lg-auto" loading="eager" decoding="async">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="home-proof" aria-label="SOGRATE highlights">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="home-proof__item">
+                    <span class="home-proof__icon" aria-hidden="true">&#10003;</span>
+                    <span>Texas made, seriously good jerky</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="home-proof__item">
+                    <span class="home-proof__icon" aria-hidden="true">&#10003;</span>
+                    <span>Small-batch craft and bold flavor</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="home-proof__item">
+                    <span class="home-proof__icon" aria-hidden="true">&#10003;</span>
+                    <span>Built for cookouts, road trips, and sharing</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-{{-- Why SOGRATE --}}
-<section class="py-5">
+<section class="home-featured" id="featured-jerky">
     <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <h2>Why SOGRATE?</h2>
-                <p class="lead text-muted">
-                    We're not just a jerky brand. We're a Texas-made BBQ and beef jerky company
-                    built around serious flavor, quality ingredients, and a craft worth sharing.
+        <div class="section-heading">
+            <span class="eyebrow">Featured Jerky</span>
+            <h2 class="section-heading__title">Our first small-batch release is on the way.</h2>
+            <p class="section-heading__subtitle">We are preparing SOGRATE jerky for launch. Contact us for availability and current details.</p>
+        </div>
+
+        <div class="home-featured__card text-center">
+            <span class="home-featured__badge">Coming Soon</span>
+            <h3 class="home-featured__title">Seriously good jerky, made in Texas.</h3>
+            <p class="home-featured__text mx-auto">
+                No shortcuts and no filler. Just honest beef jerky built around real BBQ flavor.
+            </p>
+            <a href="{{ route('contact.show') }}" class="btn btn-brand">Ask About Availability</a>
+        </div>
+    </div>
+</section>
+
+<section class="home-quick-order">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="home-quick-order__tag">Quick Order</span>
+                <h2>Stock up without the wait.</h2>
+                <p class="home-quick-order__text">
+                    Quick Order is coming in a future release. For now, reach out to the SOGRATE team directly.
                 </p>
-                <ul class="list-unstyled mt-4">
-                    <li class="mb-3">
-                        <strong>Texas made</strong>
-                        <p class="text-muted mb-0">Every batch is made in Texas with a focus on real BBQ flavor and quality.</p>
-                    </li>
-                    <li class="mb-3">
-                        <strong>Small-batch craft</strong>
-                        <p class="text-muted mb-0">We take the time to get the seasoning, smoke, and texture right in every batch.</p>
-                    </li>
-                    <li class="mb-3">
-                        <strong>Seriously good flavor</strong>
-                        <p class="text-muted mb-0">Bold, honest jerky made to be shared and remembered.</p>
-                    </li>
-                </ul>
             </div>
-            <div class="col-lg-6">
-                <div class="bg-light rounded-4 p-5 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1" class="text-primary" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                    </svg>
-                    <h3 class="mt-4">Made in Texas</h3>
-                    <p class="text-muted">
-                        From the first batch to the last, SOGRATE is built around serious flavor and
-                        a straightforward commitment to doing jerky right.
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ route('contact.show') }}" class="btn btn-light btn-lg">Contact Us</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="home-story" id="our-story">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-7">
+                <div class="section-heading mb-4">
+                    <span class="eyebrow">Our Story</span>
+                    <h2 class="section-heading__title">From backyard BBQ to seriously good jerky.</h2>
+                </div>
+                <div class="home-story__text">
+                    <p>
+                        SOGRATE began with backyard BBQ and a simple phrase: &ldquo;Man, this is so great.&rdquo;
+                        That phrase became our name and carried us into our first BBQ competition.
+                    </p>
+                    <p>
+                        We later expanded into vending and catering. Beef jerky started as a way to promote the
+                        brand and share our flavor, eventually becoming part of a retail operation that also sold
+                        BBQ and homebrew supplies.
+                    </p>
+                    <p class="mb-0">
+                        That retail chapter has closed. Today our focus is beef jerky: Texas made, small-batch,
+                        and seriously good.
                     </p>
                 </div>
             </div>
+            <div class="col-lg-5">
+                <div class="home-story__quote">
+                    <p class="home-story__quote-text">&ldquo;Man, this is so great.&rdquo;</p>
+                    <p class="home-story__quote-caption">The phrase that started SOGRATE</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-{{-- Testimonials --}}
 @if($testimonials->count() > 0)
-<section class="py-5 bg-light">
+<section class="section">
     <div class="container">
-        <header class="text-center mb-5">
-            <h2>What Our Customers Say</h2>
-        </header>
+        <div class="section-heading">
+            <span class="eyebrow">Testimonials</span>
+            <h2 class="section-heading__title">What Our Customers Say</h2>
+        </div>
 
         <div class="row g-4 justify-content-center">
             @foreach($testimonials as $testimonial)
@@ -87,14 +159,28 @@
 </section>
 @endif
 
-{{-- FAQ Preview --}}
-@if($faqs->count() > 0)
-<section class="py-5">
+<section class="home-blog">
     <div class="container">
-        <header class="text-center mb-5">
-            <h2>Frequently Asked Questions</h2>
-            <p class="lead text-muted">Find answers to common questions.</p>
-        </header>
+        <div class="section-heading">
+            <span class="eyebrow">From the Blog</span>
+            <h2 class="section-heading__title">Stories from the pit are coming soon.</h2>
+            <p class="section-heading__subtitle">Recipes, brand updates, and behind-the-scenes notes will live here.</p>
+        </div>
+
+        <div class="empty-state">
+            <p class="mb-0">The SOGRATE blog is part of a future release. Check back soon.</p>
+        </div>
+    </div>
+</section>
+
+@if($faqs->count() > 0)
+<section class="home-faq">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">FAQs</span>
+            <h2 class="section-heading__title">Frequently Asked Questions</h2>
+            <p class="section-heading__subtitle">Find answers to common questions.</p>
+        </div>
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -122,7 +208,7 @@
                 </div>
 
                 <div class="text-center mt-4">
-                    <a href="{{ route('faq.index') }}" class="btn btn-brand">View All FAQs</a>
+                    <a href="{{ route('faq.index') }}" class="btn btn-brand-outline">View All FAQs</a>
                 </div>
             </div>
         </div>
@@ -130,7 +216,6 @@
 </section>
 @endif
 
-{{-- Final CTA --}}
 <x-cta-section
     heading="Ready for Seriously Good Jerky?"
     primary-label="Contact Us"

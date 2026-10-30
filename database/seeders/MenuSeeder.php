@@ -22,19 +22,32 @@ class MenuSeeder extends Seeder
             ['name' => 'Footer Navigation']
         );
 
-        // Primary menu items
-        $items = [
+        $primaryItems = [
             ['label' => 'Home', 'type' => 'home', 'url' => '/', 'sort_order' => 0],
             ['label' => 'Galleries', 'type' => 'custom', 'url' => '/galleries', 'sort_order' => 1],
             ['label' => 'Testimonials', 'type' => 'custom', 'url' => '/testimonials', 'sort_order' => 2],
             ['label' => 'FAQs', 'type' => 'custom', 'url' => '/faqs', 'sort_order' => 3],
         ];
 
+        $footerItems = [
+            ['label' => 'Home', 'type' => 'home', 'url' => '/', 'sort_order' => 0],
+            ['label' => 'Galleries', 'type' => 'custom', 'url' => '/galleries', 'sort_order' => 1],
+            ['label' => 'Testimonials', 'type' => 'custom', 'url' => '/testimonials', 'sort_order' => 2],
+            ['label' => 'FAQs', 'type' => 'custom', 'url' => '/faqs', 'sort_order' => 3],
+            ['label' => 'Contact', 'type' => 'custom', 'url' => '/contact', 'sort_order' => 4],
+        ];
+
+        $this->seedItems($primary, $primaryItems);
+        $this->seedItems($footer, $footerItems);
+    }
+
+    private function seedItems(Menu $menu, array $items): void
+    {
         foreach ($items as $itemData) {
             MenuItem::firstOrCreate(
-                ['menu_id' => $primary->id, 'slug' => Str::slug($itemData['label'])],
+                ['menu_id' => $menu->id, 'slug' => Str::slug($itemData['label'])],
                 array_merge($itemData, [
-                    'menu_id' => $primary->id,
+                    'menu_id' => $menu->id,
                     'target' => '_self',
                     'enabled' => true,
                 ])

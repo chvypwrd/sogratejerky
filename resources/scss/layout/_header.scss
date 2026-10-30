@@ -3,18 +3,15 @@
 // ==========================================================================
 
 .site-header {
-    padding: 0.75rem 0;
-    background-color: $white;
-    border-bottom: 1px solid rgba($dark, 0.08);
     position: sticky;
     top: 0;
     z-index: 1030;
-    transition: all 0.4s ease;
+    padding: 0.85rem 0;
+    background-color: $white;
+    border-bottom: 1px solid $pale-sage;
 
-    &.scrolled {
-        padding: 0.5rem 0;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-        border-bottom-color: transparent;
+    .navbar {
+        padding: 0;
     }
 
     // -----------------------------------------------------------------------
@@ -22,51 +19,59 @@
     // -----------------------------------------------------------------------
 
     .navbar-brand {
+        display: inline-flex;
+        align-items: center;
+        padding: 0;
+        color: $headings-color;
         font-family: $font-family-headings;
-        font-weight: 700;
         font-size: 1.25rem;
-        color: $brand-primary;
-        text-decoration: none;
+        font-weight: 800;
         line-height: 1.2;
-        padding: 0.25rem 0;
+        text-decoration: none;
 
         &:hover {
-            color: darken($brand-primary, 10%);
+            color: $brand-primary;
             text-decoration: none;
         }
 
         img {
-            height: 85px;
             width: auto;
+            height: 42px;
+            max-width: 220px;
+            object-fit: contain;
         }
     }
 
     // -----------------------------------------------------------------------
-    // Nav links - Horizon style
+    // Nav links
     // -----------------------------------------------------------------------
 
-    .nav-link {
-        color: $body-text;
-        padding: 8px 14px;
-        font-size: 1.25rem;
-        font-weight: 500;
-        text-decoration: none;
-        position: relative;
-        white-space: nowrap;
-        transition: color 0.3s ease;
+    .navbar-nav {
+        gap: 0.15rem;
+    }
 
-        // Underline animation
+    .nav-link {
+        position: relative;
+        padding: 0.55rem 0.8rem;
+        color: $body-text;
+        font-size: 0.93rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: color $transition-speed $transition-ease;
+
         &::before {
             content: "";
             position: absolute;
-            left: 14px;
-            right: 14px;
-            bottom: 0;
+            right: 0.8rem;
+            bottom: 0.2rem;
+            left: 0.8rem;
             height: 2px;
             background-color: $brand-primary;
             transform: scaleX(0);
             transform-origin: left;
-            transition: transform 0.3s ease-out;
+            transition: transform $transition-speed $transition-ease;
         }
 
         &:hover,
@@ -79,47 +84,53 @@
             }
         }
 
-        // Active state: filled pill with brand color
         &.active {
-            color: $white;
-            background-color: $brand-primary;
-            box-shadow: 0 2px 8px rgba($brand-primary, 0.3);
+            color: $brand-primary;
 
             &::before {
-                display: none;
-            }
-
-            &:hover {
-                color: $white;
-                background-color: darken($brand-primary, 6%);
+                transform: scaleX(1);
             }
         }
     }
 
     // -----------------------------------------------------------------------
-    // CTA button - pill style like Horizon
+    // Header actions
     // -----------------------------------------------------------------------
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-left: 1rem;
+    }
 
     .btn-cta {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px 24px;
-        margin-left: 24px;
-        border-radius: 50px;
-        background-color: $brand-primary;
+        justify-content: center;
+        padding: 0.6rem 1.15rem;
         color: $white;
+        background-color: $brand-primary;
+        border: 2px solid $brand-primary;
+        border-radius: $border-radius;
         font-family: $font-family-headings;
-        font-size: 0.85rem;
-        font-weight: 600;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.045em;
         text-decoration: none;
-        transition: all 0.3s ease-out;
+        text-transform: uppercase;
+        transition: $transition-base;
 
         &:hover {
-            transform: translateY(-2px);
-            background-color: darken($brand-primary, 6%);
+            background-color: darken($brand-primary, 8%);
+            border-color: darken($brand-primary, 8%);
             color: $white;
             text-decoration: none;
+        }
+
+        &:focus-visible {
+            outline: $focus-ring-width solid $focus-ring-color;
+            outline-offset: $focus-ring-offset;
         }
     }
 
@@ -128,24 +139,24 @@
     // -----------------------------------------------------------------------
 
     .navbar-toggler {
-        padding: 0.5rem;
-        border: 2px solid $border-color;
+        padding: 0.45rem;
+        border: 2px solid $pale-sage;
         border-radius: $border-radius;
         transition: $transition-base;
+
+        &:hover {
+            border-color: $brand-primary;
+        }
 
         &:focus-visible {
             outline: $focus-ring-width solid $focus-ring-color;
             outline-offset: $focus-ring-offset;
         }
 
-        &:hover {
-            border-color: $brand-primary;
-        }
-
         .navbar-toggler-icon {
             width: 1.5rem;
             height: 1.5rem;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%231F2937' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232F2E2E' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
             background-size: 100% 100%;
         }
     }
@@ -155,40 +166,72 @@
     // -----------------------------------------------------------------------
 
     .dropdown-menu {
-        border: 1px solid $border-color;
+        min-width: 208px;
+        padding: 0.5rem 0;
+        margin-top: 0.5rem;
+        background-color: $white;
+        border: 1px solid $pale-sage;
         border-radius: $border-radius-lg;
         box-shadow: 0 16px 40px rgba($dark, 0.1);
-        padding: 8px 0;
-        margin-top: 8px;
-        min-width: 208px;
-        background-color: $white;
     }
 
     .dropdown-item {
-        padding: 10px 20px;
-        font-weight: 400;
+        padding: 0.65rem 1.25rem;
         color: $body-text;
+        font-weight: 500;
         transition: $transition-base;
 
         &:hover,
         &:focus {
-            padding-left: 24px;
-            background-color: rgba($brand-primary, 0.06);
+            padding-left: 1.5rem;
             color: $brand-primary;
+            background-color: rgba($warm-cream, 0.7);
         }
 
         &.active {
-            background-color: $brand-primary;
             color: $white;
+            background-color: $brand-primary;
         }
     }
+}
 
-    // -----------------------------------------------------------------------
-    // CTA button in header (legacy class)
-    // -----------------------------------------------------------------------
+// --------------------------------------------------------------------------
+// Mobile navigation
+// --------------------------------------------------------------------------
 
-    .btn-brand {
-        padding: 0.5rem 1.25rem;
-        font-size: $font-size-sm;
+@media (max-width: 991.98px) {
+    .site-header {
+        .navbar-brand img {
+            height: 36px;
+        }
+
+        .navbar-collapse {
+            padding-top: 1rem;
+            margin-top: 0.75rem;
+            border-top: 1px solid $pale-sage;
+        }
+
+        .navbar-nav {
+            gap: 0;
+        }
+
+        .nav-link {
+            padding: 0.7rem 0;
+            font-size: 1rem;
+
+            &::before {
+                right: auto;
+                left: 0;
+                width: 1.5rem;
+            }
+        }
+
+        .header-actions {
+            margin: 0.75rem 0 0;
+        }
+
+        .btn-cta {
+            width: 100%;
+        }
     }
 }

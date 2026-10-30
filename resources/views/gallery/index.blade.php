@@ -12,7 +12,8 @@
 @section('content')
 <section class="py-5">
     <div class="container">
-        <header class="mb-5">
+        <header class="page-header">
+            <span class="eyebrow">Gallery</span>
             <h1>Gallery</h1>
             <p class="lead text-muted">Browse our collection of photos from events and more.</p>
         </header>
