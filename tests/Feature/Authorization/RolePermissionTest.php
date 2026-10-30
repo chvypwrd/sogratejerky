@@ -39,7 +39,7 @@ class RolePermissionTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
 
         $this->assertEquals(3, Role::count());
-        $this->assertEquals(44, Permission::count());
+        $this->assertEquals(36, Permission::count());
     }
 
     public function test_super_admin_receives_all_permissions(): void
@@ -84,7 +84,7 @@ class RolePermissionTest extends TestCase
         $this->assertTrue($role->hasPermissionTo('dashboard.view'));
         $this->assertTrue($role->hasPermissionTo('pages.view'));
         $this->assertTrue($role->hasPermissionTo('pages.create'));
-        $this->assertTrue($role->hasPermissionTo('classes.view'));
+        $this->assertTrue($role->hasPermissionTo('galleries.view'));
         $this->assertTrue($role->hasPermissionTo('media.upload'));
     }
 

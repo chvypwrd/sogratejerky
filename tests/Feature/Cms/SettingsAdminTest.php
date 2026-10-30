@@ -9,6 +9,7 @@ use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\SettingsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class SettingsAdminTest extends TestCase
@@ -190,6 +191,23 @@ class SettingsAdminTest extends TestCase
         Cache::flush();
         $updated = $service->get('general.site_name');
         $this->assertEquals('Updated Name', $updated);
+    }
+
+    public function test_populate_creates_generic_sample_content(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Administrator');
+
+        $this->actingAs($user)->post(route('admin.settings.populate'))
+            ->assertRedirect(route('admin.settings.index'));
+
+        $this->assertDatabaseHas('pages', ['slug' => 'about-us']);
+        $this->assertDatabaseHas('pages', ['slug' => 'our-jerky']);
+        $this->assertDatabaseHas('galleries', ['slug' => 'made-in-texas']);
+        $this->assertDatabaseCount('testimonials', 6);
+        $this->assertDatabaseCount('faqs', 6);
+        $this->assertFalse(Schema::hasTable('class_offerings'));
+        $this->assertFalse(Schema::hasTable('instructors'));
     }
 
     public function test_seeder_idempotent(): void

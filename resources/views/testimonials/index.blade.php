@@ -7,7 +7,7 @@
     <div class="container">
         <div class="section-title" data-aos="fade-up">
             <h1>What Our Students Say</h1>
-            <p>Real experiences from our kickboxing community</p>
+            <p>Real experiences from our customers</p>
         </div>
 
         @if($testimonials->isEmpty())

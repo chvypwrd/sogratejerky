@@ -29,7 +29,7 @@ class FaqThemeTest extends TestCase
     {
         $faq = Faq::factory()
             ->active()
-            ->create(['question' => 'What time are classes?']);
+            ->create(['question' => 'What are your hours?']);
 
         $response = $this->get(route('faq.index'));
 

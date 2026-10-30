@@ -20,8 +20,6 @@ class MenuItem extends Model
         'slug',
         'type',
         'page_id',
-        'class_offering_id',
-        'instructor_id',
         'gallery_id',
         'url',
         'target',
@@ -68,16 +66,6 @@ class MenuItem extends Model
     public function page(): BelongsTo
     {
         return $this->belongsTo(Page::class);
-    }
-
-    public function classOffering(): BelongsTo
-    {
-        return $this->belongsTo(ClassOffering::class);
-    }
-
-    public function instructor(): BelongsTo
-    {
-        return $this->belongsTo(Instructor::class);
     }
 
     public function gallery(): BelongsTo

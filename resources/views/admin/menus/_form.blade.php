@@ -19,8 +19,6 @@
     <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required>
         <option value="custom" {{ old('type', $menuItem->type ?? 'custom') === 'custom' ? 'selected' : '' }}>Custom URL</option>
         <option value="page" {{ old('type', $menuItem->type ?? '') === 'page' ? 'selected' : '' }}>Page</option>
-        <option value="class" {{ old('type', $menuItem->type ?? '') === 'class' ? 'selected' : '' }}>Class</option>
-        <option value="instructor" {{ old('type', $menuItem->type ?? '') === 'instructor' ? 'selected' : '' }}>Instructor</option>
         <option value="gallery" {{ old('type', $menuItem->type ?? '') === 'gallery' ? 'selected' : '' }}>Gallery</option>
         <option value="home" {{ old('type', $menuItem->type ?? '') === 'home' ? 'selected' : '' }}>Home</option>
     </select>

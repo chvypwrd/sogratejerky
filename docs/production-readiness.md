@@ -125,7 +125,7 @@ mysqldump -u username -p database_name > backup_$(date +%Y%m%d).sql
 ### Media/Uploads Backup
 Back up the `storage/app/public` directory (symlinked to `public/storage`).
 
-This includes all gallery photos (stored under the `photos` media collection for each gallery), featured images for classes, instructors, pages, and any other uploaded media. Ensure the entire `media` table in the database is included in database backups, as Spatie Media Library tracks file metadata there.
+This includes all gallery photos (stored under the `photos` media collection for each gallery), featured images for pages and any other uploaded media. Ensure the entire `media` table in the database is included in database backups, as Spatie Media Library tracks file metadata there.
 
 ### Recommended Frequency
 - Database: Daily (minimum), hourly for high-traffic sites

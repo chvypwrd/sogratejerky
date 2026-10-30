@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Seo;
 
-use App\Models\ClassOffering;
-use App\Models\Instructor;
 use App\Models\Page;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -66,35 +64,5 @@ class SeoMetaRegressionTest extends TestCase
         $response->assertOk();
         $response->assertSee('<title>', false);
         $response->assertSee('SEO Regression Page Title', false);
-    }
-
-    public function test_class_has_correct_title_fallback(): void
-    {
-        $class = ClassOffering::factory()->active()->create([
-            'slug' => 'seo-regression-class',
-            'meta_title' => null,
-            'title' => 'SEO Regression Class Title',
-        ]);
-
-        $response = $this->get(route('classes.show', 'seo-regression-class'));
-
-        $response->assertOk();
-        $response->assertSee('<title>', false);
-        $response->assertSee('SEO Regression Class Title', false);
-    }
-
-    public function test_instructor_has_correct_title_fallback(): void
-    {
-        $instructor = Instructor::factory()->active()->create([
-            'slug' => 'seo-regression-instructor',
-            'meta_title' => null,
-            'name' => 'SEO Regression Instructor Name',
-        ]);
-
-        $response = $this->get(route('instructors.show', 'seo-regression-instructor'));
-
-        $response->assertOk();
-        $response->assertSee('<title>', false);
-        $response->assertSee('SEO Regression Instructor Name', false);
     }
 }

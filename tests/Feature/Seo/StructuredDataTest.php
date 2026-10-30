@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Seo;
 
-use App\Models\ClassOffering;
-use App\Models\Instructor;
 use App\Models\Setting;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -181,75 +179,5 @@ class StructuredDataTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('application/ld+json', false);
-    }
-
-    public function test_class_detail_page_has_breadcrumb_list(): void
-    {
-        $class = ClassOffering::factory()->active()->create([
-            'slug' => 'test-breadcrumb-class',
-        ]);
-
-        $response = $this->get(route('classes.show', 'test-breadcrumb-class'));
-
-        $response->assertOk();
-
-        $content = $response->getContent();
-
-        preg_match_all('/<script type="application\/ld\+json">(.+?)<\/script>/s', $content, $matches);
-
-        $foundBreadcrumb = false;
-
-        foreach ($matches[1] as $jsonString) {
-            $data = json_decode($jsonString, true);
-            if ($data && isset($data['@type']) && $data['@type'] === 'BreadcrumbList') {
-                $foundBreadcrumb = true;
-                break;
-            }
-            if ($data && isset($data['@graph'])) {
-                foreach ($data['@graph'] as $item) {
-                    if (isset($item['@type']) && $item['@type'] === 'BreadcrumbList') {
-                        $foundBreadcrumb = true;
-                        break 2;
-                    }
-                }
-            }
-        }
-
-        $this->assertTrue($foundBreadcrumb, 'Class detail page should have BreadcrumbList structured data');
-    }
-
-    public function test_instructor_detail_page_has_breadcrumb_list(): void
-    {
-        $instructor = Instructor::factory()->active()->create([
-            'slug' => 'test-breadcrumb-instructor',
-        ]);
-
-        $response = $this->get(route('instructors.show', 'test-breadcrumb-instructor'));
-
-        $response->assertOk();
-
-        $content = $response->getContent();
-
-        preg_match_all('/<script type="application\/ld\+json">(.+?)<\/script>/s', $content, $matches);
-
-        $foundBreadcrumb = false;
-
-        foreach ($matches[1] as $jsonString) {
-            $data = json_decode($jsonString, true);
-            if ($data && isset($data['@type']) && $data['@type'] === 'BreadcrumbList') {
-                $foundBreadcrumb = true;
-                break;
-            }
-            if ($data && isset($data['@graph'])) {
-                foreach ($data['@graph'] as $item) {
-                    if (isset($item['@type']) && $item['@type'] === 'BreadcrumbList') {
-                        $foundBreadcrumb = true;
-                        break 2;
-                    }
-                }
-            }
-        }
-
-        $this->assertTrue($foundBreadcrumb, 'Instructor detail page should have BreadcrumbList structured data');
     }
 }

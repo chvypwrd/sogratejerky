@@ -47,12 +47,12 @@ class FaqCrudTest extends TestCase
 
         Faq::factory()->create([
             'created_by' => $user->id,
-            'question' => 'What are your class hours?',
+            'question' => 'How should I store my jerky?',
         ]);
 
         $this->actingAs($user)->get(route('admin.faqs.index'))
             ->assertOk()
-            ->assertSee('What are your class hours?');
+            ->assertSee('How should I store my jerky?');
     }
 
     public function test_user_with_faqs_create_can_access_create_form(): void
@@ -70,14 +70,14 @@ class FaqCrudTest extends TestCase
         $user->assignRole('Administrator');
 
         $this->actingAs($user)->post(route('admin.faqs.store'), [
-            'question' => 'Do you offer beginner classes?',
-            'answer' => '<p>Yes, we have beginner classes.</p>',
-            'category' => 'Classes',
+            'question' => 'Do you offer gift bundles?',
+            'answer' => '<p>Yes, gift bundles are available.</p>',
+            'category' => 'Gifts',
         ])->assertRedirect();
 
         $this->assertDatabaseHas('faqs', [
-            'question' => 'Do you offer beginner classes?',
-            'category' => 'Classes',
+            'question' => 'Do you offer gift bundles?',
+            'category' => 'Gifts',
         ]);
     }
 

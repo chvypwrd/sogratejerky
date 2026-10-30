@@ -18,11 +18,9 @@ class UpdateMenuItemRequest extends FormRequest
 
         return [
             'label' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'in:page,class,instructor,gallery,home,custom'],
+            'type' => ['required', 'in:page,gallery,home,custom'],
             'parent_id' => ['nullable', 'integer', 'exists:menu_items,id'],
             'page_id' => ['nullable', 'exists:pages,id'],
-            'class_offering_id' => ['nullable', 'exists:class_offerings,id'],
-            'instructor_id' => ['nullable', 'exists:instructors,id'],
             'gallery_id' => ['nullable', 'exists:galleries,id'],
             'url' => ['nullable', 'required_if:type,custom', 'string', 'max:2048'],
             'target' => ['nullable', 'in:_self,_blank'],

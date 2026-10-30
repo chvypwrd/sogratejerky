@@ -5,10 +5,6 @@
         <small class="text-muted ms-2">
             @if($item['type'] === 'page')
                 Page
-            @elseif($item['type'] === 'class')
-                Class
-            @elseif($item['type'] === 'instructor')
-                Instructor
             @elseif($item['type'] === 'gallery')
                 Gallery
             @elseif($item['type'] === 'home')

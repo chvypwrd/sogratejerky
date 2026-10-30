@@ -86,16 +86,16 @@ class RouteTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
-    public function test_classes_route_works(): void
+    public function test_classes_route_is_removed(): void
     {
         $this->get('/classes')
-            ->assertOk();
+            ->assertNotFound();
     }
 
-    public function test_instructors_route_works(): void
+    public function test_instructors_route_is_removed(): void
     {
         $this->get('/instructors')
-            ->assertOk();
+            ->assertNotFound();
     }
 
     public function test_faq_route_works(): void

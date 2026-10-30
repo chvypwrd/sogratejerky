@@ -82,20 +82,6 @@
                         Pages
                     </a>
                 </li>
-                @can('classes.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.classes.*') ? 'active' : '' }}" href="{{ route('admin.classes.index') }}">
-                        Classes
-                    </a>
-                </li>
-                @endcan
-                @can('instructors.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.instructors.*') ? 'active' : '' }}" href="{{ route('admin.instructors.index') }}">
-                        Instructors
-                    </a>
-                </li>
-                @endcan
                 @can('testimonials.view')
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}" href="{{ route('admin.testimonials.index') }}">

@@ -37,7 +37,7 @@ class ContactFormTest extends TestCase
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'subject' => 'Inquiry',
-            'message' => 'I would like to know more about your classes.',
+            'message' => 'I would like to know more about your jerky.',
         ];
 
         $response = $this->post(route('contact.store'), $data);
@@ -47,7 +47,7 @@ class ContactFormTest extends TestCase
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'subject' => 'Inquiry',
-            'message' => 'I would like to know more about your classes.',
+            'message' => 'I would like to know more about your jerky.',
             'status' => 'new',
         ]);
     }

@@ -3,9 +3,7 @@
 namespace App\Services;
 
 use App\Enums\MenuLocation;
-use App\Models\ClassOffering;
 use App\Models\Gallery;
-use App\Models\Instructor;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
@@ -109,12 +107,6 @@ class MenuService
             'page' => isset($item->page_id) && $item->page_id
                 ? (Page::find($item->page_id)?->slug ? route('pages.show', Page::find($item->page_id)->slug) : ($item->url ?? '/'))
                 : ($item->url ?? '/'),
-            'class' => isset($item->class_offering_id) && $item->class_offering_id
-                ? (ClassOffering::find($item->class_offering_id)?->slug ? route('classes.show', ClassOffering::find($item->class_offering_id)->slug) : ($item->url ?? '/'))
-                : ($item->url ?? '/'),
-            'instructor' => isset($item->instructor_id) && $item->instructor_id
-                ? (Instructor::find($item->instructor_id)?->slug ? route('instructors.show', Instructor::find($item->instructor_id)->slug) : ($item->url ?? '/'))
-                : ($item->url ?? '/'),
             'gallery' => isset($item->gallery_id) && $item->gallery_id
                 ? (Gallery::find($item->gallery_id)?->slug ? route('gallery.show', Gallery::find($item->gallery_id)->slug) : ($item->url ?? '/'))
                 : ($item->url ?? '/'),
@@ -132,12 +124,6 @@ class MenuService
         return match ($item->type) {
             'page' => isset($item->page_id) && $item->page_id
                 ? (Page::find($item->page_id)?->isPublished() ?? false)
-                : true,
-            'class' => isset($item->class_offering_id) && $item->class_offering_id
-                ? (ClassOffering::find($item->class_offering_id)?->active ?? false)
-                : true,
-            'instructor' => isset($item->instructor_id) && $item->instructor_id
-                ? (Instructor::find($item->instructor_id)?->active ?? false)
                 : true,
             'gallery' => isset($item->gallery_id) && $item->gallery_id
                 ? (Gallery::find($item->gallery_id)?->active ?? false)

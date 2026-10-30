@@ -15,8 +15,6 @@ return new class extends Migration
             $table->string('label', 255);
             $table->string('type')->default('custom');
             $table->foreignId('page_id')->nullable()->constrained('pages')->nullOnDelete();
-            $table->foreignId('class_offering_id')->nullable()->constrained('class_offerings')->nullOnDelete();
-            $table->foreignId('instructor_id')->nullable()->constrained('instructors')->nullOnDelete();
             $table->string('url', 2048)->nullable();
             $table->string('target')->default('_self');
             $table->integer('sort_order')->default(0);

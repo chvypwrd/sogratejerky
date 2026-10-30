@@ -69,8 +69,6 @@ class ContactRouteTest extends TestCase
     public function test_all_existing_public_routes_unaffected(): void
     {
         $this->get('/')->assertOk();
-        $this->get('/classes')->assertOk();
-        $this->get('/instructors')->assertOk();
         $this->get('/faq')->assertOk();
         $this->get('/contact')->assertOk();
     }

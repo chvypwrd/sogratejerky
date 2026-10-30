@@ -14,7 +14,7 @@
     <div class="container">
         <header class="mb-5">
             <h1>Frequently Asked Questions</h1>
-            <p class="lead text-muted">Find answers to common questions about our programs and classes.</p>
+            <p class="lead text-muted">Find answers to common questions.</p>
         </header>
 
         @if($faqs->count() > 0)

@@ -14,7 +14,7 @@
     <div class="container">
         <header class="mb-5">
             <h1>Gallery</h1>
-            <p class="lead text-muted">Browse our collection of photos from classes, events, and more.</p>
+            <p class="lead text-muted">Browse our collection of photos from events and more.</p>
         </header>
 
         @if($galleries->count() > 0)

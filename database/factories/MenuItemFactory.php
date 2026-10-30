@@ -23,8 +23,6 @@ class MenuItemFactory extends Factory
             'label' => \Faker\Factory::create()->words(2, true),
             'type' => MenuItemType::Custom,
             'page_id' => null,
-            'class_offering_id' => null,
-            'instructor_id' => null,
             'url' => '/'.\Faker\Factory::create()->slug(),
             'target' => MenuTarget::Self,
             'sort_order' => 0,

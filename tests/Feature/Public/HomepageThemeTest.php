@@ -2,9 +2,7 @@
 
 namespace Tests\Feature\Public;
 
-use App\Models\ClassOffering;
 use App\Models\Faq;
-use App\Models\Instructor;
 use App\Models\Testimonial;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,83 +33,11 @@ class HomepageThemeTest extends TestCase
         $response->assertSee('Texas Made. Seriously Good Jerky.');
     }
 
-    public function test_beginner_headline_present(): void
-    {
-        $response = $this->get(route('home'));
-
-        $response->assertSee('Never Tried Kickboxing?');
-    }
-
-    public function test_classes_cta_links_to_classes_index(): void
-    {
-        $response = $this->get(route('home'));
-
-        $response->assertSee(route('classes.index'));
-    }
-
     public function test_contact_cta_links_to_contact_show(): void
     {
         $response = $this->get(route('home'));
 
         $response->assertSee(route('contact.show'));
-    }
-
-    public function test_active_featured_class_shown_on_homepage(): void
-    {
-        $class = ClassOffering::factory()
-            ->active()
-            ->featured()
-            ->create(['title' => 'Featured Boxing 101']);
-
-        $response = $this->get(route('home'));
-
-        $response->assertSee($class->title);
-    }
-
-    public function test_inactive_class_not_shown(): void
-    {
-        $class = ClassOffering::factory()
-            ->inactive()
-            ->create(['title' => 'Hidden Class']);
-
-        $response = $this->get(route('home'));
-
-        $response->assertDontSee($class->title);
-    }
-
-    public function test_trashed_class_not_shown(): void
-    {
-        $class = ClassOffering::factory()
-            ->active()
-            ->create(['title' => 'Trashed Class']);
-
-        $class->delete();
-
-        $response = $this->get(route('home'));
-
-        $response->assertDontSee('Trashed Class');
-    }
-
-    public function test_active_instructor_shown(): void
-    {
-        $instructor = Instructor::factory()
-            ->active()
-            ->create(['name' => 'Jane Coach']);
-
-        $response = $this->get(route('home'));
-
-        $response->assertSee($instructor->name);
-    }
-
-    public function test_inactive_instructor_not_shown(): void
-    {
-        $instructor = Instructor::factory()
-            ->inactive()
-            ->create(['name' => 'Hidden Instructor']);
-
-        $response = $this->get(route('home'));
-
-        $response->assertDontSee($instructor->name);
     }
 
     public function test_active_featured_testimonial_shown(): void
@@ -158,7 +84,7 @@ class HomepageThemeTest extends TestCase
     {
         $faq = Faq::factory()
             ->active()
-            ->create(['question' => 'What are the class hours?']);
+            ->create(['question' => 'How should I store my jerky?']);
 
         $response = $this->get(route('home'));
 

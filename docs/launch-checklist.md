@@ -18,7 +18,7 @@ Use this checklist before and after production deployment.
 - [ ] Database backup plan documented
 - [ ] SMTP/mail credentials ready
 - [ ] Branding assets uploaded (logo, favicon, social image)
-- [ ] Content reviewed (Pages, Classes, Instructors, Testimonials, FAQs, Galleries)
+- [ ] Content reviewed (Pages, Testimonials, FAQs, Galleries)
 
 ---
 
@@ -41,8 +41,6 @@ Use this checklist before and after production deployment.
 - [ ] Run production check (`php artisan app:production-check`)
 - [ ] Verify health endpoint (`GET /up` → 200)
 - [ ] Test homepage
-- [ ] Test /classes, one Class detail
-- [ ] Test /instructors, one Instructor detail
 - [ ] Test /faq
 - [ ] Test /contact (submit test message)
 - [ ] Test /gallery, one Gallery detail
@@ -51,7 +49,7 @@ Use this checklist before and after production deployment.
 - [ ] Test /robots.txt (allows crawling)
 - [ ] Test /admin/login
 - [ ] Test admin dashboard
-- [ ] Test admin Pages, Classes, Instructors, Testimonials, FAQs, Galleries, Menus, Settings, Redirects, Contact inbox, Security
+- [ ] Test admin Pages, Testimonials, FAQs, Galleries, Menus, Settings, Redirects, Contact inbox, Security
 - [ ] Verify media assets (logo, favicon, images, Gallery thumbnails)
 - [ ] Verify Contact email notification delivered
 - [ ] Verify 404 page renders safely
@@ -73,8 +71,6 @@ Use this checklist before and after production deployment.
 - [ ] Google verification token configured (if applicable)
 - [ ] Homepage content reviewed
 - [ ] Pages populated
-- [ ] Classes populated
-- [ ] Instructors populated
 - [ ] Testimonials populated
 - [ ] FAQs populated
 - [ ] Galleries populated
@@ -196,7 +192,7 @@ One-time sequence for first launch:
 6. Enable TOTP 2FA for admin
 7. Configure site settings
 8. Upload branding (logo, favicon, social image)
-9. Populate content (Pages, Classes, Instructors, FAQs, Galleries)
+9. Populate content (Pages, FAQs, Galleries)
 10. Configure menu navigation
 11. Run optimization (`php artisan optimize`)
 12. Create initial backup

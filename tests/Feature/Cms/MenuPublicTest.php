@@ -3,7 +3,6 @@
 namespace Tests\Feature\Cms;
 
 use App\Enums\MenuLocation;
-use App\Models\ClassOffering;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
@@ -48,7 +47,7 @@ class MenuPublicTest extends TestCase
     {
         $this->createMenuWithItems(MenuLocation::Primary, [
             ['label' => 'Home', 'url' => '/', 'sort_order' => 0],
-            ['label' => 'Classes', 'url' => '/classes', 'sort_order' => 1],
+            ['label' => 'Galleries', 'url' => '/galleries', 'sort_order' => 1],
         ]);
 
         $service = app(MenuService::class);
@@ -56,7 +55,7 @@ class MenuPublicTest extends TestCase
 
         $this->assertNotEmpty($rendered);
         $this->assertStringContainsString('Home', $rendered);
-        $this->assertStringContainsString('Classes', $rendered);
+        $this->assertStringContainsString('Galleries', $rendered);
     }
 
     public function test_footer_menu_renders(): void
@@ -127,30 +126,6 @@ class MenuPublicTest extends TestCase
 
         $this->assertStringContainsString('Visible Item', $rendered);
         $this->assertStringNotContainsString('Hidden Item', $rendered);
-    }
-
-    public function test_unavailable_content_hidden_with_inactive_class(): void
-    {
-        $menu = Menu::create([
-            'name' => 'Primary Nav',
-            'location' => MenuLocation::Primary->value,
-        ]);
-
-        $class = ClassOffering::factory()->inactive()->create(['slug' => 'inactive-class']);
-
-        $item = MenuItem::create([
-            'menu_id' => $menu->id,
-            'label' => 'Inactive Class',
-            'type' => 'class',
-            'class_offering_id' => $class->id,
-            'sort_order' => 0,
-            'enabled' => true,
-            'parent_id' => null,
-            'target' => '_self',
-        ]);
-
-        $service = app(MenuService::class);
-        $this->assertFalse($service->isContentAvailable($item));
     }
 
     public function test_unavailable_content_hidden_with_deleted_page(): void

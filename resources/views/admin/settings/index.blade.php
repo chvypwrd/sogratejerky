@@ -8,7 +8,7 @@
     @if(!app()->isProduction())
         <div class="d-flex gap-2">
             <form action="{{ route('admin.settings.populate') }}" method="POST"
-                  onsubmit="return confirm('This will create sample pages, classes, instructors, galleries, testimonials, and FAQs. Continue?')">
+                  onsubmit="return confirm('This will create sample pages, galleries, testimonials, and FAQs. Continue?')">
                 @csrf
                 <button type="submit" class="btn btn-outline-warning btn-sm">Populate Sample Content</button>
             </form>

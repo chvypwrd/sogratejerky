@@ -19,30 +19,34 @@ class RouteIsolationTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
     }
 
-    public function test_classes_does_not_resolve_as_page(): void
+    public function test_classes_slug_can_resolve_as_page(): void
     {
         Page::factory()->create([
             'slug' => 'classes',
+            'title' => 'Classes Page',
+            'body' => '<p>This is a page about classes</p>',
             'status' => 'published',
             'published_at' => now(),
         ]);
 
         $response = $this->get('/classes');
         $response->assertOk();
-        $response->assertSee('Our Classes');
+        $response->assertSee('This is a page about classes');
     }
 
-    public function test_instructors_does_not_resolve_as_page(): void
+    public function test_instructors_slug_can_resolve_as_page(): void
     {
         Page::factory()->create([
             'slug' => 'instructors',
+            'title' => 'Instructors Page',
+            'body' => '<p>This is a page about instructors</p>',
             'status' => 'published',
             'published_at' => now(),
         ]);
 
         $response = $this->get('/instructors');
         $response->assertOk();
-        $response->assertSee('Our Instructors');
+        $response->assertSee('This is a page about instructors');
     }
 
     public function test_faq_does_not_resolve_as_page(): void
@@ -71,22 +75,6 @@ class RouteIsolationTest extends TestCase
         $this->get('/about')
             ->assertOk()
             ->assertSee('About Us');
-    }
-
-    public function test_admin_classes_works(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('Editor');
-
-        $this->actingAs($user)->get(route('admin.classes.index'))->assertOk();
-    }
-
-    public function test_admin_instructors_works(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('Editor');
-
-        $this->actingAs($user)->get(route('admin.instructors.index'))->assertOk();
     }
 
     public function test_admin_testimonials_works(): void
@@ -118,21 +106,6 @@ class RouteIsolationTest extends TestCase
         $response = $this->get('/gallery');
         $response->assertOk();
         $response->assertDontSee('This is a page about galleries');
-    }
-
-    public function test_instructor_slug_does_not_resolve_as_page(): void
-    {
-        Page::factory()->create([
-            'slug' => 'instructors',
-            'title' => 'Instructors Page',
-            'body' => '<p>This is a page about instructors</p>',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
-
-        $response = $this->get('/instructors');
-        $response->assertOk();
-        $response->assertDontSee('This is a page about instructors');
     }
 
     public function test_gallery_route_is_before_catch_all(): void

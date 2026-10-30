@@ -1,11 +1,9 @@
 <?php
 
-use App\Http\Controllers\Admin\ClassOfferingController as AdminClassOfferingController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\GalleryController;
-use App\Http\Controllers\Admin\InstructorController as AdminInstructorController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\PageController;
@@ -13,11 +11,9 @@ use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
-use App\Http\Controllers\ClassOfferingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\PublicGalleryController;
 use App\Http\Controllers\PublicPageController;
@@ -67,15 +63,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     Route::post('/pages/{page}/publish', [PageController::class, 'publish'])->name('pages.publish');
     Route::post('/pages/{page}/unpublish', [PageController::class, 'unpublish'])->name('pages.unpublish');
 
-    Route::get('/classes', [AdminClassOfferingController::class, 'index'])->name('classes.index')->middleware('can:classes.view');
-    Route::get('/classes/create', [AdminClassOfferingController::class, 'create'])->name('classes.create')->middleware('can:classes.create');
-    Route::post('/classes', [AdminClassOfferingController::class, 'store'])->name('classes.store')->middleware('can:classes.create');
-    Route::get('/classes/{class}/edit', [AdminClassOfferingController::class, 'edit'])->name('classes.edit');
-    Route::put('/classes/{class}', [AdminClassOfferingController::class, 'update'])->name('classes.update');
-    Route::delete('/classes/{class}', [AdminClassOfferingController::class, 'destroy'])->name('classes.destroy');
-    Route::post('/classes/{class}/restore', [AdminClassOfferingController::class, 'restore'])->name('classes.restore')->withTrashed();
-    Route::delete('/classes/{class}/force-delete', [AdminClassOfferingController::class, 'forceDelete'])->name('classes.force-delete')->withTrashed();
-
     Route::get('/galleries', [GalleryController::class, 'index'])->name('galleries.index')->middleware('can:galleries.view');
     Route::get('/galleries/create', [GalleryController::class, 'create'])->name('galleries.create')->middleware('can:galleries.create');
     Route::post('/galleries', [GalleryController::class, 'store'])->name('galleries.store')->middleware('can:galleries.create');
@@ -85,15 +72,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     Route::post('/galleries/{gallery}/restore', [GalleryController::class, 'restore'])->name('galleries.restore')->withTrashed();
     Route::delete('/galleries/{gallery}/force-delete', [GalleryController::class, 'forceDelete'])->name('galleries.force-delete')->withTrashed();
     Route::patch('/galleries/{gallery}/reorder', [GalleryController::class, 'reorder'])->name('galleries.reorder');
-
-    Route::get('/instructors', [AdminInstructorController::class, 'index'])->name('instructors.index')->middleware('can:instructors.view');
-    Route::get('/instructors/create', [AdminInstructorController::class, 'create'])->name('instructors.create')->middleware('can:instructors.create');
-    Route::post('/instructors', [AdminInstructorController::class, 'store'])->name('instructors.store')->middleware('can:instructors.create');
-    Route::get('/instructors/{instructor}/edit', [AdminInstructorController::class, 'edit'])->name('instructors.edit');
-    Route::put('/instructors/{instructor}', [AdminInstructorController::class, 'update'])->name('instructors.update');
-    Route::delete('/instructors/{instructor}', [AdminInstructorController::class, 'destroy'])->name('instructors.destroy');
-    Route::post('/instructors/{instructor}/restore', [AdminInstructorController::class, 'restore'])->name('instructors.restore')->withTrashed();
-    Route::delete('/instructors/{instructor}/force-delete', [AdminInstructorController::class, 'forceDelete'])->name('instructors.force-delete')->withTrashed();
 
     Route::get('/testimonials', [AdminTestimonialController::class, 'index'])->name('testimonials.index')->middleware('can:testimonials.view');
     Route::get('/testimonials/create', [AdminTestimonialController::class, 'create'])->name('testimonials.create')->middleware('can:testimonials.create');
@@ -129,10 +107,6 @@ Route::get('/admin/preview/{page}', [PreviewController::class, 'show'])
     ->name('pages.preview')
     ->middleware(['signed', 'auth']);
 
-Route::get('/classes', [ClassOfferingController::class, 'index'])->name('classes.index');
-Route::get('/classes/{classOffering:slug}', [ClassOfferingController::class, 'show'])->name('classes.show');
-Route::get('/instructors', [InstructorController::class, 'index'])->name('instructors.index');
-Route::get('/instructors/{instructor:slug}', [InstructorController::class, 'show'])->name('instructors.show');
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/faqs', [FaqController::class, 'index'])->name('faqs.index');
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
@@ -148,4 +122,4 @@ Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('gallery
 Route::get('/gallery/{gallery:slug}', [PublicGalleryController::class, 'show'])->name('gallery.show');
 
 Route::get('/{slug}', PublicPageController::class)->name('pages.show')
-    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|classes$|instructors$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');
+    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');
