@@ -1,0 +1,194 @@
+// ==========================================================================
+// Header / Navigation
+// ==========================================================================
+
+.site-header {
+    padding: 0.75rem 0;
+    background-color: $white;
+    border-bottom: 1px solid rgba($dark, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    transition: all 0.4s ease;
+
+    &.scrolled {
+        padding: 0.5rem 0;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        border-bottom-color: transparent;
+    }
+
+    // -----------------------------------------------------------------------
+    // Logo / Brand
+    // -----------------------------------------------------------------------
+
+    .navbar-brand {
+        font-family: $font-family-headings;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: $brand-primary;
+        text-decoration: none;
+        line-height: 1.2;
+        padding: 0.25rem 0;
+
+        &:hover {
+            color: darken($brand-primary, 10%);
+            text-decoration: none;
+        }
+
+        img {
+            height: 85px;
+            width: auto;
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Nav links - Horizon style
+    // -----------------------------------------------------------------------
+
+    .nav-link {
+        color: $body-text;
+        padding: 8px 14px;
+        font-size: 1.25rem;
+        font-weight: 500;
+        text-decoration: none;
+        position: relative;
+        white-space: nowrap;
+        transition: color 0.3s ease;
+
+        // Underline animation
+        &::before {
+            content: "";
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 0;
+            height: 2px;
+            background-color: $brand-primary;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease-out;
+        }
+
+        &:hover,
+        &:focus {
+            color: $brand-primary;
+            text-decoration: none;
+
+            &::before {
+                transform: scaleX(1);
+            }
+        }
+
+        // Active state: filled pill with brand color
+        &.active {
+            color: $white;
+            background-color: $brand-primary;
+            box-shadow: 0 2px 8px rgba($brand-primary, 0.3);
+
+            &::before {
+                display: none;
+            }
+
+            &:hover {
+                color: $white;
+                background-color: darken($brand-primary, 6%);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // CTA button - pill style like Horizon
+    // -----------------------------------------------------------------------
+
+    .btn-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        margin-left: 24px;
+        border-radius: 50px;
+        background-color: $brand-primary;
+        color: $white;
+        font-family: $font-family-headings;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease-out;
+
+        &:hover {
+            transform: translateY(-2px);
+            background-color: darken($brand-primary, 6%);
+            color: $white;
+            text-decoration: none;
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Mobile toggler
+    // -----------------------------------------------------------------------
+
+    .navbar-toggler {
+        padding: 0.5rem;
+        border: 2px solid $border-color;
+        border-radius: $border-radius;
+        transition: $transition-base;
+
+        &:focus-visible {
+            outline: $focus-ring-width solid $focus-ring-color;
+            outline-offset: $focus-ring-offset;
+        }
+
+        &:hover {
+            border-color: $brand-primary;
+        }
+
+        .navbar-toggler-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%231F2937' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            background-size: 100% 100%;
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Dropdown
+    // -----------------------------------------------------------------------
+
+    .dropdown-menu {
+        border: 1px solid $border-color;
+        border-radius: $border-radius-lg;
+        box-shadow: 0 16px 40px rgba($dark, 0.1);
+        padding: 8px 0;
+        margin-top: 8px;
+        min-width: 208px;
+        background-color: $white;
+    }
+
+    .dropdown-item {
+        padding: 10px 20px;
+        font-weight: 400;
+        color: $body-text;
+        transition: $transition-base;
+
+        &:hover,
+        &:focus {
+            padding-left: 24px;
+            background-color: rgba($brand-primary, 0.06);
+            color: $brand-primary;
+        }
+
+        &.active {
+            background-color: $brand-primary;
+            color: $white;
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // CTA button in header (legacy class)
+    // -----------------------------------------------------------------------
+
+    .btn-brand {
+        padding: 0.5rem 1.25rem;
+        font-size: $font-size-sm;
+    }
+}

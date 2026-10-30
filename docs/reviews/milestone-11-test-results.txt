@@ -1,0 +1,775 @@
+﻿PHPUnit 12.5.33 by Sebastian Bergmann and contributors.
+Runtime: PHP 8.3.32
+Configuration: C:\xampp\htdocs\safeandsoundkickboxing\phpunit.xml
+Time: 04:52.158, Memory: 96.00 MB
+Admin No Index (Tests\Feature\Seo\AdminNoIndex)
+ Admin login page has x robots tag
+ Admin dashboard has x robots tag
+ Public homepage does not have x robots tag
+ Forgot password has x robots tag
+ Login has x robots tag
+Application (Tests\Feature\Application)
+ Application can boot
+ Application name is configured
+Authentication (Tests\Feature\Auth\Authentication)
+ Guest cannot access admin
+ Guest is redirected to admin login
+ Public homepage remains accessible
+ Administrator can see login form
+ Valid credentials authenticate
+ Valid login redirects to admin dashboard
+ Invalid password fails
+ Unknown email fails safely
+ Session is authenticated after valid login
+ Already authenticated admin does not see login form
+ Registration route does not exist
+ Registration post endpoint does not exist
+ Repeated failed login attempts trigger throttling
+Branding Admin (Tests\Feature\Cms\BrandingAdmin)
+ Guest blocked
+ Editor blocked
+ Administrator can upload logo
+ Logo accepted types
+ Svg logo rejected
+ Non image rejected
+ Logo alt text persists
+ Logo replacement works
+ Edit without upload preserves
+ Explicit removal works
+ Favicon upload works
+ Social image upload works
+ Public logo renders
+ Public favicon renders
+Canonical (Tests\Feature\Seo\Canonical)
+ Homepage has canonical url
+ Published page has canonical url
+ Class detail has canonical url
+ Instructor detail has canonical url
+ Faq page has canonical url
+ Contact page has canonical url
+ Explicit canonical url override works
+Classes Theme (Tests\Feature\Public\ClassesTheme)
+ Classes index returns 200
+ Active classes listed
+ Inactive classes hidden
+ Class card markup present
+ Class detail page returns 200
+ Missing image handled gracefully
+ Cta to contact present
+ Seo metadata present
+Class Offering Authorization (Tests\Feature\Cms\ClassOfferingAuthorization)
+ Super admin can access all routes
+ Administrator can manage classes
+ Editor can create edit but not delete
+ User without classes delete cannot trash
+ User without classes view gets 403
+Class Offering Crud (Tests\Feature\Cms\ClassOfferingCrud)
+ Guest cannot access admin
+ User without classes view gets 403
+ User with classes view can access index
+ Index displays class list
+ User with classes create can access create form
+ User can create class with valid data
+ Created by and updated by set correctly
+ Slug auto generated from title
+ Description sanitized on store
+ User can edit class
+ User can soft delete class
+ User can restore class
+ User can force delete class
+ Media upload works
+ Media validation rejects svg
+ Media replacement works
+ Alt text stored as custom property
+ Remove featured media works
+ Featured flag works
+ Active flag works
+ Sort order works
+ Mass assignment protection cannot set created by
+ Duplicate slug rejected
+Class Offering Public (Tests\Feature\Cms\ClassOfferingPublic)
+ Classes index returns 200
+ Active classes shown
+ Inactive classes hidden
+ Trashed classes hidden
+ Detail active returns 200
+ Detail inactive returns 404
+ Detail trashed returns 404
+ Ordering correct
+ Seo metadata present
+ Featured image rendered
+ Alt text rendered
+ Slug redirect resolves via service
+Contact Form (Tests\Feature\Contact\ContactForm)
+ Get contact returns 200 with form
+ Post contact with valid data creates contact message
+ Post contact with valid data sends notification
+ Post contact with valid data redirects with success
+ Post contact with invalid data returns validation errors
+ Post contact with missing name returns validation error
+ Post contact with invalid email returns validation error
+ Post contact with message too short returns validation error
+ Post contact with message too long returns validation error
+ Post contact stores ip address and user agent
+ Post contact does not allow status injection
+ Post contact does not allow read at injection
+ Post contact does not allow replied at injection
+ Xss payloads stored as plain text
+ Contact page displays settings when configured
+Contact Message Admin (Tests\Feature\Contact\ContactMessageAdmin)
+ Guest cannot access admin contact messages
+ Editor cannot access admin contact messages
+ Administrator can view index
+ Administrator can view detail
+ Viewing new message marks it read
+ Viewing read message does not downgrade status
+ Mark read action works
+ Mark unread action works
+ Mark replied action works
+ Archive action works
+ Spam action works
+ Restore to inbox action works
+ Delete action works
+ Editor cannot delete
+ Index filter inbox
+ Index filter new
+ Index filter read
+ Index filter replied
+ Index filter archived
+ Index filter spam
+ Index filter all
+ Search by name works
+ Search by email works
+ Search by subject works
+ Pagination works
+ Status badges render correctly
+Contact Notification (Tests\Feature\Contact\ContactNotification)
+ Accepted contact message triggers notification
+ Notification sent to notification email setting
+ Notification falls back to contact email
+ Notification contains message details
+ Visitor email used as reply to
+ Honeypot does not trigger notification
+ Duplicate does not trigger notification
+ Too fast does not trigger notification
+ Mail failure does not delete contact message
+Contact Route (Tests\Feature\Contact\ContactRoute)
+ Contact does not resolve as cms page
+ About still resolves as cms page
+ Post contact exists and accepts post
+ Admin contact messages works with auth and permission
+ Registration still absent
+ All existing public routes unaffected
+Contact Spam Guard (Tests\Feature\Contact\ContactSpamGuard)
+ Honeypot empty passes
+ Honeypot filled rejected no db record no notification
+ Honeypot rejection returns success like response
+ Minimum time form loaded then immediate submit rejected
+ Minimum time form loaded with delay accepted
+ Duplicate same content withinΣ║öσêåΘÆƒ rejected
+ Duplicate same content afterΣ║öσêåΘÆƒ accepted
+ Duplicate different message accepted
+ Rate limit five submissions from same ip succeed
+ Rate limit sixth submission throttled
+ Rate limit different ip gets independent allowance
+Contact Theme (Tests\Feature\Public\ContactTheme)
+ Contact page returns 200
+ Form present
+ Contact details display from settings
+ Labels present
+ Seo component present
+ Success message after submission
+Create Admin Command (Tests\Feature\Admin\CreateAdminCommand)
+ New user creation
+ Password hashing
+ Super admin role assignment
+ Duplicate email rejection
+ Weak password rejection
+ Password confirmation mismatch
+Csp (Tests\Feature\Production\Csp)
+ Homepage does not have csp header
+Error Page (Tests\Feature\Production\ErrorPage)
+ 404 page returns 404 status
+ 404 page contains heading
+ 404 page does not contain stack trace
+ 404 page contains navigation link
+ 503 page renders without database
+ 503 page contains brand name
+ 503 page does not contain database errors
+ 419 page renders safe message
+ 429 page renders generic message
+ 500 page renders generic message
+Example (Tests\Unit\Example)
+ That true is true
+Faq Crud (Tests\Feature\Cms\FaqCrud)
+ Guest cannot access admin
+ User without faqs view gets 403
+ User with faqs view can access index
+ Index displays faq list
+ User with faqs create can access create form
+ User can create faq with valid data
+ Created by and updated by set correctly
+ Answer sanitized on store
+ Category works
+ User can edit faq
+ User can soft delete faq
+ User can restore faq
+ User can force delete faq
+ Active flag works
+ Sort order works
+Faq Public (Tests\Feature\Cms\FaqPublic)
+ Faq index returns 200
+ Active faqs shown
+ Inactive faqs hidden
+ Trashed faqs hidden
+ Faqs grouped by category
+ Accordion ids unique
+ Seo present
+Faq Theme (Tests\Feature\Public\FaqTheme)
+ Faq index returns 200
+ Active faqs shown
+ Inactive faqs hidden
+ Category grouping present
+ Accordion ids unique
+ Answers sanitized
+ Link to home present
+Gallery Authorization (Tests\Feature\Gallery\GalleryAuthorization)
+ Super admin can access all gallery routes
+ Administrator can manage galleries
+ Editor can create edit but not delete
+ User without permission gets 403
+ Unauthenticated user redirected
+Gallery Crud (Tests\Feature\Gallery\GalleryCrud)
+ Guest cannot access admin galleries
+ User without galleries view gets 403
+ User with galleries view can access index
+ Index displays gallery list
+ User with galleries create can access create form
+ User can create gallery with valid data
+ Created by and updated by set correctly
+ User can edit gallery
+ User can soft delete gallery
+ User can restore gallery
+ User can force delete gallery
+ Slug auto generated from title
+ Duplicate slug rejected
+ Mass assignment protection cannot set created by
+ Inactive gallery works in admin
+Gallery Media (Tests\Feature\Gallery\GalleryMedia)
+ Jpeg accepted
+ Png accepted
+ Webp accepted
+ Svg rejected
+ Gif rejected
+ Non image rejected
+ Over size rejected
+ Excessive dimensions rejected
+ Multiple photos uploaded successfully
+ Alt text persists as custom property
+ Caption persists via update
+ Cover selection works
+ Photo removal works
+ Photo reorder works
+ Photo belonging to wrong gallery rejected
+ Force delete cleans media
+ Reorder rejects duplicate ids
+ Reorder rejects foreign media id
+ Reorder rejects wrong collection media
+ Cover unsets previous cover
+ Cover fallback after delete
+ Empty gallery cover returns null
+ Batch upload all or nothing
+Gallery Public (Tests\Feature\Gallery\GalleryPublic)
+ Gallery index returns 200
+ Active galleries shown
+ Inactive galleries hidden
+ Trashed galleries hidden
+ Correct sort order
+ Empty gallery index returns 200 with friendly message
+ Gallery detail returns 200 for active gallery
+ Gallery detail returns 404 for inactive gallery
+ Gallery detail returns 404 for trashed gallery
+ Photos ordered correctly
+ Captions escaped in output
+ Alt text escaped in output
+ Empty gallery detail returns 200
+Gallery Redirect (Tests\Feature\Gallery\GalleryRedirect)
+ Gallery slug change creates redirect
+ Old gallery url returns 301
+ New gallery url returns 200
+ Old gallery url not in sitemap
+ New gallery url in sitemap
+Gallery Seo (Tests\Feature\Gallery\GallerySeo)
+ Gallery detail has title
+ Gallery detail has canonical url
+ Gallery detail has og metadata
+ Gallery detail has breadcrumb json ld
+ Gallery included in sitemap
+ Inactive gallery excluded from sitemap
+Gallery Sitemap (Tests\Feature\Gallery\GallerySitemap)
+ Gallery index url in sitemap
+ Active gallery detail in sitemap
+ Inactive gallery excluded
+ Trashed gallery excluded
+ Noindex gallery excluded
+ Noindex follow gallery excluded from sitemap
+ Noindex nofollow gallery excluded from sitemap
+ Index follow gallery included in sitemap
+Google Verification (Tests\Feature\Seo\GoogleVerification)
+ Blank verification setting does not render meta
+ Configured token renders exact meta tag
+ Hostile token cannot inject html
+ Exactly one verification tag emitted
+Health (Tests\Feature\Production\Health)
+ Up endpoint returns 200
+ Up endpoint returns html or json
+ Up endpoint does not expose secrets
+ Up endpoint accessible without auth
+Homepage (Tests\Feature\Homepage)
+ Homepage returns success
+ Homepage contains site name
+ Homepage contains hero headline
+ Homepage uses layout
+ Homepage handles empty database gracefully
+Homepage Theme (Tests\Feature\Public\HomepageTheme)
+ Homepage returns 200
+ Hero headline present
+ Beginner headline present
+ Classes cta links to classes index
+ Contact cta links to contact show
+ Active featured class shown on homepage
+ Inactive class not shown
+ Trashed class not shown
+ Active instructor shown
+ Inactive instructor not shown
+ Active featured testimonial shown
+ Inactive testimonial not shown
+ Testimonial html escaped
+ Active faq shown in preview
+ Inactive faq not shown
+ Faq all link correct
+ Site setting name reflected
+ Graceful behavior with empty database
+ Main landmark present
+ Skip link present
+Html Sanitizer (Tests\Feature\Cms\HtmlSanitizer)
+ Safe html passes through
+ Script tags removed
+ Event handlers removed
+ Onerror handler removed
+ Empty string returns empty
+ Null returns empty
+ Allowed elements preserved
+ Disallowed elements removed
+ Disallowed attributes removed
+ Javascript url removed
+ Data url removed
+ Http url retained
+ Https url retained
+ Mailto url retained
+ Tel url retained
+ Link href preserved
+ Is allowed returns true for allowed elements
+ Is allowed returns false for disallowed elements
+Instructor Authorization (Tests\Feature\Cms\InstructorAuthorization)
+ Super admin can access all routes
+ Administrator can manage instructors
+ Editor can create edit but not delete
+ User without instructors delete cannot trash
+ User without instructors view gets 403
+Instructor Crud (Tests\Feature\Cms\InstructorCrud)
+ Guest cannot access admin
+ User without instructors view gets 403
+ User with instructors view can access index
+ Index displays instructor list
+ User with instructors create can access create form
+ User can create instructor with valid data
+ Created by and updated by set correctly
+ Slug auto generated from name
+ Bio sanitized on store
+ User can edit instructor
+ User can soft delete instructor
+ User can restore instructor
+ User can force delete instructor
+ Portrait media upload works
+ Media validation rejects svg
+ Portrait media replacement works
+ Alt text stored as custom property
+ Remove portrait media works
+ Active flag works
+ Sort order works
+ Mass assignment protection cannot set created by
+ Duplicate slug rejected
+Instructor Public (Tests\Feature\Cms\InstructorPublic)
+ Instructors index returns 200
+ Active instructors shown
+ Inactive instructors hidden
+ Trashed instructors hidden
+ Detail active returns 200
+ Detail inactive returns 404
+ Detail trashed returns 404
+ Ordering correct
+ Seo metadata present
+ Featured image rendered
+ Alt text rendered
+ Slug redirect resolves via service
+Instructors Theme (Tests\Feature\Public\InstructorsTheme)
+ Instructors index returns 200
+ Active instructors listed
+ Inactive instructors hidden
+ Instructor card markup present
+ Instructor detail returns 200
+ Portrait alt text present
+ Missing portrait handled gracefully
+ Bio sanitized
+ Contact cta present
+Menu Admin (Tests\Feature\Cms\MenuAdmin)
+ Guest redirected to login
+ User without menus view gets 403
+ Administrator can view menus
+ Editor cannot view menus
+ Can store custom menu item
+ Can store page menu item
+ Can update menu item
+ Can delete menu item
+ Can reorder menu items
+ Invalid menu type rejected
+ Unsafe custom url rejected
+ External url rejected
+ Self parent rejected
+ Cross menu parent rejected
+ Cycle prevention
+ Depth limit enforced
+ Parent with children cannot be deleted
+ Cache invalidated on item create
+ Cache invalidated on item update
+ Cache invalidated on item delete
+ Cache invalidated on reorder
+ Unauthorized reorder rejected
+Menu Public (Tests\Feature\Cms\MenuPublic)
+ Primary menu renders in header
+ Footer menu renders
+ Order correct
+ Disabled items hidden
+ Unavailable content hidden with inactive class
+ Unavailable content hidden with deleted page
+ Labels escaped
+ Blank target renders correctly
+ Missing menu fails gracefully
+Module Redirect (Tests\Feature\Cms\ModuleRedirect)
+ Class slug change creates redirect
+ Instructor slug change creates redirect
+ Redirect chain collapses for classes
+ Redirect chain collapses for instructors
+ Page redirects still work
+Page Authorization (Tests\Feature\Cms\PageAuthorization)
+ Super admin can access all routes
+ Administrator can manage pages
+ Editor can create edit but not delete
+ Editor authored page cannot be deleted by editor
+ User without pages update cannot update authored page
+ User without any role gets 403
+ Publish requires pages publish permission
+Page Crud (Tests\Feature\Cms\PageCrud)
+ Unauthenticated user redirected to login
+ User without pages view gets 403
+ User with pages view can access index
+ Pages index displays page list
+ User with pages create can access create form
+ User can create page with valid data
+ Created by and updated by set correctly on create
+ User can edit page
+ Updated by set on update
+ User can soft delete page
+ Slug auto generated from title
+ Body sanitized on store
+ Body sanitized on update
+ Featured media upload works
+ Media validation rejects svg
+ Media validation rejects over 5mb
+ Media validation rejects non image
+ Alt text stored as custom property
+ Remove featured media works
+ Edit without upload preserves existing media
+ New upload replaces existing media
+ Mass assignment protection cannot set created by
+ Status published auto sets published at if null
+Page Filter (Tests\Feature\Cms\PageFilter)
+ Default shows all non trashed
+ Filter draft shows only drafts
+ Filter published shows only published
+ Filter trash shows only trashed
+Page Media (Tests\Feature\Cms\PageMedia)
+ Jpeg accepted
+ Png accepted
+ Webp accepted
+ Svg rejected
+ Gif rejected
+ Non image rejected
+ Over 5mb rejected
+ Excessive dimensions rejected
+ Single file replacement edit without upload preserves
+ Single file replacement new upload replaces
+ Explicit removal
+ Alt text persists
+ Unauthorized media modification rejected
+ Force delete cleanup
+Page Preview (Tests\Feature\Cms\PagePreview)
+ Signed auth and authorized user succeeds
+ Guest with valid signed url rejected
+ Authenticated unauthorized user gets 403
+ Unsigned url fails
+ Tampered signature fails
+ Expired signature fails
+ Preview shows noindex nofollow
+ Preview does not canonicalize to token url
+Page Publication (Tests\Feature\Cms\PagePublication)
+ Draft page not visible publicly
+ Published page visible publicly
+ Future published at returns 404 until time
+ Publish sets status and published at
+ Unpublish clears status to draft
+ Is published checks both status and date
+ Published scope filters correctly
+ Publishing requires pages publish permission
+ Crafted request cannot bypass publish permission
+Page Seo (Tests\Feature\Cms\PageSeo)
+ Title fallback to page title
+ Description in meta tag
+ Canonical fallback to route url
+ Explicit canonical override
+ Robots directive
+ Og type in meta
+ Og title in meta
+ Og description in meta
+ Og url in meta
+ Og image from featured media
+ Metadata escaped hostile values
+ Preview has noindex nofollow
+Page Slug Redirect (Tests\Feature\Cms\PageSlugRedirect)
+ Slug change creates 301
+ Old path redirects
+ Second slug change creates sequential redirects
+ Self redirect prevented
+ Loop prevented
+ Inactive redirect ignored
+ External redirect target prevented
+ Query and fragment handling normalized safely
+Page Theme (Tests\Feature\Public\PageTheme)
+ Default template renders with readable width
+ Full width template renders wider
+ Landing template renders with hero treatment
+ Sanitized body output safe
+ Title escaped
+ Excerpt escaped
+ Featured image alt preserved
+ One h1 per page
+ Page with no content handles gracefully
+Page Trash (Tests\Feature\Cms\PageTrash)
+ Trashed page returns 404 publicly
+ Restore brings page back
+ Force delete permanently removes page
+ Force delete cleans media
+ Only users with pages delete can trash
+ Only users with pages delete can restore
+ Only users with pages delete can force delete
+ Editor cannot trash pages
+ Administrator can trash restore force delete
+Password Reset (Tests\Feature\Auth\PasswordReset)
+ Forgot password form displays
+ Known administrator can request reset
+ Reset notification is dispatched
+ Valid token can reset password
+ Invalid token fails
+ Reset password is hashed
+ User can authenticate using new password
+ Old password no longer works
+Permission (Tests\Feature\Cms\Permission)
+ Verify 44 permissions total
+ Administrator has redirects view and manage
+ Editor does not have redirects view or manage
+ Seeder runs twice safely
+Production Check Command (Tests\Feature\Production\ProductionCheckCommand)
+ Command runs successfully
+ Command output contains no secret values
+ Command checks app key presence
+ Command output is readable
+ Debug true triggers warning
+ Non https url triggers failure
+ Missing app key triggers failure
+ Database failure triggers failure safely
+Public Layout (Tests\Feature\Public\PublicLayout)
+ Skip link present
+ Main landmark present
+ Primary nav renders
+ Footer renders
+ Site name fallback works when no logo
+ Footer contains copyright year
+Redirect Admin (Tests\Feature\Cms\RedirectAdmin)
+ Guest blocked
+ Editor blocked
+ Administrator can view redirects
+ Can create 301 redirect
+ Can create 302 redirect
+ Can edit redirect
+ Can delete redirect
+ Self redirect rejected
+ External target rejected
+ Loop detection
+ Deactivated redirect not resolved
+ Auto generated slug redirects appear in admin
+Request Id (Tests\Feature\Production\RequestId)
+ Public request receives x request id header
+ X request id is non empty
+ Two separate requests receive different ids
+ Client provided x request id is not reflected
+Robots (Tests\Feature\Seo\Robots)
+ Robots txt returns 200
+ Content type is text plain
+ Production mode includes allow
+ Production mode includes sitemap url
+ Non production mode includes disallow
+ No html in response
+Role Permission (Tests\Feature\Authorization\RolePermission)
+ Roles are created
+ Permissions are created
+ Seeder can run twice safely
+ Super admin receives all permissions
+ Administrator gets expected permissions
+ Administrator lacks role management permission
+ Editor gets expected content permissions
+ Editor lacks settings permission
+ Editor lacks user management permission
+ Unauthenticated users have no admin access
+ Authenticated user without dashboard permission receives 403
+ User with dashboard permission may access dashboard
+ Super admin may access dashboard
+Route (Tests\Feature\Route)
+ Home returns 200
+ Admin redirects to login unauthenticated
+ Admin login works
+ Admin security works authenticated
+ Admin pages works authenticated with permission
+ Register returns 404
+ Admin forgot password works
+ Valid cms page slug works
+ Admin preview requires auth
+ Classes route works
+ Instructors route works
+ Faq route works
+ Admin menus works with auth and permission
+ Admin settings works
+ Admin redirects works
+ Home still works
+ Registration still absent
+Route Isolation (Tests\Feature\Cms\RouteIsolation)
+ Classes does not resolve as page
+ Instructors does not resolve as page
+ Faq does not resolve as page
+ About still resolves as page
+ Admin classes works
+ Admin instructors works
+ Admin testimonials works
+ Admin faqs works
+ Gallery does not resolve as page
+ Instructor slug does not resolve as page
+ Gallery route is before catch all
+Security Headers (Tests\Feature\Production\SecurityHeaders)
+ Homepage includes x content type options
+ Homepage includes referrer policy
+ Homepage includes x frame options
+ Homepage includes permissions policy with camera
+ Admin login includes security headers
+ Sitemap returns correct content type
+ Robots returns correct content type
+Seo Meta Regression (Tests\Feature\Seo\SeoMetaRegression)
+ Homepage has title
+ Homepage has description
+ Homepage has og type
+ Homepage has og title
+ Page has correct title fallback
+ Class has correct title fallback
+ Instructor has correct title fallback
+Settings Admin (Tests\Feature\Cms\SettingsAdmin)
+ Guest blocked
+ Editor blocked
+ Administrator allowed
+ Super admin allowed
+ Can update site name
+ Can update tagline
+ Can update contact fields
+ Can update social urls
+ Unsafe url scheme rejected
+ Unknown setting key rejected
+ Values persist
+ Cache invalidates after update
+ Seeder idempotent
+ Settings output escaped
+Sitemap (Tests\Feature\Seo\Sitemap)
+ Sitemap returns 200
+ Content type is application xml
+ Response contains valid xml
+ Homepage url included
+ Classes index url included
+ Instructors index url included
+ Faq url included
+ Contact url included
+ Published page included
+ Draft page excluded
+ Future published page excluded
+ Deleted page excluded
+ Noindex page excluded
+ Active class included
+ Inactive class excluded
+ Active instructor included
+ Inactive instructor excluded
+ Only current slugs included old redirect slugs excluded
+ Noindex follow class excluded from sitemap
+ Noindex nofollow class excluded from sitemap
+ Active indexable class included in sitemap
+ Noindex follow instructor excluded from sitemap
+ Noindex nofollow instructor excluded from sitemap
+ Active indexable instructor included in sitemap
+Structured Data (Tests\Feature\Seo\StructuredData)
+ Homepage contains valid json ld
+ Json ld decodes successfully
+ Organization type present
+ Website type present
+ Organization name from settings
+ Website url correct
+ Ids stable
+ Sameas only when social profiles configured
+ No blank null required properties
+ Malicious script tag in settings does not break json ld
+ Contact page has no structured data
+ Class detail page has breadcrumb list
+ Instructor detail page has breadcrumb list
+Testimonial Crud (Tests\Feature\Cms\TestimonialCrud)
+ Guest cannot access admin
+ User without testimonials view gets 403
+ User with testimonials view can access index
+ Index displays testimonial list
+ User with testimonials create can access create form
+ User can create testimonial with valid data
+ Created by and updated by set correctly
+ User can edit testimonial
+ User can soft delete testimonial
+ User can restore testimonial
+ User can force delete testimonial
+ Editor cannot delete
+ Quote escaped no raw html
+ Featured flag works
+ Active flag works
+ Sort order works
+Two Factor Authentication (Tests\Feature\Auth\TwoFactorAuthentication)
+ User model supports two factor authentication
+ Authenticated user can access security screen
+ Unauthenticated user cannot access security screen
+ Enabling two factor requires password confirmation
+ Two factor setup generates secret
+ Recovery codes are generated
+ Two factor enabled user is redirected to challenge
+ Recovery code can complete authentication
+ Disabling two factor removes second factor
+OK (701 tests, 1445 assertions)
+{"tool":"phpunit","result":"passed","tests":701,"passed":701,"assertions":1445,"duration_ms":292255}

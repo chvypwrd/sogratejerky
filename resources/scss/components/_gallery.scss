@@ -1,0 +1,154 @@
+.gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 992px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.gallery-figure {
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.375rem;
+    background: #f8f9fa;
+
+    img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.2s ease;
+    }
+
+    &:hover img {
+        transform: scale(1.03);
+    }
+}
+
+.gallery-caption {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+    background: #fff;
+    border-top: 1px solid #e9ecef;
+}
+
+.gallery-link {
+    display: block;
+    text-decoration: none;
+}
+
+// Gallery viewer modal
+.gallery-viewer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+
+    &.active {
+        display: flex;
+    }
+}
+
+.gallery-viewer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.gallery-viewer-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.gallery-viewer-image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 75vh;
+}
+
+.gallery-viewer-image {
+    max-width: 90vw;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 0.25rem;
+}
+
+.gallery-viewer-caption {
+    color: #fff;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    max-width: 80vw;
+}
+
+.gallery-viewer-counter {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8125rem;
+    padding-bottom: 0.5rem;
+}
+
+.gallery-viewer-close {
+    position: absolute;
+    top: -2.5rem;
+    right: 0;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    line-height: 1;
+
+    &:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+    }
+}
+
+.gallery-viewer-prev,
+.gallery-viewer-next {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    font-size: 2.5rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    line-height: 1;
+    z-index: 10000;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    &:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+    }
+}
+
+.gallery-viewer-prev {
+    left: 0;
+}
+
+.gallery-viewer-next {
+    right: 0;
+}

@@ -1,0 +1,29 @@
+// ==========================================================================
+// SOGRATE — Main Stylesheet
+// ==========================================================================
+
+// Variables must come BEFORE Bootstrap to override defaults
+@import "abstracts/variables";
+
+// Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// Base
+@import "base/base";
+@import "base/typography";
+
+// Components
+@import "components/buttons";
+@import "components/cards";
+@import "components/sections";
+@import "components/rich-content";
+
+// Layout
+@import "layout/header";
+@import "layout/footer";
+
+// Gallery
+@import "components/gallery";
+
+// Trix editor
+@import "trix/dist/trix.css";

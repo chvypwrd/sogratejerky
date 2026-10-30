@@ -1,0 +1,206 @@
+// ==========================================================================
+// Rich Content — Sanitized CMS HTML
+// ==========================================================================
+
+.rich-content {
+    max-width: 720px;
+
+    // --------------------------------------------------------------------------
+    // Headings
+    // --------------------------------------------------------------------------
+
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        font-family: $font-family-headings;
+        font-weight: $headings-font-weight;
+        line-height: 1.25;
+        color: $headings-color;
+    }
+
+    h1 { font-size: clamp(1.75rem, 4vw, $h1-font-size); }
+    h2 { font-size: clamp(1.5rem, 3.5vw, $h2-font-size); }
+    h3 { font-size: clamp(1.25rem, 3vw, $h3-font-size); }
+    h4 { font-size: $h4-font-size; }
+    h5 { font-size: $h5-font-size; }
+    h6 { font-size: $h6-font-size; }
+
+    // First heading spacing
+    > :first-child {
+        margin-top: 0;
+    }
+
+    // --------------------------------------------------------------------------
+    // Paragraphs
+    // --------------------------------------------------------------------------
+
+    p {
+        margin-bottom: 1.25rem;
+        line-height: $line-height-base;
+        color: $body-text;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // Lists
+    // --------------------------------------------------------------------------
+
+    ul,
+    ol {
+        margin-bottom: 1.25rem;
+        padding-left: 1.5rem;
+    }
+
+    li {
+        margin-bottom: 0.35rem;
+        line-height: 1.6;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    ul li {
+        list-style-type: disc;
+    }
+
+    ol li {
+        list-style-type: decimal;
+    }
+
+    // Nested lists
+    ul ul,
+    ol ol,
+    ul ol,
+    ol ul {
+        margin-bottom: 0;
+        margin-top: 0.35rem;
+    }
+
+    // --------------------------------------------------------------------------
+    // Links
+    // --------------------------------------------------------------------------
+
+    a {
+        color: $brand-primary;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+        transition: $transition-color;
+        word-break: break-word;
+
+        &:hover {
+            color: $brand-secondary;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // Blockquote
+    // --------------------------------------------------------------------------
+
+    blockquote {
+        margin: 1.75rem 0;
+        padding: 1.25rem 1.5rem;
+        border-left: 4px solid $brand-secondary;
+        background-color: rgba($brand-secondary, 0.04);
+        border-radius: 0 $border-radius $border-radius 0;
+        font-style: italic;
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        cite {
+            display: block;
+            margin-top: 0.75rem;
+            font-size: $font-size-sm;
+            font-style: normal;
+            font-weight: 600;
+            color: $body-text;
+
+            &::before {
+                content: "\2014\00a0";
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // Horizontal rule
+    // --------------------------------------------------------------------------
+
+    hr {
+        margin: 2rem 0;
+        border: 0;
+        border-top: 1px solid $border-color;
+    }
+
+    // --------------------------------------------------------------------------
+    // Images
+    // --------------------------------------------------------------------------
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: $border-radius;
+        margin: 1rem 0;
+    }
+
+    // --------------------------------------------------------------------------
+    // Tables
+    // --------------------------------------------------------------------------
+
+    table {
+        width: 100%;
+        margin-bottom: 1.5rem;
+        border-collapse: collapse;
+        font-size: $font-size-sm;
+
+        th,
+        td {
+            padding: 0.625rem 0.75rem;
+            border-bottom: 1px solid $border-color;
+            text-align: left;
+        }
+
+        th {
+            font-weight: 700;
+            background-color: rgba($soft-stone, 0.5);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // Code
+    // --------------------------------------------------------------------------
+
+    code {
+        font-family: $font-family-mono;
+        font-size: 0.875em;
+        padding: 0.15em 0.4em;
+        background-color: rgba($soft-stone, 0.6);
+        border-radius: $border-radius;
+        color: $brand-primary;
+    }
+
+    pre {
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.25rem;
+        background-color: rgba($dark, 0.95);
+        color: $soft-stone;
+        border-radius: $border-radius;
+        overflow-x: auto;
+
+        code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-size: $font-size-sm;
+        }
+    }
+}

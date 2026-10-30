@@ -1,0 +1,208 @@
+// ==========================================================================
+// Footer
+// ==========================================================================
+
+.site-footer {
+    padding: $section-padding-y-sm 0 1.5rem;
+    background-color: $dark;
+    color: $soft-stone;
+
+    // -----------------------------------------------------------------------
+    // Main grid
+    // -----------------------------------------------------------------------
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2.5rem;
+        padding-bottom: $section-padding-y-sm;
+        border-bottom: 1px solid rgba($soft-stone, 0.15);
+
+        @media (max-width: 767.98px) {
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 575.98px) {
+            grid-template-columns: 1fr;
+            gap: 1.75rem;
+            text-align: center;
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Footer section
+    // -----------------------------------------------------------------------
+
+    .footer-section {
+        margin-bottom: 0;
+
+        h5,
+        .footer-heading {
+            font-size: 1rem;
+            font-weight: 700;
+            color: $white;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Brand section
+    // -----------------------------------------------------------------------
+
+    .footer-brand {
+        font-family: $font-family-headings;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: $white;
+        margin-bottom: 0.75rem;
+        text-decoration: none;
+        display: inline-block;
+
+        &:hover {
+            color: $brand-accent;
+            text-decoration: none;
+        }
+    }
+
+    .footer-tagline {
+        font-size: $font-size-sm;
+        color: rgba($soft-stone, 0.7);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    // -----------------------------------------------------------------------
+    // Footer links
+    // -----------------------------------------------------------------------
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            margin-bottom: 0.5rem;
+
+            @media (max-width: 575.98px) {
+                margin-bottom: 0.35rem;
+            }
+        }
+
+        a {
+            color: rgba($soft-stone, 0.8);
+            text-decoration: none;
+            font-size: $font-size-sm;
+            transition: $transition-color;
+
+            &:hover {
+                color: $brand-accent;
+                text-decoration: none;
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Contact info
+    // -----------------------------------------------------------------------
+
+    .footer-contact {
+        font-size: $font-size-sm;
+
+        p {
+            margin-bottom: 0.5rem;
+            color: rgba($soft-stone, 0.8);
+        }
+
+        a {
+            color: rgba($soft-stone, 0.8);
+            text-decoration: none;
+            transition: $transition-color;
+
+            &:hover {
+                color: $brand-accent;
+                text-decoration: none;
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Social links
+    // -----------------------------------------------------------------------
+
+    .footer-social {
+        display: flex;
+        gap: 0.75rem;
+
+        @media (max-width: 575.98px) {
+            justify-content: center;
+        }
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            background-color: rgba($soft-stone, 0.1);
+            color: $soft-stone;
+            text-decoration: none;
+            transition: $transition-base;
+
+            &:hover {
+                background-color: $brand-secondary;
+                color: $white;
+                text-decoration: none;
+            }
+
+            svg,
+            img {
+                width: 1rem;
+                height: 1rem;
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Copyright bar
+    // -----------------------------------------------------------------------
+
+    .footer-bottom {
+        padding-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        @media (max-width: 575.98px) {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    .footer-copyright {
+        font-size: $font-size-sm;
+        color: rgba($soft-stone, 0.5);
+    }
+
+    .footer-legal {
+        display: flex;
+        gap: 1.25rem;
+
+        a {
+            font-size: $font-size-sm;
+            color: rgba($soft-stone, 0.5);
+            text-decoration: none;
+            transition: $transition-color;
+
+            &:hover {
+                color: $brand-accent;
+                text-decoration: none;
+            }
+        }
+    }
+}

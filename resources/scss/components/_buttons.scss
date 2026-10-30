@@ -1,0 +1,149 @@
+// ==========================================================================
+// Button Components
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// Base button
+// --------------------------------------------------------------------------
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    font-weight: 600;
+    font-size: $font-size-base;
+    line-height: 1.4;
+    text-decoration: none;
+    border: 2px solid transparent;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: $transition-base;
+    white-space: nowrap;
+
+    &:focus-visible {
+        outline: $focus-ring-width solid $focus-ring-color;
+        outline-offset: $focus-ring-offset;
+    }
+
+    &:disabled,
+    &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Brand button (primary CTA — plum)
+// --------------------------------------------------------------------------
+
+.btn-brand {
+    @extend .btn;
+    color: $white;
+    background-color: $brand-primary;
+    border-color: $brand-primary;
+
+    &:hover {
+        background-color: darken($brand-primary, 8%);
+        border-color: darken($brand-primary, 8%);
+        color: $white;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($brand-primary, 0.3);
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Brand outline button
+// --------------------------------------------------------------------------
+
+.btn-brand-outline {
+    @extend .btn;
+    color: $brand-primary;
+    background-color: transparent;
+    border-color: $brand-primary;
+
+    &:hover {
+        background-color: $brand-primary;
+        color: $white;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($brand-primary, 0.3);
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Coral button (secondary CTA — terracotta)
+// --------------------------------------------------------------------------
+
+.btn-coral {
+    @extend .btn;
+    color: $white;
+    background-color: $brand-secondary;
+    border-color: $brand-secondary;
+
+    &:hover {
+        background-color: darken($brand-secondary, 8%);
+        border-color: darken($brand-secondary, 8%);
+        color: $white;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($brand-secondary, 0.3);
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Coral outline button
+// --------------------------------------------------------------------------
+
+.btn-coral-outline {
+    @extend .btn;
+    color: $brand-secondary;
+    background-color: transparent;
+    border-color: $brand-secondary;
+
+    &:hover {
+        background-color: $brand-secondary;
+        color: $white;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($brand-secondary, 0.3);
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Button size modifiers
+// --------------------------------------------------------------------------
+
+.btn-sm {
+    padding: 0.5rem 1.25rem;
+    font-size: $font-size-sm;
+    border-radius: $border-radius;
+}
+
+.btn-lg {
+    padding: 1rem 2.25rem;
+    font-size: $font-size-lg;
+    border-radius: $border-radius-lg;
+}
