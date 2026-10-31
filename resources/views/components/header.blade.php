@@ -18,6 +18,13 @@
         ? $branding->getLogoUrl()
         : asset('brand/sograte-wordmark.png');
 
+    $cartCount = 0;
+    try {
+        $cartCount = app(\App\Services\CartService::class)->existingItemCount();
+    } catch (\Throwable $e) {
+        $cartCount = 0;
+    }
+
     $contactRouteExists = route('contact.show', [], false) !== url('/contact');
     $menuHasContact = str_contains($primaryMenu, 'contact');
     $showContactCta = $contactRouteExists && ! $menuHasContact;
@@ -47,11 +54,14 @@
                     {!! $primaryMenu !!}
                 </ul>
 
-                @if($showContactCta)
-                    <div class="header-actions">
+                <div class="header-actions">
+                    <a href="{{ route('cart.index') }}" class="header-cart" aria-label="Cart, {{ $cartCount }} items">
+                        Cart <span class="header-cart__count">{{ $cartCount }}</span>
+                    </a>
+                    @if($showContactCta)
                         <a href="{{ route('contact.show') }}" class="btn-cta">Contact Us</a>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
         </div>
     </nav>

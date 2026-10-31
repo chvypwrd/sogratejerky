@@ -18,8 +18,11 @@ use App\Policies\PagePolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\RedirectPolicy;
 use App\Policies\SettingPolicy;
+use App\Services\CartService;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         $this->registerRateLimiters();
+
+        Event::listen(Login::class, function (Login $event) {
+            app(CartService::class)->mergeGuestCartIntoUserCart($event->user);
+        });
 
         Gate::before(function ($user, $ability) {
             if ($user->hasRole('Super Admin')) {

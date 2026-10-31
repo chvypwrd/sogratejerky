@@ -104,6 +104,46 @@
         margin-left: 1rem;
     }
 
+    .header-cart {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 0.8rem;
+        color: $headings-color;
+        border: 1px solid $pale-sage;
+        border-radius: $border-radius;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.035em;
+        text-decoration: none;
+        text-transform: uppercase;
+
+        &:hover {
+            color: $brand-primary;
+            border-color: $brand-primary;
+            text-decoration: none;
+        }
+
+        &:focus-visible {
+            outline: $focus-ring-width solid $focus-ring-color;
+            outline-offset: $focus-ring-offset;
+        }
+    }
+
+    .header-cart__count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.35rem;
+        height: 1.35rem;
+        padding: 0 0.3rem;
+        color: $white;
+        background-color: $brand-primary;
+        border-radius: $border-radius-pill;
+        font-size: 0.72rem;
+        line-height: 1;
+    }
+
     .btn-cta {
         display: inline-flex;
         align-items: center;

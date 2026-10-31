@@ -79,19 +79,30 @@
                     @endif
                 </header>
 
+                @if(session('status'))
+                    <div class="alert alert-success" role="status">
+                        {{ session('status') }}
+                        <a href="{{ route('cart.index') }}" class="alert-link">View Cart</a>
+                    </div>
+                @endif
+
                 @if($variants->count() > 0)
-                    <div class="product-purchase-info">
+                    <form action="{{ route('cart.items.store') }}" method="POST" class="product-purchase-info">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+
                         <div class="product-price product-price--large" id="product-price">{{ $selectedVariant?->price_formatted }}</div>
 
                         <div class="mb-3">
                             <label for="variant-select" class="form-label">Choose a size</label>
-                            <select class="form-select" id="variant-select">
+                            <select class="form-select @error('product_variant_id') is-invalid @enderror" id="variant-select" name="product_variant_id">
                                 @foreach($variants as $variant)
                                     <option value="{{ $variant->id }}" {{ $selectedVariant?->id === $variant->id ? 'selected' : '' }}>
                                         {{ $variant->name }} - {{ $variant->price_formatted }} - {{ $variant->weight_display }}
                                     </option>
                                 @endforeach
                             </select>
+                            @error('product_variant_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <dl class="product-details-list">
@@ -108,18 +119,28 @@
                                 <dd id="product-availability">Available</dd>
                             </div>
                         </dl>
-                    </div>
+
+                        <div class="row g-3 align-items-end">
+                            <div class="col-4">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity', 1) }}" min="1" max="{{ config('cart.max_quantity', 99) }}" required>
+                                @error('quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-8">
+                                <button type="submit" class="btn btn-brand btn-lg w-100">Add to Cart</button>
+                            </div>
+                        </div>
+
+                        <div class="product-cart-links">
+                            <a href="{{ route('cart.index') }}">View Cart</a>
+                            <a href="{{ route('quick-order.index') }}">Quick Order</a>
+                        </div>
+                    </form>
                 @else
                     <div class="alert alert-warning">
                         This product is currently unavailable. Contact us for availability.
                     </div>
                 @endif
-
-                <div class="product-purchase-placeholder">
-                    <strong>Online ordering is coming soon.</strong>
-                    <p class="mb-3">Contact the SOGRATE team for availability and ordering questions.</p>
-                    <a href="{{ route('contact.show') }}" class="btn btn-brand">Contact Us</a>
-                </div>
 
                 @if($product->tags->isNotEmpty())
                     <div class="product-tags">

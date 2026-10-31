@@ -101,11 +101,11 @@
                 <span class="home-quick-order__tag">Quick Order</span>
                 <h2>Stock up without the wait.</h2>
                 <p class="home-quick-order__text">
-                    Quick Order is coming in a future release. For now, reach out to the SOGRATE team directly.
+                    Know what you want? Build your order fast with Quick Order.
                 </p>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a href="{{ route('contact.show') }}" class="btn btn-light btn-lg">Contact Us</a>
+                <a href="{{ route('quick-order.index') }}" class="btn btn-light btn-lg">Start Quick Order</a>
             </div>
         </div>
     </div>

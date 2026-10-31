@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\PublicBlogController;
 use App\Http\Controllers\PublicGalleryController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\PublicShopController;
+use App\Http\Controllers\QuickOrderController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TestimonialController;
@@ -188,6 +190,15 @@ Route::get('/shop/category/{productCategory:slug}', [PublicShopController::class
 Route::get('/shop/tag/{productTag:slug}', [PublicShopController::class, 'tag'])->name('shop.tag');
 Route::get('/shop/{product}', [PublicShopController::class, 'show'])->name('shop.show');
 
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
+Route::patch('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.items.update');
+Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+Route::get('/quick-order', [QuickOrderController::class, 'index'])->name('quick-order.index');
+Route::post('/quick-order', [QuickOrderController::class, 'store'])->name('quick-order.store');
+
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/faqs', [FaqController::class, 'index'])->name('faqs.index');
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
@@ -203,4 +214,4 @@ Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('gallery
 Route::get('/gallery/{gallery:slug}', [PublicGalleryController::class, 'show'])->name('gallery.show');
 
 Route::get('/{slug}', PublicPageController::class)->name('pages.show')
-    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|shop$|blog$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');
+    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|shop$|cart$|quick-order$|blog$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');

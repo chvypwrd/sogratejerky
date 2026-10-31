@@ -25,20 +25,24 @@ class MenuSeeder extends Seeder
         $primaryItems = [
             ['label' => 'Home', 'type' => 'home', 'url' => '/', 'sort_order' => 0],
             ['label' => 'Shop Jerky', 'type' => 'custom', 'url' => '/shop', 'sort_order' => 1],
-            ['label' => 'Galleries', 'type' => 'custom', 'url' => '/galleries', 'sort_order' => 2],
-            ['label' => 'Testimonials', 'type' => 'custom', 'url' => '/testimonials', 'sort_order' => 3],
-            ['label' => 'FAQs', 'type' => 'custom', 'url' => '/faqs', 'sort_order' => 4],
-            ['label' => 'Blog', 'type' => 'custom', 'url' => '/blog', 'sort_order' => 5],
+            ['label' => 'Quick Order', 'type' => 'custom', 'url' => '/quick-order', 'sort_order' => 2],
+            ['label' => 'Galleries', 'type' => 'custom', 'url' => '/galleries', 'sort_order' => 3],
+            ['label' => 'Testimonials', 'type' => 'custom', 'url' => '/testimonials', 'sort_order' => 4],
+            ['label' => 'FAQs', 'type' => 'custom', 'url' => '/faqs', 'sort_order' => 5],
+            ['label' => 'Blog', 'type' => 'custom', 'url' => '/blog', 'sort_order' => 6],
+            ['label' => 'Cart', 'type' => 'custom', 'url' => '/cart', 'sort_order' => 7],
         ];
 
         $footerItems = [
             ['label' => 'Home', 'type' => 'home', 'url' => '/', 'sort_order' => 0],
             ['label' => 'Shop Jerky', 'type' => 'custom', 'url' => '/shop', 'sort_order' => 1],
-            ['label' => 'Galleries', 'type' => 'custom', 'url' => '/galleries', 'sort_order' => 2],
-            ['label' => 'Testimonials', 'type' => 'custom', 'url' => '/testimonials', 'sort_order' => 3],
-            ['label' => 'FAQs', 'type' => 'custom', 'url' => '/faqs', 'sort_order' => 4],
-            ['label' => 'Blog', 'type' => 'custom', 'url' => '/blog', 'sort_order' => 5],
-            ['label' => 'Contact', 'type' => 'custom', 'url' => '/contact', 'sort_order' => 6],
+            ['label' => 'Quick Order', 'type' => 'custom', 'url' => '/quick-order', 'sort_order' => 2],
+            ['label' => 'Galleries', 'type' => 'custom', 'url' => '/galleries', 'sort_order' => 3],
+            ['label' => 'Testimonials', 'type' => 'custom', 'url' => '/testimonials', 'sort_order' => 4],
+            ['label' => 'FAQs', 'type' => 'custom', 'url' => '/faqs', 'sort_order' => 5],
+            ['label' => 'Blog', 'type' => 'custom', 'url' => '/blog', 'sort_order' => 6],
+            ['label' => 'Cart', 'type' => 'custom', 'url' => '/cart', 'sort_order' => 7],
+            ['label' => 'Contact', 'type' => 'custom', 'url' => '/contact', 'sort_order' => 8],
         ];
 
         $this->seedItems($primary, $primaryItems);
