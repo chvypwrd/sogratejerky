@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\OrderEvent;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\User;
@@ -21,6 +22,8 @@ class OrderService
         $cart->loadMissing('items.variant.product');
 
         return DB::transaction(function () use ($cart, $data, $summary, $user, $checkoutToken) {
+            $placedAt = now();
+
             $order = Order::create([
                 'order_number' => $this->orderNumber(),
                 'checkout_token' => $checkoutToken,
@@ -46,7 +49,7 @@ class OrderService
                     'fee_cents' => $summary['fulfillment_fee_cents'],
                     'tax_cents' => $summary['tax_cents'],
                 ],
-                'placed_at' => now(),
+                'placed_at' => $placedAt,
             ]);
 
             foreach ($cart->items as $item) {
@@ -65,6 +68,16 @@ class OrderService
                     'weight_grams' => $variant->weight,
                 ]);
             }
+
+            $order->activities()->create([
+                'event' => OrderEvent::OrderCreated->value,
+                'previous_status' => null,
+                'new_status' => $order->order_status->value,
+                'actor_id' => $user?->id,
+                'actor_name' => $user?->name ?? 'Customer',
+                'note' => 'Order created at checkout.',
+                'occurred_at' => $placedAt,
+            ]);
 
             return $order;
         });

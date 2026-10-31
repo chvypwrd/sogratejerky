@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\FulfillmentController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -179,6 +180,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     Route::get('/product-tags/{productTag}/edit', [ProductTagController::class, 'edit'])->name('product-tags.edit')->middleware('can:products.tags.manage');
     Route::put('/product-tags/{productTag}', [ProductTagController::class, 'update'])->name('product-tags.update')->middleware('can:products.tags.manage');
     Route::delete('/product-tags/{productTag}', [ProductTagController::class, 'destroy'])->name('product-tags.destroy')->middleware('can:products.tags.manage');
+
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index')->middleware('can:orders.view');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show')->middleware('can:orders.view');
+
+    Route::post('/orders/{order}/ready-for-pickup', [OrderController::class, 'markReadyForPickup'])->name('orders.ready-for-pickup')->middleware('can:orders.fulfill');
+    Route::post('/orders/{order}/picked-up', [OrderController::class, 'markPickedUp'])->name('orders.picked-up')->middleware('can:orders.fulfill');
+    Route::post('/orders/{order}/out-for-delivery', [OrderController::class, 'markOutForDelivery'])->name('orders.out-for-delivery')->middleware('can:orders.fulfill');
+    Route::post('/orders/{order}/delivered', [OrderController::class, 'markDelivered'])->name('orders.delivered')->middleware('can:orders.fulfill');
+    Route::post('/orders/{order}/shipped', [OrderController::class, 'markShipped'])->name('orders.shipped')->middleware('can:orders.fulfill');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel')->middleware('can:orders.cancel');
 
     // Fulfillment
     Route::get('/fulfillment', [FulfillmentController::class, 'index'])->name('fulfillment.index')->middleware('can:fulfillment.view');

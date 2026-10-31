@@ -135,6 +135,10 @@ class CheckoutTest extends TestCase
         $this->assertSame($variant->sku, $order->items->first()->sku);
         $this->assertSame(2, $order->items->first()->quantity);
         $this->assertSame('Test Buyer', $order->fulfillment_address_snapshot['recipient_name']);
+        $this->assertDatabaseHas('order_activities', [
+            'order_id' => $order->id,
+            'event' => 'order_created',
+        ]);
 
         $this->assertSame(1, Cart::firstOrFail()->items()->count());
         $this->assertNull(session('checkout_token'));

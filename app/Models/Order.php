@@ -6,12 +6,18 @@ use App\Enums\FulfillmentMethod;
 use App\Enums\FulfillmentStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\ShippingCarrier;
+use Database\Factories\OrderFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+    /** @use HasFactory<OrderFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'order_number',
         'checkout_token',
@@ -32,6 +38,16 @@ class Order extends Model
         'fulfillment_address_snapshot',
         'pickup_location_snapshot',
         'fulfillment_details_snapshot',
+        'shipping_carrier',
+        'tracking_number',
+        'ready_for_pickup_at',
+        'picked_up_at',
+        'out_for_delivery_at',
+        'delivered_at',
+        'shipped_at',
+        'fulfilled_at',
+        'cancelled_at',
+        'cancellation_reason',
         'placed_at',
     ];
 
@@ -46,10 +62,18 @@ class Order extends Model
             'order_status' => OrderStatus::class,
             'payment_status' => PaymentStatus::class,
             'fulfillment_status' => FulfillmentStatus::class,
+            'shipping_carrier' => ShippingCarrier::class,
             'billing_address_snapshot' => 'array',
             'fulfillment_address_snapshot' => 'array',
             'pickup_location_snapshot' => 'array',
             'fulfillment_details_snapshot' => 'array',
+            'ready_for_pickup_at' => 'datetime',
+            'picked_up_at' => 'datetime',
+            'out_for_delivery_at' => 'datetime',
+            'delivered_at' => 'datetime',
+            'shipped_at' => 'datetime',
+            'fulfilled_at' => 'datetime',
+            'cancelled_at' => 'datetime',
             'placed_at' => 'datetime',
         ];
     }
@@ -64,6 +88,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function activities(): HasMany
+    {
+        return $this->hasMany(OrderActivity::class)->latest('occurred_at')->latest('id');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'order_number';
@@ -72,5 +101,25 @@ class Order extends Model
     public function getTotalFormattedAttribute(): string
     {
         return '$'.number_format($this->total_cents / 100, 2);
+    }
+
+    public function getTrackingUrlAttribute(): ?string
+    {
+        return $this->shipping_carrier?->trackingUrl($this->tracking_number);
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->payment_status === PaymentStatus::Paid;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->order_status === OrderStatus::Cancelled;
+    }
+
+    public function isFulfillmentComplete(): bool
+    {
+        return $this->fulfilled_at !== null;
     }
 }

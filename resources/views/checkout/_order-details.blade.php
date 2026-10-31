@@ -69,6 +69,68 @@
                     {{ $fulfillmentAddress['country'] ?? '' }}
                 </address>
             @endif
+
+            @if($order->shipping_carrier || $order->tracking_number)
+                <div class="mt-3">
+                    <div class="text-muted small">Shipping</div>
+                    @if($order->shipping_carrier)
+                        <div>Carrier: {{ $order->shipping_carrier->label() }}</div>
+                    @endif
+                    @if($order->tracking_number)
+                        <div>
+                            Tracking:
+                            @if($order->tracking_url)
+                                <a href="{{ $order->tracking_url }}" target="_blank" rel="noopener noreferrer">{{ $order->tracking_number }}</a>
+                            @else
+                                {{ $order->tracking_number }}
+                            @endif
+                        </div>
+                    @else
+                        <div>Tracking information is not available.</div>
+                    @endif
+                </div>
+            @endif
+
+            @if($order->fulfillment_status === \App\Enums\FulfillmentStatus::ReadyForPickup)
+                <div class="alert alert-info mt-3 mb-0" role="status">Your order is ready for pickup.</div>
+            @elseif($order->fulfillment_status === \App\Enums\FulfillmentStatus::OutForDelivery)
+                <div class="alert alert-info mt-3 mb-0" role="status">Your order is out for delivery.</div>
+            @endif
+
+            @if($order->cancelled_at)
+                <div class="alert alert-secondary mt-3 mb-0" role="status">
+                    This order was cancelled on {{ $order->cancelled_at->format('F j, Y g:i A') }}.
+                    @if($order->cancellation_reason)
+                        <br>Reason: {{ $order->cancellation_reason }}
+                    @endif
+                </div>
+            @endif
+
+            @php
+                $progress = collect([
+                    'Placed' => $order->placed_at,
+                    'Ready for pickup' => $order->ready_for_pickup_at,
+                    'Picked up' => $order->picked_up_at,
+                    'Out for delivery' => $order->out_for_delivery_at,
+                    'Delivered' => $order->delivered_at,
+                    'Shipped' => $order->shipped_at,
+                    'Fulfilled' => $order->fulfilled_at,
+                ])->filter();
+            @endphp
+
+            @if($progress->isNotEmpty())
+                <div class="mt-3">
+                    <div class="text-muted small">Progress</div>
+                    <ul class="list-unstyled mb-0">
+                        @foreach($progress as $label => $timestamp)
+                            <li class="d-flex justify-content-between gap-3 py-1">
+                                <span>{{ $label }}</span>
+                                <span class="text-muted small">{{ $timestamp->format('M j, Y g:i A') }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
 
         <div class="col-md-4">

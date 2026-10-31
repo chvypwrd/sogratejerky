@@ -18,9 +18,9 @@ class PermissionTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
     }
 
-    public function test_verify_51_permissions_total(): void
+    public function test_verify_54_permissions_total(): void
     {
-        $this->assertEquals(51, Permission::count());
+        $this->assertEquals(54, Permission::count());
     }
 
     public function test_administrator_has_redirects_view_and_manage(): void
@@ -43,7 +43,7 @@ class PermissionTest extends TestCase
     {
         $this->seed(RolePermissionSeeder::class);
 
-        $this->assertEquals(51, Permission::count());
+        $this->assertEquals(54, Permission::count());
         $this->assertEquals(3, Role::count());
     }
 }

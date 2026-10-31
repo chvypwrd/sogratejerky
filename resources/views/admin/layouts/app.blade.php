@@ -180,6 +180,15 @@
                 </li>
                 @endcan
 
+                @can('orders.view')
+                <li class="nav-section">Orders</li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">
+                        All Orders
+                    </a>
+                </li>
+                @endcan
+
                 @can('fulfillment.view')
                 <li class="nav-section">Fulfillment</li>
                 <li class="nav-item">
