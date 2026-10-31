@@ -54,10 +54,10 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-3">
-                <div class="account-card account-card--muted">
+                <div class="account-card">
                     <h2>Order History</h2>
-                    <p>Orders will appear here once checkout launches.</p>
-                    <span class="badge bg-secondary">Coming Soon</span>
+                    <p>Review orders placed with your account.</p>
+                    <a href="{{ route('account.orders.index') }}" class="btn btn-brand-outline btn-sm">View Orders</a>
                 </div>
             </div>
         </div>

@@ -136,6 +136,25 @@ class CartService
         return (int) $cart->items()->sum('quantity');
     }
 
+    public function assertCheckoutable(Cart $cart): void
+    {
+        $cart->loadMissing('items.variant.product');
+
+        if ($cart->items->isEmpty()) {
+            throw ValidationException::withMessages([
+                'cart' => 'Your cart is empty.',
+            ]);
+        }
+
+        foreach ($cart->items as $item) {
+            if (! $item->isAvailable() || $item->quantity < 1 || $item->quantity > $this->maxQuantity()) {
+                throw ValidationException::withMessages([
+                    'cart' => 'One or more items in your cart are unavailable. Please update your cart before checking out.',
+                ]);
+            }
+        }
+    }
+
     public function existingItemCount(): int
     {
         $cart = $this->existingCart();

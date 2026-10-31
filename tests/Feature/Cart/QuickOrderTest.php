@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Cart;
 
-use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Database\Seeders\RolePermissionSeeder;
@@ -62,7 +61,7 @@ class QuickOrderTest extends TestCase
                 $second->id => 3,
                 '0' => 0,
             ],
-        ])->assertRedirect(route('cart.index'));
+        ])->assertRedirect(route('checkout.index'));
 
         $this->assertDatabaseHas('cart_items', ['product_variant_id' => $first->id, 'quantity' => 2]);
         $this->assertDatabaseHas('cart_items', ['product_variant_id' => $second->id, 'quantity' => 3]);
@@ -120,7 +119,7 @@ class QuickOrderTest extends TestCase
 
         $this->post(route('quick-order.store'), [
             'items' => [$variant->id => 2],
-        ])->assertRedirect(route('cart.index'));
+        ])->assertRedirect(route('checkout.index'));
 
         $this->assertDatabaseHas('cart_items', [
             'product_variant_id' => $variant->id,

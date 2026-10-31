@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AccountOrderController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\BlogPostController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Admin\BlogTagController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
+use App\Http\Controllers\Admin\FulfillmentController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
@@ -21,6 +23,7 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\CustomerAuthController;
@@ -176,6 +179,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     Route::get('/product-tags/{productTag}/edit', [ProductTagController::class, 'edit'])->name('product-tags.edit')->middleware('can:products.tags.manage');
     Route::put('/product-tags/{productTag}', [ProductTagController::class, 'update'])->name('product-tags.update')->middleware('can:products.tags.manage');
     Route::delete('/product-tags/{productTag}', [ProductTagController::class, 'destroy'])->name('product-tags.destroy')->middleware('can:products.tags.manage');
+
+    // Fulfillment
+    Route::get('/fulfillment', [FulfillmentController::class, 'index'])->name('fulfillment.index')->middleware('can:fulfillment.view');
+    Route::put('/fulfillment/settings', [FulfillmentController::class, 'updateSettings'])->name('fulfillment.settings.update')->middleware('can:fulfillment.manage');
+
+    Route::post('/fulfillment/shipping-rules', [FulfillmentController::class, 'storeShippingRule'])->name('fulfillment.shipping-rules.store')->middleware('can:fulfillment.manage');
+    Route::put('/fulfillment/shipping-rules/{shippingRate}', [FulfillmentController::class, 'updateShippingRule'])->name('fulfillment.shipping-rules.update')->middleware('can:fulfillment.manage');
+    Route::delete('/fulfillment/shipping-rules/{shippingRate}', [FulfillmentController::class, 'destroyShippingRule'])->name('fulfillment.shipping-rules.destroy')->middleware('can:fulfillment.manage');
+
+    Route::post('/fulfillment/delivery-zones', [FulfillmentController::class, 'storeDeliveryZone'])->name('fulfillment.delivery-zones.store')->middleware('can:fulfillment.manage');
+    Route::put('/fulfillment/delivery-zones/{deliveryZone}', [FulfillmentController::class, 'updateDeliveryZone'])->name('fulfillment.delivery-zones.update')->middleware('can:fulfillment.manage');
+    Route::delete('/fulfillment/delivery-zones/{deliveryZone}', [FulfillmentController::class, 'destroyDeliveryZone'])->name('fulfillment.delivery-zones.destroy')->middleware('can:fulfillment.manage');
+
+    Route::post('/fulfillment/pickup-locations', [FulfillmentController::class, 'storePickupLocation'])->name('fulfillment.pickup-locations.store')->middleware('can:fulfillment.manage');
+    Route::put('/fulfillment/pickup-locations/{pickupLocation}', [FulfillmentController::class, 'updatePickupLocation'])->name('fulfillment.pickup-locations.update')->middleware('can:fulfillment.manage');
+    Route::delete('/fulfillment/pickup-locations/{pickupLocation}', [FulfillmentController::class, 'destroyPickupLocation'])->name('fulfillment.pickup-locations.destroy')->middleware('can:fulfillment.manage');
 });
 
 Route::get('/admin/preview/{page}', [PreviewController::class, 'show'])
@@ -201,6 +220,12 @@ Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.s
 Route::patch('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.items.update');
 Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.items.destroy');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])
+    ->name('checkout.confirmation')
+    ->middleware('signed');
 
 Route::get('/quick-order', [QuickOrderController::class, 'index'])->name('quick-order.index');
 Route::post('/quick-order', [QuickOrderController::class, 'store'])->name('quick-order.store');
@@ -232,6 +257,9 @@ Route::middleware('customer.auth')->group(function () {
         Route::get('/addresses/{address}/edit', [CustomerAddressController::class, 'edit'])->name('addresses.edit');
         Route::put('/addresses/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
         Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
+
+        Route::get('/orders', [AccountOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AccountOrderController::class, 'show'])->name('orders.show');
     });
 });
 
@@ -250,4 +278,4 @@ Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('gallery
 Route::get('/gallery/{gallery:slug}', [PublicGalleryController::class, 'show'])->name('gallery.show');
 
 Route::get('/{slug}', PublicPageController::class)->name('pages.show')
-    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|shop$|cart$|quick-order$|blog$|register$|forgot-password$|account$|email$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');
+    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|shop$|cart$|checkout$|quick-order$|blog$|register$|forgot-password$|account$|email$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');

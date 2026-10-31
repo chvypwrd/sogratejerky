@@ -35,4 +35,20 @@ class CustomerAddress extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function toSnapshot(): array
+    {
+        return $this->only([
+            'label',
+            'recipient_name',
+            'company',
+            'address_line_1',
+            'address_line_2',
+            'city',
+            'state',
+            'postal_code',
+            'country',
+            'phone',
+        ]);
+    }
 }

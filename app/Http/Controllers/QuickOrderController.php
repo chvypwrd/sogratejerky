@@ -81,7 +81,7 @@ class QuickOrderController extends Controller
         });
 
         return redirect()
-            ->route('cart.index')
+            ->route('checkout.index')
             ->with('status', 'Selected items added to your cart.');
     }
 }

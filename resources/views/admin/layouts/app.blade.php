@@ -180,6 +180,15 @@
                 </li>
                 @endcan
 
+                @can('fulfillment.view')
+                <li class="nav-section">Fulfillment</li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.fulfillment.*') ? 'active' : '' }}" href="{{ route('admin.fulfillment.index') }}">
+                        Configuration
+                    </a>
+                </li>
+                @endcan
+
                 <li class="nav-section">Administration</li>
                 <li class="nav-item"><span class="nav-link text-muted">Users</span></li>
                 <li class="nav-item"><span class="nav-link text-muted">Roles</span></li>

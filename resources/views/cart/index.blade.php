@@ -115,8 +115,8 @@
                         <p class="cart-summary__note">Available items only. Taxes and shipping are calculated later.</p>
 
                         <div class="cart-summary__checkout">
-                            <strong>Checkout is coming soon.</strong>
-                            <p class="mb-0">Your cart will be saved while we finish online ordering.</p>
+                            <a href="{{ route('checkout.index') }}" class="btn btn-brand w-100">Proceed to Checkout</a>
+                            <p class="mb-0 mt-2">Fulfillment options and taxes are confirmed at checkout.</p>
                         </div>
 
                         <a href="{{ route('shop.index') }}" class="btn btn-brand-outline w-100 mt-3">Continue Shopping</a>
