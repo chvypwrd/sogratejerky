@@ -104,7 +104,7 @@ npm audit
 
 Use `.env.production.example` as the deployment template. Supply deployment-specific database, mail, domain, and application-key values outside Git. Do not commit `.env` files or credentials.
 
-`docs/launch-checklist.md` and `docs/production-readiness.md` describe the retained deployment and verification process.
+`docs/launch-readiness.md` is the current Go/No-Go checklist. `docs/production-readiness.md` contains the deployment, backup, restore, queue, scheduler, and rollback procedure.
 
 ## Development Principles
 

@@ -1,216 +1,197 @@
-# Production Readiness Guide
+# SOGRATE Production Readiness
 
-## Environment Requirements
+This document covers the current Laravel 13 / MySQL / Stripe deployment procedure. It does not authorize launch. Use `docs/launch-readiness.md` for the current Go/No-Go checklist.
 
-### Required `.env` Settings
+## Prerequisites
 
-| Variable | Value | Notes |
-|----------|-------|-------|
-| `APP_ENV` | `production` | Must be `production` for live |
-| `APP_DEBUG` | `false` | Never enable in production |
-| `APP_URL` | `https://yourdomain.com` | Canonical HTTPS URL |
-| `APP_KEY` | (generated) | Run `php artisan key:generate` |
-| `DB_CONNECTION` | `mysql` | |
-| `DB_HOST` | (your DB host) | |
-| `DB_PORT` | `3306` | |
-| `DB_DATABASE` | (your DB name) | |
-| `DB_USERNAME` | (your DB user) | |
-| `DB_PASSWORD` | (your DB password) | |
-| `MAIL_MAILER` | `smtp` | Or your chosen transport |
-| `MAIL_FROM_ADDRESS` | `noreply@yourdomain.com` | Must be valid |
-| `CACHE_STORE` | `database` | Or `redis` for better performance |
-| `SESSION_DRIVER` | `database` | Or `redis` |
-| `SESSION_SECURE_COOKIE` | `true` | Required for HTTPS |
-| `LOG_CHANNEL` | `daily` | Rotated daily logs |
+- PHP 8.3+ with required Laravel extensions.
+- MySQL/MariaDB.
+- Composer 2.
+- Node.js/npm for the Vite production build.
+- Web server document root pointed at `public/`, never the repository root.
+- HTTPS certificate and production domain.
+- Writable `storage/` and `bootstrap/cache/`.
+- `public/storage` created with `php artisan storage:link`.
 
-## Web Server Configuration
+## Production Environment
 
-### Document Root
+Start from `.env.production.example` and keep secrets out of Git.
 
-The document root **must** be the `/public` directory, not the project root.
+Required values include:
 
-**Apache:**
-```apache
-<VirtualHost *:443>
-    ServerName yourdomain.com
-    DocumentRoot /path/to/project/public
+```env
+APP_NAME="SOGRATE"
+APP_ENV=production
+APP_KEY=<stable generated key>
+APP_DEBUG=false
+APP_URL=https://your-domain.example
 
-    <Directory /path/to/project/public>
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
+DB_CONNECTION=mysql
+DB_HOST=<host>
+DB_PORT=3306
+DB_DATABASE=<database>
+DB_USERNAME=<user>
+DB_PASSWORD=<password>
+
+SESSION_DRIVER=database
+SESSION_ENCRYPT=true
+SESSION_SECURE_COOKIE=true
+SESSION_COOKIE=sograte_session
+
+QUEUE_CONNECTION=database
+DB_QUEUE=sograte
+CACHE_STORE=database
+
+LOG_CHANNEL=daily
+LOG_LEVEL=warning
+FILESYSTEM_DISK=public
+
+MAIL_MAILER=smtp
+MAIL_HOST=<host>
+MAIL_PORT=587
+MAIL_USERNAME=<user>
+MAIL_PASSWORD=<password>
+MAIL_FROM_ADDRESS=<verified sender>
+MAIL_FROM_NAME="SOGRATE"
+
+CHECKOUT_ENABLED=true
+ALLOW_PRODUCTION_CHECKOUT=false
+STRIPE_KEY=
+STRIPE_SECRET=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_API_VERSION=2026-10-28.endive
 ```
 
-**Nginx:**
-```nginx
-server {
-    listen 443 ssl;
-    server_name yourdomain.com;
-    root /path/to/project/public;
+Keep `ALLOW_PRODUCTION_CHECKOUT=false` until every critical gate in `docs/launch-readiness.md` is verified.
 
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
+### APP_KEY
 
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-}
+Generate once in the production environment with `php artisan key:generate` and preserve it securely. Do not change an existing production key unless the session/data impact is understood.
+
+## Deployment Procedure
+
+1. Put the application in maintenance mode:
+   `php artisan down --render="errors::503" --retry=60`
+2. Create a database and media backup (see Backup and Restore).
+3. Check out the approved commit/tag. Do not deploy unapproved changes.
+4. Install PHP dependencies:
+   `composer install --no-dev --prefer-dist --optimize-autoloader`
+5. Install and build frontend assets:
+   `npm ci`
+   `npm run build`
+6. Configure `.env` from `.env.production.example`; verify mode, HTTPS URL, secure sessions, mail, Stripe, queue, and the closed checkout gate.
+7. Ensure `storage/` and `bootstrap/cache/` are writable by the web server user.
+8. Create or verify the public storage link:
+   `php artisan storage:link`
+9. Run migrations:
+   `php artisan migrate --force`
+10. Rebuild caches:
+    `php artisan optimize`
+11. Restart long-running queue workers:
+    `php artisan queue:restart`
+12. Bring the application online:
+    `php artisan up`
+13. Verify `GET /up` returns 200.
+14. Run `php artisan app:production-check` and review every warning/failure.
+15. Complete smoke checks for homepage, catalog, cart, checkout gate, admin login, sitemap, robots, media, and private-page protections.
+
+## One-Time Administrator Seeding
+
+The administrator seeder is not part of the normal DatabaseSeeder run. Set temporary values in the production environment:
+
+```env
+ADMIN_SEED_NAME=<administrator display name>
+ADMIN_SEED_EMAIL=<administrator email>
+ADMIN_SEED_PASSWORD=<strong one-time password>
 ```
 
-## Deployment Steps
-
-### 1. Pull Latest Code
-```bash
-cd /path/to/project
-git pull origin main
-```
-
-### 2. Install Dependencies
-```bash
-composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-```
-
-### 3. Environment
-```bash
-cp .env.example .env
-# Edit .env with production values
-php artisan key:generate   # only if APP_KEY is empty
-```
-
-### 4. Storage Link
-```bash
-php artisan storage:link
-```
-
-### 5. File Permissions
-```bash
-# Web server user (www-data, nginx, etc.)
-chown -R www-data:www-data storage bootstrap/cache
-chmod -R 775 storage bootstrap/cache
-chmod -R 775 storage/logs
-```
-
-### 6. Database Migrations
-```bash
-php artisan migrate --force
-```
-
-### 7. Optimize
-```bash
-php artisan optimize
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
-
-### 8. Verify Health Check
-```bash
-curl -s https://yourdomain.com/up
-# Expected: {"status":"ok"}
-```
-
-## Backup Requirements
-
-### Database Backup
-```bash
-# Automated via cron or scheduled task
-mysqldump -u username -p database_name > backup_$(date +%Y%m%d).sql
-```
-
-### Media/Uploads Backup
-Back up the `storage/app/public` directory (symlinked to `public/storage`).
-
-This includes all gallery photos (stored under the `photos` media collection for each gallery), featured images for pages and any other uploaded media. Ensure the entire `media` table in the database is included in database backups, as Spatie Media Library tracks file metadata there.
-
-### Recommended Frequency
-- Database: Daily (minimum), hourly for high-traffic sites
-- Media: Weekly (or use cloud storage with versioning)
-- Full application: Before each deployment
-
-## Restore Procedure
-
-1. Stop the application (enable maintenance mode):
-   ```bash
-   php artisan down
-   ```
-2. Restore database from backup:
-   ```bash
-   mysql -u username -p database_name < backup_YYYYMMDD.sql
-   ```
-3. Restore `storage/app/public` from backup
-4. Re-enable the application:
-   ```bash
-   php artisan up
-   ```
-
-## Rollback Plan
-
-### Code Rollback
-```bash
-git log --oneline -5        # find the last working commit
-git revert HEAD             # revert last commit
-git push origin main        # deploy the revert
-```
-
-### Full Rollback
-1. `php artisan down`
-2. `git checkout <last-known-good-commit>`
-3. `composer install --no-dev --optimize-autoloader`
-4. `php artisan migrate --force` (if migrations were added)
-5. `php artisan optimize`
-6. `php artisan up`
-
-## Security Headers
-
-Configure at the web server level or via middleware:
-
-- `Strict-Transport-Security: max-age=31536000; includeSubDomains`
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: SAMEORIGIN`
-- `X-XSS-Protection: 0` (modern browsers rely on CSP)
-- `Referrer-Policy: strict-origin-when-cross-origin`
-- `Content-Security-Policy: <your policy>`
-
-## Logging
-
-- Use `daily` log channel in production
-- Monitor `storage/logs/laravel.log`
-- Set `LOG_LEVEL=warning` or `error` in production
-- Consider external log aggregation (Papertrail, CloudWatch, etc.)
-
-## Maintenance Mode
+Run exactly once:
 
 ```bash
-# Enable
-php artisan down
-
-# With custom response
-php artisan down --render="errors::503" --retry=60
-
-# Disable
-php artisan up
+php artisan db:seed --class=AdminUserSeeder
 ```
 
-## Post-Deploy Checklist
+The seeder creates a verified Super Admin, refuses to promote an existing customer account, leaves existing administrators and passwords unchanged, and prints no credentials. Remove the temporary ADMIN_SEED_* values after successful creation. Existing administrator 2FA settings are preserved.
 
-- [ ] `APP_ENV=production`
-- [ ] `APP_DEBUG=false`
-- [ ] `APP_KEY` is set
-- [ ] `APP_URL` is HTTPS
-- [ ] `SESSION_SECURE_COOKIE=true`
-- [ ] `LOG_CHANNEL=daily`
-- [ ] `MAIL_FROM_ADDRESS` configured
-- [ ] Database migrated (`--force`)
-- [ ] `storage:link` exists
-- [ ] `composer install --no-dev` completed
-- [ ] `npm run build` completed
-- [ ] `php artisan optimize` ran
-- [ ] `/up` health check returns `{"status":"ok"}`
-- [ ] File permissions correct on `storage/` and `bootstrap/cache`
-- [ ] SSL certificate valid
-- [ ] No sensitive data in logs
+## Queue Worker
+
+Run a persistent queue worker under the host process manager, for example:
+
+```bash
+php artisan queue:work --sleep=3 --tries=3
+```
+
+Restart workers after deployment with `php artisan queue:restart`. Monitor failed jobs with `php artisan queue:failed`.
+
+## Scheduler
+
+Add the Laravel scheduler to cron:
+
+```cron
+* * * * * cd /path/to/sograte && php artisan schedule:run >> /dev/null 2>&1
+```
+
+The application schedules `blog:publish-scheduled` every minute. Confirm cron is active and scheduled publication works.
+
+## Logging and Operations
+
+- Use the `daily` log channel and a production-appropriate log level.
+- Keep `storage/logs/` private.
+- Review application logs and failed queue jobs after deployment.
+- Monitor Stripe webhook failures and `stripe_events` failure records.
+- Do not log credentials, full Stripe payloads, or card data.
+
+## Database and Media Backup
+
+### Database
+
+```bash
+mysqldump -u <user> -p --single-transaction --routines --triggers <database> > sograte-$(date +%Y%m%d-%H%M).sql
+```
+
+### Media
+
+Back up `storage/app/public` and the database `media` table together. Uploaded product, page, blog, gallery, and branding files live there.
+
+### Retention and Storage
+
+- Keep daily database backups and regular media backups.
+- Store copies off-host with restricted access.
+- Encrypt backups where supported.
+- Define retention consistent with business and legal requirements.
+
+### Restore Procedure
+
+1. Put the application in maintenance mode.
+2. Restore the database:
+   `mysql -u <user> -p <database> < backup.sql`
+3. Restore `storage/app/public`.
+4. Rebuild caches with `php artisan optimize`.
+5. Run `php artisan app:production-check`.
+6. Verify health and representative pages before bringing the site online.
+
+A local non-destructive database restore verification was completed during Milestone 12 by restoring a dump into a temporary database. Production backup schedules and off-host restore drills remain launch tasks.
+
+## Rollback
+
+1. Put the application in maintenance mode.
+2. Check out the previous approved commit/tag.
+3. Run `composer install --no-dev --prefer-dist --optimize-autoloader`.
+4. Run `npm ci && npm run build`.
+5. If a migration must be reversed and was reviewed as safe, roll it back; otherwise restore the pre-deployment database backup.
+6. Run `php artisan optimize`.
+7. Restart queue workers.
+8. Bring the site online and verify `/up` plus critical commerce/admin pages.
+
+Do not reverse destructive migrations without a verified backup.
+
+## Security Requirements
+
+- `APP_DEBUG=false` and `APP_ENV=production`.
+- HTTPS only; secure, encrypted session cookies.
+- Document root restricted to `public/`.
+- `.env` outside the web root and never committed.
+- Admin 2FA enabled and administrative permissions unchanged.
+- Stripe webhook signature verification enabled.
+- Checkout gate closed until launch approval.
+- Backup credentials protected separately from the application.

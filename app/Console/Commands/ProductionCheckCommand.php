@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\CheckoutAvailability;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -19,13 +20,20 @@ class ProductionCheckCommand extends Command
         $this->info('Production Readiness Checks');
         $this->line(str_repeat('-', 50));
 
+        $this->checkAppEnvironment();
         $this->checkAppDebug();
         $this->checkAppKey();
         $this->checkAppUrl();
         $this->checkDatabase();
         $this->checkStorageWritable();
+        $this->checkStorageLink();
         $this->checkBootstrapCacheWritable();
+        $this->checkSecureSession();
+        $this->checkQueue();
+        $this->checkFailedJobs();
         $this->checkMailFrom();
+        $this->checkStripeConfiguration();
+        $this->checkCheckoutGate();
         $this->checkGoogleVerification();
 
         $this->line('');
@@ -73,6 +81,15 @@ class ProductionCheckCommand extends Command
             $msg .= ' - '.$reason;
         }
         $this->error($msg);
+    }
+
+    private function checkAppEnvironment(): void
+    {
+        if (app()->isProduction()) {
+            $this->recordPass('APP_ENV is production');
+        } else {
+            $this->recordWarning('APP_ENV is not production', app()->environment());
+        }
     }
 
     private function checkAppDebug(): void
@@ -130,6 +147,74 @@ class ProductionCheckCommand extends Command
             $this->recordPass('bootstrap/cache is writable');
         } else {
             $this->recordFailure('bootstrap/cache is not writable');
+        }
+    }
+
+    private function checkStorageLink(): void
+    {
+        if (is_link(public_path('storage')) || file_exists(public_path('storage'))) {
+            $this->recordPass('Public storage link exists');
+        } else {
+            $this->recordFailure('Public storage link is missing', 'run php artisan storage:link');
+        }
+    }
+
+    private function checkSecureSession(): void
+    {
+        if (config('session.secure') && config('session.encrypt')) {
+            $this->recordPass('Secure encrypted sessions are enabled');
+        } else {
+            $this->recordWarning('Session security is incomplete', 'set SESSION_SECURE_COOKIE=true and SESSION_ENCRYPT=true');
+        }
+    }
+
+    private function checkQueue(): void
+    {
+        $connection = config('queue.default');
+
+        if (! in_array($connection, ['sync', 'null'], true)) {
+            $this->recordPass('Queue connection is asynchronous');
+        } else {
+            $this->recordWarning('Queue connection is synchronous', 'configure a production queue worker');
+        }
+    }
+
+    private function checkFailedJobs(): void
+    {
+        try {
+            $count = DB::table('failed_jobs')->count();
+
+            if ($count === 0) {
+                $this->recordPass('No failed queue jobs');
+            } else {
+                $this->recordWarning($count.' failed queue job(s) found', 'review with php artisan queue:failed');
+            }
+        } catch (\Throwable $e) {
+            $this->recordWarning('Could not inspect failed queue jobs');
+        }
+    }
+
+    private function checkStripeConfiguration(): void
+    {
+        $key = filled(config('services.stripe.key'));
+        $secret = filled(config('services.stripe.secret'));
+        $webhook = filled(config('services.stripe.webhook_secret'));
+
+        if ($key && $secret && $webhook) {
+            $this->recordPass('Stripe keys and webhook secret are configured');
+        } elseif ($key || $secret) {
+            $this->recordWarning('Stripe configuration is incomplete', 'verify mode, publishable key, secret, and webhook secret');
+        } else {
+            $this->recordWarning('Stripe is not configured');
+        }
+    }
+
+    private function checkCheckoutGate(): void
+    {
+        if (app(CheckoutAvailability::class)->enabled()) {
+            $this->recordWarning('Checkout is enabled', 'confirm launch authorization, tax policy, and verified payment delivery');
+        } else {
+            $this->recordPass('Checkout gate is closed');
         }
     }
 
