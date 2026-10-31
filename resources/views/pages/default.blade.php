@@ -1,11 +1,9 @@
 @extends('layouts.app')
 
 @section('title', $page->meta_title ?: $page->title)
+@section('meta_description', $page->meta_description)
 
 @section('meta')
-    @if($page->meta_description)
-        <meta name="description" content="{{ e($page->meta_description) }}">
-    @endif
     @if($page->robots)
         <meta name="robots" content="{{ e($page->robots->value) }}">
     @endif

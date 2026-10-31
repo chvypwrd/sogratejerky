@@ -1,26 +1,22 @@
 @extends('layouts.app')
 
 @section('title', $product->seo_title ?: $product->name)
+@section('meta_description', $product->seoDescriptionText())
 
 @section('meta')
     @php
-        $seoDescription = $product->seo_description ?: $product->short_description ?: \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 160);
+        $seoDescription = $product->seoDescriptionText();
         $canonicalUrl = route('shop.show', ['product' => $product->slug]);
         $featuredMedia = $product->getPrimaryImage();
     @endphp
 
-    @if($seoDescription)
-        <meta name="description" content="{{ e($seoDescription) }}">
-    @endif
     @if($variants->isEmpty())
         <meta name="robots" content="noindex,follow">
     @endif
     <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:type" content="product">
     <meta property="og:title" content="{{ e($product->seo_title ?: $product->name) }}">
-    @if($seoDescription)
-        <meta property="og:description" content="{{ e($seoDescription) }}">
-    @endif
+    <meta property="og:description" content="{{ e($seoDescription) }}">
     <meta property="og:url" content="{{ $canonicalUrl }}">
     @if($featuredMedia)
         <meta property="og:image" content="{{ $featuredMedia->getUrl('card') }}">
@@ -39,12 +35,12 @@
     <div class="container">
         <a href="{{ route('shop.index') }}" class="text-muted small mb-4 d-inline-block">&larr; Back to Shop</a>
 
-        <div class="row g-5">
+        <div class="row g-4 g-lg-5">
             <div class="col-lg-7">
                 <div class="product-gallery">
                     <div class="product-gallery__main">
                         @if($mainImageUrl)
-                            <img id="product-main-image" src="{{ $mainImageUrl }}" alt="{{ e($mainAlt) }}">
+                            <img id="product-main-image" src="{{ $mainImageUrl }}" alt="{{ e($mainAlt) }}" width="800" height="600" decoding="async">
                         @else
                             <div class="product-gallery__placeholder" id="product-main-image">{{ config('app.name', 'SOGRATE') }}</div>
                         @endif
@@ -53,8 +49,8 @@
                     @if($galleryImages->count() > 0)
                         <div class="product-gallery__thumbs" aria-label="Product images">
                             @foreach($galleryImages as $media)
-                                <button type="button" class="product-gallery__thumb" data-gallery-image="{{ $media->getUrl('card') }}" aria-label="View product image">
-                                    <img src="{{ $media->getUrl('thumb') }}" alt="{{ e($media->getCustomProperty('alt_text', $product->name)) }}">
+                                <button type="button" class="product-gallery__thumb" data-gallery-image="{{ $media->getUrl('card') }}" aria-label="View {{ $product->name }} image {{ $loop->iteration }}">
+                                    <img src="{{ $media->getUrl('thumb') }}" alt="{{ e($media->getCustomProperty('alt_text', $product->name)) }}" width="400" height="300" loading="lazy" decoding="async">
                                 </button>
                             @endforeach
                         </div>

@@ -31,7 +31,7 @@ class PublicShopController extends Controller
 
         $products = $productCategory->products()
             ->catalog()
-            ->with(['availableVariants', 'categories'])
+            ->with(['media', 'availableVariants.media', 'availableVariants', 'categories'])
             ->ordered()
             ->paginate(12)
             ->withQueryString();
@@ -42,7 +42,7 @@ class PublicShopController extends Controller
             'description' => $productCategory->description,
             'archiveType' => 'Category',
             'seoTitle' => $productCategory->seo_title ?: $productCategory->name,
-            'seoDescription' => $productCategory->seo_description ?: $productCategory->description,
+            'seoDescription' => $productCategory->seo_description ?: $productCategory->description ?: 'Browse '.$productCategory->name.' from SOGRATE, Texas-made beef jerky.',
             'categories' => ProductCategory::active()->ordered()->get(),
             'tags' => ProductTag::ordered()->get(),
         ]);
@@ -52,7 +52,7 @@ class PublicShopController extends Controller
     {
         $products = $productTag->products()
             ->catalog()
-            ->with(['availableVariants', 'categories'])
+            ->with(['media', 'availableVariants.media', 'availableVariants', 'categories'])
             ->ordered()
             ->paginate(12)
             ->withQueryString();
@@ -62,8 +62,8 @@ class PublicShopController extends Controller
             'heading' => $productTag->name,
             'description' => null,
             'archiveType' => 'Tag',
-            'seoTitle' => null,
-            'seoDescription' => null,
+            'seoTitle' => 'Tag: '.$productTag->name,
+            'seoDescription' => 'Browse SOGRATE beef jerky tagged '.$productTag->name.'.',
             'categories' => ProductCategory::active()->ordered()->get(),
             'tags' => ProductTag::ordered()->get(),
         ]);
@@ -78,7 +78,7 @@ class PublicShopController extends Controller
         }
 
         $product = Product::active()
-            ->with(['availableVariants', 'categories', 'tags'])
+            ->with(['media', 'availableVariants.media', 'availableVariants', 'categories', 'tags'])
             ->where('slug', $product)
             ->firstOrFail();
 
@@ -105,7 +105,7 @@ class PublicShopController extends Controller
 
     private function productQuery(Request $request)
     {
-        $query = Product::catalog()->with(['availableVariants', 'categories']);
+        $query = Product::catalog()->with(['media', 'availableVariants.media', 'availableVariants', 'categories']);
 
         return match ($request->get('sort', 'featured')) {
             'name' => $query->orderBy('name'),

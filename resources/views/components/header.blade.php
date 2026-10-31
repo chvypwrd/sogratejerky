@@ -65,7 +65,7 @@
                         <a href="{{ route('customer.login') }}" class="header-account">Sign In</a>
                         <a href="{{ route('customer.register') }}" class="header-account header-account--strong">Create Account</a>
                     @endauth
-                    <a href="{{ route('cart.index') }}" class="header-cart" aria-label="Cart, {{ $cartCount }} items">
+                    <a href="{{ route('cart.index') }}" class="header-cart" aria-label="Cart, {{ $cartCount }} {{ $cartCount === 1 ? 'item' : 'items' }}">
                         Cart <span class="header-cart__count">{{ $cartCount }}</span>
                     </a>
                     @if($showContactCta)

@@ -61,17 +61,17 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="customer_name" class="form-label">Full name</label>
-                                <input type="text" class="form-control @error('customer_name') is-invalid @enderror" id="customer_name" name="customer_name" value="{{ old('customer_name', auth()->user()?->name) }}" required>
+                                <input type="text" class="form-control @error('customer_name') is-invalid @enderror" id="customer_name" name="customer_name" value="{{ old('customer_name', auth()->user()?->name) }}" autocomplete="name" required>
                                 @error('customer_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label for="customer_email" class="form-label">Email</label>
-                                <input type="email" class="form-control @error('customer_email') is-invalid @enderror" id="customer_email" name="customer_email" value="{{ old('customer_email', auth()->user()?->email) }}" required>
+                                <input type="email" class="form-control @error('customer_email') is-invalid @enderror" id="customer_email" name="customer_email" value="{{ old('customer_email', auth()->user()?->email) }}" autocomplete="email" required>
                                 @error('customer_email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label for="customer_phone" class="form-label">Phone <span class="text-muted">(optional)</span></label>
-                                <input type="text" class="form-control @error('customer_phone') is-invalid @enderror" id="customer_phone" name="customer_phone" value="{{ old('customer_phone') }}">
+                                <input type="text" class="form-control @error('customer_phone') is-invalid @enderror" id="customer_phone" name="customer_phone" value="{{ old('customer_phone') }}" autocomplete="tel">
                                 @error('customer_phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
@@ -87,7 +87,7 @@
                         @if(! $setting->shipping_enabled && ! $setting->local_delivery_enabled && ! $setting->pickup_enabled)
                             <div class="alert alert-warning py-2 mb-0">No fulfillment methods are currently available. Please check back soon.</div>
                         @else
-                            <div class="checkout-methods">
+                            <div class="checkout-methods" role="radiogroup" aria-label="Fulfillment method">
                                 @if($setting->shipping_enabled)
                                     <label class="checkout-method">
                                         <input type="radio" name="fulfillment_method" value="shipping" @checked(old('fulfillment_method', $defaultMethod) === 'shipping')>
@@ -374,6 +374,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function beginPayment() {
         if (!paymentConfigured || paymentProcessing) {
+            return;
+        }
+
+        if (!checkoutForm.reportValidity()) {
             return;
         }
 

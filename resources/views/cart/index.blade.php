@@ -24,13 +24,17 @@
             <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
         @endif
 
+        @php
+            $hasUnavailableItems = $cart->items->contains(fn ($item) => ! $item->isAvailable());
+        @endphp
+
         @if($cart->items->isEmpty())
             <div class="empty-state">
                 <p class="mb-3">Your cart is empty.</p>
                 <a href="{{ route('shop.index') }}" class="btn btn-brand">Shop Jerky</a>
             </div>
         @else
-            <div class="row g-5">
+            <div class="row g-4 g-lg-5">
                 <div class="col-lg-8">
                     <div class="cart-lines">
                         @foreach($cart->items as $item)
@@ -43,7 +47,7 @@
                             <article class="cart-line {{ $available ? '' : 'cart-line--unavailable' }}">
                                 <div class="cart-line__media">
                                     @if($image)
-                                        <img src="{{ $image->getUrl('thumb') }}" alt="{{ e($product?->name ?? 'Product') }}">
+                                        <img src="{{ $image->getUrl('thumb') }}" alt="{{ e($product?->name ?? 'Product') }}" width="400" height="300" loading="lazy" decoding="async">
                                     @else
                                         <span>{{ config('app.name', 'SOGRATE') }}</span>
                                     @endif
@@ -71,10 +75,10 @@
                                     <form action="{{ route('cart.items.update', $item) }}" method="POST">
                                         @csrf
                                         @method('PATCH')
-                                        <label for="quantity-{{ $item->id }}" class="form-label">Quantity</label>
+                                        <label for="quantity-{{ $item->id }}" class="form-label">Quantity<span class="visually-hidden"> for {{ $product?->name ?? '' }} {{ $variant?->name ?? '' }}</span></label>
                                         <div class="input-group input-group-sm">
                                             <input type="number" class="form-control" id="quantity-{{ $item->id }}" name="quantity" value="{{ $item->quantity }}" min="0" max="{{ config('cart.max_quantity', 99) }}">
-                                            <button type="submit" class="btn btn-outline-secondary">Update</button>
+                                            <button type="submit" class="btn btn-outline-secondary" aria-label="Update quantity for {{ $product?->name ?? '' }} {{ $variant?->name ?? '' }}">Update</button>
                                         </div>
                                     </form>
                                 </div>
@@ -88,7 +92,7 @@
                                     <form action="{{ route('cart.items.destroy', $item) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Remove {{ $product?->name ?? '' }} {{ $variant?->name ?? '' }} from cart">Remove</button>
                                     </form>
                                 </div>
                             </article>
@@ -115,8 +119,13 @@
                         <p class="cart-summary__note">Available items only. Taxes and shipping are calculated later.</p>
 
                         <div class="cart-summary__checkout">
-                            <a href="{{ route('checkout.index') }}" class="btn btn-brand w-100">Proceed to Checkout</a>
-                            <p class="mb-0 mt-2">Fulfillment options and taxes are confirmed at checkout.</p>
+                            @if($hasUnavailableItems)
+                                <p class="mb-2">Remove unavailable items before proceeding to checkout.</p>
+                                <button type="button" class="btn btn-brand w-100" disabled>Checkout Unavailable</button>
+                            @else
+                                <a href="{{ route('checkout.index') }}" class="btn btn-brand w-100">Proceed to Checkout</a>
+                                <p class="mb-0 mt-2">Fulfillment options and taxes are confirmed at checkout.</p>
+                            @endif
                         </div>
 
                         <a href="{{ route('shop.index') }}" class="btn btn-brand-outline w-100 mt-3">Continue Shopping</a>

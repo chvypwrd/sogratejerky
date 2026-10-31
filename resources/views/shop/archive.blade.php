@@ -1,15 +1,19 @@
 @extends('layouts.app')
 
 @section('title', $seoTitle ?: ($archiveType . ': ' . $heading))
+@section('meta_description', $seoDescription)
 
 @section('meta')
-    @if($seoDescription)
-        <meta name="description" content="{{ e($seoDescription) }}">
+    @php
+        $canonicalUrl = $products->currentPage() > 1 ? $products->url($products->currentPage()) : url()->current();
+    @endphp
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    @if($products->isEmpty())
+        <meta name="robots" content="noindex,follow">
     @endif
-    <link rel="canonical" href="{{ url()->current() }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ e(config('app.name')) }} - {{ $heading }}">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
 @endsection
 
 @section('content')

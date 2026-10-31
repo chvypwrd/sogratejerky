@@ -48,6 +48,17 @@ class RobotsTest extends TestCase
         $this->assertStringContainsString(route('sitemap', [], false), $content);
     }
 
+    public function test_production_mode_disallows_private_routes(): void
+    {
+        app()->detectEnvironment(fn () => 'production');
+
+        $response = $this->get(route('robots'));
+
+        $response->assertSee('Disallow: /admin', false);
+        $response->assertSee('Disallow: /checkout', false);
+        $response->assertSee('Disallow: /account', false);
+    }
+
     public function test_non_production_mode_includes_disallow(): void
     {
         $response = $this->get(route('robots'));

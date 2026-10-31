@@ -8,7 +8,7 @@
 <article class="product-card card h-100">
     <a href="{{ route('shop.show', ['product' => $product->slug]) }}" class="product-card__media">
         @if($imageUrl)
-            <img src="{{ $imageUrl }}" alt="{{ e($altText) }}" loading="lazy">
+            <img src="{{ $imageUrl }}" alt="{{ e($altText) }}" width="800" height="600" loading="lazy" decoding="async">
         @else
             <span class="product-card__placeholder">{{ config('app.name', 'SOGRATE') }}</span>
         @endif
@@ -33,7 +33,7 @@
 
         <div class="product-card__footer">
             <span class="product-price">{{ $product->starting_price_formatted ? 'From '.$product->starting_price_formatted : 'Unavailable' }}</span>
-            <a href="{{ route('shop.show', ['product' => $product->slug]) }}" class="product-card__link">View Product</a>
+            <a href="{{ route('shop.show', ['product' => $product->slug]) }}" class="product-card__link" aria-label="View {{ $product->name }}">View Product</a>
         </div>
     </div>
 </article>

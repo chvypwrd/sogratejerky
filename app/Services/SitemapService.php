@@ -8,6 +8,7 @@ use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductTag;
 use Illuminate\Support\Facades\Cache;
 
 class SitemapService
@@ -56,6 +57,19 @@ class SitemapService
                 $urls[] = [
                     'url' => $baseUrl.'/shop/category/'.$category->slug,
                     'lastmod' => $category->updated_at?->format('Y-m-d'),
+                ];
+            }
+
+            $productTags = ProductTag::query()
+                ->whereHas('products', fn ($query) => $query->catalog())
+                ->select(['slug', 'updated_at'])
+                ->orderBy('slug')
+                ->get();
+
+            foreach ($productTags as $tag) {
+                $urls[] = [
+                    'url' => $baseUrl.'/shop/tag/'.$tag->slug,
+                    'lastmod' => $tag->updated_at?->format('Y-m-d'),
                 ];
             }
 

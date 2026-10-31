@@ -176,6 +176,7 @@
 }
 
 .quick-order-group {
+    min-width: 0;
     padding: 1.25rem;
     background-color: $white;
     border: 1px solid $pale-sage;
@@ -198,6 +199,7 @@
 }
 
 .quick-order-table {
+    min-width: 620px;
     margin-bottom: 0;
 
     th {

@@ -15,7 +15,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="{{ $metaDescription ?? $defaultDescription }}">
+    @php
+        $pageMetaDescription = trim((string) $__env->yieldContent('meta_description'));
+    @endphp
+    @if($pageMetaDescription !== '')
+        <meta name="description" content="{{ e($pageMetaDescription) }}">
+    @elseif($metaDescription ?? $defaultDescription)
+        <meta name="description" content="{{ e($metaDescription ?? $defaultDescription) }}">
+    @endif
     <meta name="theme-color" content="#9B300F">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

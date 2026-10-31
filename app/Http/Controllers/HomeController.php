@@ -22,7 +22,7 @@ class HomeController extends Controller
         $featuredProducts = Product::catalog()
             ->featured()
             ->ordered()
-            ->with(['availableVariants', 'categories'])
+            ->with(['media', 'availableVariants.media', 'availableVariants', 'categories'])
             ->limit(3)
             ->get();
 

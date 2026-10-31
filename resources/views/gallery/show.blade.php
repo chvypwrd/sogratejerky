@@ -1,11 +1,9 @@
 @extends('layouts.app')
 
 @section('title', $gallery->meta_title ?: $gallery->title)
+@section('meta_description', $gallery->meta_description)
 
 @section('meta')
-    @if($gallery->meta_description)
-        <meta name="description" content="{{ e($gallery->meta_description) }}">
-    @endif
     @if($gallery->robots)
         <meta name="robots" content="{{ e($gallery->robots->value) }}">
     @endif

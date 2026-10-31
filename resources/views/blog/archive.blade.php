@@ -3,10 +3,13 @@
 @section('title', $archiveType . ': ' . $heading)
 
 @section('meta')
-    <link rel="canonical" href="{{ url()->current() }}">
+    @php
+        $canonicalUrl = $posts->currentPage() > 1 ? $posts->url($posts->currentPage()) : url()->current();
+    @endphp
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ e(config('app.name')) }} - {{ $heading }}">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
 @endsection
 
 @section('content')

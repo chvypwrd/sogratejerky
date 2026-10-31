@@ -3,10 +3,13 @@
 @section('title', 'Blog')
 
 @section('meta')
-    <link rel="canonical" href="{{ route('blog.index') }}">
+    @php
+        $canonicalUrl = $posts->currentPage() > 1 ? $posts->url($posts->currentPage()) : route('blog.index');
+    @endphp
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ e(config('app.name')) }} - Blog">
-    <meta property="og:url" content="{{ route('blog.index') }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
 @endsection
 
 @section('content')

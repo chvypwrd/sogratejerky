@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
 @section('title', $post->seo_title ?: $post->title)
+@php
+    $seoDescription = $post->seo_description ?: \Illuminate\Support\Str::limit(strip_tags((string) ($post->excerpt ?: $post->content)), 160);
+@endphp
+@section('meta_description', $seoDescription)
 
 @section('meta')
     @php
-        $seoDescription = $post->seo_description ?: \Illuminate\Support\Str::limit(strip_tags((string) ($post->excerpt ?: $post->content)), 160);
         $canonicalUrl = route('blog.show', $post->slug);
         $featuredMedia = $post->getFirstMedia('featured');
     @endphp
 
-    @if($seoDescription)
-        <meta name="description" content="{{ e($seoDescription) }}">
-    @endif
     <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:type" content="article">
     <meta property="og:title" content="{{ e($post->seo_title ?: $post->title) }}">

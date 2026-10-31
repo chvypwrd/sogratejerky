@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Shop;
 
-use App\Enums\BlogPostStatus;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
@@ -184,6 +183,68 @@ class ProductPublicTest extends TestCase
         $response->assertSee('priceCurrency', false);
         $response->assertSee('InStock', false);
         $response->assertSee(route('shop.show', ['product' => $product->slug]), false);
+    }
+
+    public function test_product_uses_safe_description_fallback_when_content_is_missing(): void
+    {
+        $product = Product::factory()->create([
+            'name' => 'Bare Jerky',
+            'short_description' => null,
+            'description' => null,
+            'seo_description' => null,
+        ]);
+        ProductVariant::factory()->create(['product_id' => $product->id, 'is_active' => true]);
+
+        $this->get(route('shop.show', ['product' => $product->slug]))
+            ->assertOk()
+            ->assertSee('Shop Bare Jerky from SOGRATE');
+    }
+
+    public function test_product_page_emits_one_meta_description_and_product_group_schema(): void
+    {
+        $product = Product::factory()->create(['name' => 'Grouped Jerky', 'short_description' => 'Grouped description.']);
+        ProductVariant::factory()->create(['product_id' => $product->id, 'name' => 'Small', 'is_active' => true]);
+        ProductVariant::factory()->create(['product_id' => $product->id, 'name' => 'Large', 'is_active' => true]);
+
+        $response = $this->get(route('shop.show', ['product' => $product->slug]));
+
+        $response->assertOk();
+        $this->assertSame(1, substr_count($response->getContent(), 'name="description"'));
+        $response->assertSee('"@type":"ProductGroup"', false);
+        $response->assertSee('"@type":"Brand"', false);
+        $response->assertSee('InStock', false);
+    }
+
+    public function test_product_schema_reflects_disabled_checkout_availability(): void
+    {
+        $product = $this->availableProduct(['name' => 'Disabled Checkout Jerky']);
+        config(['commerce.checkout_enabled' => false]);
+
+        $this->get(route('shop.show', ['product' => $product->slug]))
+            ->assertOk()
+            ->assertSee('OutOfStock', false);
+    }
+
+    public function test_sitemap_includes_product_tags_with_catalog_products(): void
+    {
+        $tag = ProductTag::factory()->create();
+        $product = $this->availableProduct(['name' => 'Tagged Sitemap Jerky']);
+        $product->tags()->attach($tag);
+
+        $this->get(route('sitemap'))
+            ->assertOk()
+            ->assertSee('/shop/tag/'.$tag->slug, false);
+    }
+
+    public function test_shop_pagination_has_self_canonical(): void
+    {
+        for ($i = 0; $i < 13; $i++) {
+            $this->availableProduct();
+        }
+
+        $this->get(route('shop.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('rel="canonical" href="'.route('shop.index').'?page=2"', false);
     }
 
     public function test_sitemap_includes_active_products_and_non_empty_active_categories(): void

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -97,6 +98,21 @@ class Product extends Model implements HasMedia
         return $this->is_active && $this->availableVariants->isNotEmpty();
     }
 
+    public function seoDescriptionText(int $limit = 160): string
+    {
+        $source = $this->seo_description
+            ?: $this->short_description
+            ?: strip_tags((string) $this->description);
+
+        $source = trim(preg_replace('/\s+/', ' ', html_entity_decode((string) $source, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+
+        if ($source === '') {
+            $source = 'Shop '.$this->name.' from SOGRATE, Texas-made beef jerky.';
+        }
+
+        return Str::limit($source, $limit);
+    }
+
     public function getPrimaryImage(): ?Media
     {
         $primary = $this->getFirstMedia('primary_image');
@@ -105,7 +121,9 @@ class Product extends Model implements HasMedia
             return $primary;
         }
 
-        $variant = $this->variants->firstWhere('is_active', true) ?? $this->variants->first();
+        $variant = $this->relationLoaded('availableVariants')
+            ? $this->availableVariants->first()
+            : $this->availableVariants()->first();
 
         return $variant?->getFirstMedia('image');
     }

@@ -4,13 +4,14 @@ namespace App\Services;
 
 use App\Models\BlogPost;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\SiteBranding;
 
 class StructuredDataService
 {
     protected SettingsService $settings;
 
-    public function __construct(SettingsService $settings)
+    public function __construct(SettingsService $settings, private CheckoutAvailability $checkoutAvailability)
     {
         $this->settings = $settings;
     }
@@ -157,38 +158,73 @@ class StructuredDataService
 
     public function product(Product $product, iterable $variants): array
     {
+        $variants = collect($variants);
+        $description = $product->seoDescriptionText(500);
+        $brand = [
+            '@type' => 'Brand',
+            'name' => $this->settings->get('general.site_name', config('app.name', 'SOGRATE')),
+        ];
+        $availability = $this->checkoutAvailability->enabled() && $product->isAvailable()
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock';
+        $primaryImage = $product->getPrimaryImage();
+        $primaryImageUrl = $primaryImage?->getUrl('card');
+
+        $variantOffers = $variants->map(function (ProductVariant $variant) use ($product, $availability, $primaryImageUrl) {
+            return [
+                '@type' => 'Product',
+                'name' => $product->name.' - '.$variant->name,
+                'sku' => $variant->sku,
+                'image' => $variant->getFirstMediaUrl('image', 'card') ?: $primaryImageUrl,
+                'offers' => [
+                    '@type' => 'Offer',
+                    'url' => route('shop.show', ['product' => $product->slug, 'variant' => $variant->id]),
+                    'price' => number_format($variant->price / 100, 2, '.', ''),
+                    'priceCurrency' => 'USD',
+                    'availability' => $availability,
+                    'itemCondition' => 'https://schema.org/NewCondition',
+                    'sku' => $variant->sku,
+                ],
+            ];
+        })->all();
+
+        if ($variants->count() > 1) {
+            $data = [
+                '@context' => 'https://schema.org',
+                '@type' => 'ProductGroup',
+                'name' => $product->name,
+                'description' => $description,
+                'url' => route('shop.show', ['product' => $product->slug]),
+                'productGroupID' => $product->slug,
+                'brand' => $brand,
+                'variesBy' => 'https://schema.org/size',
+                'hasVariant' => $variantOffers,
+            ];
+
+            if ($primaryImageUrl) {
+                $data['image'] = $primaryImageUrl;
+            }
+
+            return $data;
+        }
+
         $data = [
             '@context' => 'https://schema.org',
             '@type' => 'Product',
             'name' => $product->name,
+            'description' => $description,
             'url' => route('shop.show', ['product' => $product->slug]),
+            'brand' => $brand,
         ];
 
-        $description = $product->seo_description ?: $product->short_description ?: strip_tags((string) $product->description);
-        if ($description) {
-            $data['description'] = $description;
+        if ($primaryImageUrl) {
+            $data['image'] = $primaryImageUrl;
         }
 
-        $image = $product->getPrimaryImage();
-        if ($image) {
-            $data['image'] = $image->getUrl('card');
-        }
-
-        $offers = [];
-        foreach ($variants as $variant) {
-            $offers[] = [
-                '@type' => 'Offer',
-                'url' => route('shop.show', ['product' => $product->slug, 'variant' => $variant->id]),
-                'price' => number_format($variant->price / 100, 2, '.', ''),
-                'priceCurrency' => 'USD',
-                'availability' => 'https://schema.org/InStock',
-                'sku' => $variant->sku,
-                'name' => $variant->name,
-            ];
-        }
-
-        if ($offers) {
-            $data['offers'] = $offers;
+        if ($variantOffers) {
+            $variant = $variants->first();
+            $data['sku'] = $variant->sku;
+            $data['offers'] = $variantOffers[0]['offers'];
         }
 
         return $data;

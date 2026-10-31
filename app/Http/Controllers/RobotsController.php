@@ -9,7 +9,18 @@ class RobotsController
     public function __invoke(): Response
     {
         if (app()->environment('production')) {
-            $content = "User-agent: *\nAllow: /\n\nSitemap: ".route('sitemap')."\n";
+            $content = "User-agent: *\n"
+                ."Allow: /\n"
+                ."Disallow: /admin\n"
+                ."Disallow: /account\n"
+                ."Disallow: /cart\n"
+                ."Disallow: /checkout\n"
+                ."Disallow: /login\n"
+                ."Disallow: /register\n"
+                ."Disallow: /forgot-password\n"
+                ."Disallow: /reset-password\n"
+                ."Disallow: /email\n\n"
+                .'Sitemap: '.route('sitemap')."\n";
         } else {
             $content = "User-agent: *\nDisallow: /\n";
         }

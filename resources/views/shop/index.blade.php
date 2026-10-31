@@ -1,12 +1,16 @@
 @extends('layouts.app')
 
 @section('title', 'Shop Jerky')
+@section('meta_description', 'Shop small-batch SOGRATE beef jerky, made in Texas with bold BBQ flavor.')
 
 @section('meta')
-    <link rel="canonical" href="{{ route('shop.index') }}">
+    @php
+        $canonicalUrl = $products->currentPage() > 1 ? $products->url($products->currentPage()) : route('shop.index');
+    @endphp
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ e(config('app.name')) }} - Shop Jerky">
-    <meta property="og:url" content="{{ route('shop.index') }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
 @endsection
 
 @section('content')

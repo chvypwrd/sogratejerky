@@ -221,7 +221,9 @@ class CartTest extends TestCase
         $this->get(route('cart.index'))
             ->assertOk()
             ->assertSee('This item is no longer available')
-            ->assertSee('$0.00');
+            ->assertSee('$0.00')
+            ->assertSee('Checkout Unavailable')
+            ->assertDontSee('Proceed to Checkout');
     }
 
     public function test_quantity_limit_applies_to_accumulated_quantity(): void
