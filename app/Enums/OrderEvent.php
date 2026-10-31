@@ -11,6 +11,11 @@ enum OrderEvent: string
     case OutForDelivery = 'out_for_delivery';
     case Delivered = 'delivered';
     case Shipped = 'shipped';
+    case PaymentProcessing = 'payment_processing';
+    case PaymentPaid = 'payment_paid';
+    case PaymentFailed = 'payment_failed';
+    case RefundRequested = 'refund_requested';
+    case RefundCompleted = 'refund_completed';
 
     public function label(): string
     {
@@ -22,6 +27,11 @@ enum OrderEvent: string
             self::OutForDelivery => 'Out for delivery',
             self::Delivered => 'Delivered',
             self::Shipped => 'Shipped',
+            self::PaymentProcessing => 'Payment processing',
+            self::PaymentPaid => 'Payment confirmed',
+            self::PaymentFailed => 'Payment failed',
+            self::RefundRequested => 'Refund requested',
+            self::RefundCompleted => 'Refund completed',
         };
     }
 }

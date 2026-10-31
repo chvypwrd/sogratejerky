@@ -30,6 +30,7 @@ use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerEmailVerificationController;
 use App\Http\Controllers\CustomerPasswordController;
+use App\Http\Controllers\CustomerPaymentMethodController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
@@ -41,6 +42,7 @@ use App\Http\Controllers\PublicShopController;
 use App\Http\Controllers\QuickOrderController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\TestimonialController;
 use Illuminate\Support\Facades\Route;
 
@@ -191,6 +193,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     Route::post('/orders/{order}/delivered', [OrderController::class, 'markDelivered'])->name('orders.delivered')->middleware('can:orders.fulfill');
     Route::post('/orders/{order}/shipped', [OrderController::class, 'markShipped'])->name('orders.shipped')->middleware('can:orders.fulfill');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel')->middleware('can:orders.cancel');
+    Route::post('/orders/{order}/refund', [OrderController::class, 'refund'])->name('orders.refund')->middleware('can:orders.refund');
 
     // Fulfillment
     Route::get('/fulfillment', [FulfillmentController::class, 'index'])->name('fulfillment.index')->middleware('can:fulfillment.view');
@@ -235,9 +238,15 @@ Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear')
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/return/{order}', [CheckoutController::class, 'paymentReturn'])
+    ->name('checkout.return')
+    ->middleware('signed');
+
 Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])
     ->name('checkout.confirmation')
     ->middleware('signed');
+
+Route::post('/stripe/webhook', StripeWebhookController::class)->name('stripe.webhook');
 
 Route::get('/quick-order', [QuickOrderController::class, 'index'])->name('quick-order.index');
 Route::post('/quick-order', [QuickOrderController::class, 'store'])->name('quick-order.store');
@@ -272,6 +281,9 @@ Route::middleware('customer.auth')->group(function () {
 
         Route::get('/orders', [AccountOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AccountOrderController::class, 'show'])->name('orders.show');
+
+        Route::get('/payment-methods', [CustomerPaymentMethodController::class, 'index'])->name('payment-methods.index');
+        Route::delete('/payment-methods/{paymentMethod}', [CustomerPaymentMethodController::class, 'destroy'])->name('payment-methods.destroy');
     });
 });
 

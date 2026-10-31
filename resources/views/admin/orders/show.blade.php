@@ -23,6 +23,8 @@
     ])->filter();
     $fulfillmentAddress = $order->fulfillment_address_snapshot;
     $billingAddress = $order->billing_address_snapshot;
+    $payment = $order->payments->first();
+    $refundable = $payment?->refundable_cents ?? 0;
     $pickup = $order->pickup_location_snapshot;
 @endphp
 
@@ -305,6 +307,92 @@
     </div>
 </div>
 
+@if($payment)
+    <div class="card mb-4">
+        <div class="card-header"><strong>Payment & Refunds</strong></div>
+        <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <div class="text-muted small">Status</div>
+                    <span class="badge bg-{{ $payment->status->color() }}">{{ $payment->status->label() }}</span>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-muted small">Captured</div>
+                    <div>{{ $payment->amount_formatted }}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-muted small">Refunded</div>
+                    <div>${{ number_format($payment->refunded_cents / 100, 2) }}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-muted small">Remaining refundable</div>
+                    <div>${{ number_format($refundable / 100, 2) }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Stripe PaymentIntent</div>
+                    <div class="text-break">{{ $payment->payment_intent_id ?: '—' }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Paid at</div>
+                    <div>{{ $payment->paid_at?->format('M j, Y g:i A') ?? '—' }}</div>
+                </div>
+            </div>
+
+            @if($payment->refunds->isNotEmpty())
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Reason</th>
+                                <th>Requested by</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($payment->refunds as $refund)
+                                <tr>
+                                    <td class="text-nowrap">{{ $refund->created_at->format('M j, Y g:i A') }}</td>
+                                    <td>{{ $refund->amount_formatted }}</td>
+                                    <td><span class="badge bg-{{ $refund->status->color() }}">{{ $refund->status->label() }}</span></td>
+                                    <td>{{ $refund->reason ?: '—' }}</td>
+                                    <td>{{ $refund->requester?->name ?? '—' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+            @can('refund', $order)
+                @if($refundable > 0 && in_array($order->payment_status, [\App\Enums\PaymentStatus::Paid, \App\Enums\PaymentStatus::PartiallyRefunded], true))
+                    <form method="POST" action="{{ route('admin.orders.refund', $order) }}" class="row g-2 align-items-end">
+                        @csrf
+                        <input type="hidden" name="request_key" value="{{ \Illuminate\Support\Str::uuid() }}">
+                        <div class="col-md-3">
+                            <label for="refund_amount" class="form-label">Refund amount</label>
+                            <input type="number" class="form-control @error('amount') is-invalid @enderror" id="refund_amount" name="amount" min="0.01" max="{{ number_format($refundable / 100, 2, '.', '') }}" step="0.01" value="{{ old('amount', number_format($refundable / 100, 2, '.', '')) }}" required>
+                            @error('amount')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-5">
+                            <label for="refund_reason" class="form-label">Reason <span class="text-muted">(optional)</span></label>
+                            <input type="text" class="form-control" id="refund_reason" name="reason" value="{{ old('reason') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Submit this refund request to Stripe?')">Request Refund</button>
+                        </div>
+                    </form>
+                @elseif($refundable > 0)
+                    <p class="text-muted mb-0">Refunds are available after a captured payment is verified.</p>
+                @else
+                    <p class="text-muted mb-0">No refundable balance remains.</p>
+                @endif
+            @endcan
+        </div>
+    </div>
+@endif
+
 <div class="card mb-4">
     <div class="card-header"><strong>Order Activity</strong></div>
     <div class="table-responsive">
@@ -338,7 +426,7 @@
 </div>
 
 @can('cancel', $order)
-    @if(! $order->isCancelled() && ! $order->isPaid() && ! $order->isFulfillmentComplete())
+    @if(! $order->isCancelled() && ! $order->isFulfillmentComplete() && in_array($order->payment_status, [\App\Enums\PaymentStatus::Pending, \App\Enums\PaymentStatus::Failed, \App\Enums\PaymentStatus::Refunded], true))
         <div class="card border-danger">
             <div class="card-header text-danger"><strong>Cancel Order</strong></div>
             <div class="card-body">
@@ -350,8 +438,10 @@
                 </form>
             </div>
         </div>
-    @elseif(! $order->isCancelled() && $order->isPaid())
-        <p class="text-muted small">Paid orders cannot be cancelled until payment refunds are supported.</p>
+    @elseif(! $order->isCancelled() && $order->payment_status === \App\Enums\PaymentStatus::Paid)
+        <p class="text-muted small">Issue a full refund before cancelling a paid, unfulfilled order.</p>
+    @elseif(! $order->isCancelled() && $order->payment_status === \App\Enums\PaymentStatus::PartiallyRefunded)
+        <p class="text-muted small">Fully refund the payment before cancelling this order.</p>
     @endif
 @endcan
 

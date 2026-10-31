@@ -26,4 +26,9 @@ class OrderPolicy
     {
         return $user->can('orders.cancel');
     }
+
+    public function refund(User $user, Order $order): bool
+    {
+        return $user->can('orders.refund');
+    }
 }

@@ -58,6 +58,7 @@ class PlaceOrderRequest extends FormRequest
             'billing_postal_code' => [$requiredIfBilling, 'nullable', 'string', 'max:20'],
             'billing_country' => [$requiredIfBilling, 'nullable', 'string', 'max:100'],
             'billing_phone' => ['nullable', 'string', 'max:50'],
+            'save_payment_method' => ['nullable', 'boolean'],
         ];
     }
 }

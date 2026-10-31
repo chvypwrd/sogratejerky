@@ -3,11 +3,14 @@
 namespace App\Services;
 
 use App\Enums\OrderEvent;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
@@ -27,6 +30,7 @@ class OrderService
             $order = Order::create([
                 'order_number' => $this->orderNumber(),
                 'checkout_token' => $checkoutToken,
+                'cart_id' => $cart->id,
                 'user_id' => $user?->id,
                 'customer_name' => $data['customer_name'],
                 'customer_email' => $data['customer_email'],
@@ -52,22 +56,7 @@ class OrderService
                 'placed_at' => $placedAt,
             ]);
 
-            foreach ($cart->items as $item) {
-                $variant = $item->variant;
-                $product = $variant->product;
-
-                $order->items()->create([
-                    'product_id' => $product->id,
-                    'product_variant_id' => $variant->id,
-                    'product_name' => $product->name,
-                    'variant_name' => $variant->name,
-                    'sku' => $variant->sku,
-                    'quantity' => $item->quantity,
-                    'unit_price_cents' => $variant->price,
-                    'line_total_cents' => $variant->price * $item->quantity,
-                    'weight_grams' => $variant->weight,
-                ]);
-            }
+            $this->copyItems($order, $cart);
 
             $order->activities()->create([
                 'event' => OrderEvent::OrderCreated->value,
@@ -81,6 +70,79 @@ class OrderService
 
             return $order;
         });
+    }
+
+    public function refreshPendingOrder(Order $order, Cart $cart, array $data, array $summary, ?User $user): Order
+    {
+        $cart->loadMissing('items.variant.product');
+
+        return DB::transaction(function () use ($order, $cart, $data, $summary, $user) {
+            $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->isCancelled()) {
+                throw ValidationException::withMessages([
+                    'checkout_token' => 'This checkout was cancelled. Please start a new checkout.',
+                ]);
+            }
+
+            if (! in_array($order->payment_status, [PaymentStatus::Pending, PaymentStatus::Failed, PaymentStatus::Processing], true)) {
+                throw ValidationException::withMessages([
+                    'checkout_token' => 'This order is already being processed.',
+                ]);
+            }
+
+            $order->items()->delete();
+
+            $order->update([
+                'cart_id' => $cart->id,
+                'user_id' => $user?->id ?? $order->user_id,
+                'customer_name' => $data['customer_name'],
+                'customer_email' => $data['customer_email'],
+                'customer_phone' => $data['customer_phone'] ?? null,
+                'currency' => 'USD',
+                'subtotal_cents' => $summary['subtotal_cents'],
+                'fulfillment_fee_cents' => $summary['fulfillment_fee_cents'],
+                'tax_cents' => $summary['tax_cents'],
+                'total_cents' => $summary['total_cents'],
+                'fulfillment_method' => $summary['fulfillment_method']->value,
+                'order_status' => OrderStatus::PendingPayment,
+                'payment_status' => PaymentStatus::Pending,
+                'fulfillment_status' => 'unfulfilled',
+                'billing_address_snapshot' => $summary['billing_address'],
+                'fulfillment_address_snapshot' => $summary['fulfillment_address'],
+                'pickup_location_snapshot' => $summary['pickup_location'],
+                'fulfillment_details_snapshot' => [
+                    'method' => $summary['fulfillment_method']->value,
+                    'label' => $summary['fulfillment_method']->label(),
+                    'fee_cents' => $summary['fulfillment_fee_cents'],
+                    'tax_cents' => $summary['tax_cents'],
+                ],
+            ]);
+
+            $this->copyItems($order, $cart);
+
+            return $order->fresh();
+        });
+    }
+
+    private function copyItems(Order $order, Cart $cart): void
+    {
+        foreach ($cart->items as $item) {
+            $variant = $item->variant;
+            $product = $variant->product;
+
+            $order->items()->create([
+                'product_id' => $product->id,
+                'product_variant_id' => $variant->id,
+                'product_name' => $product->name,
+                'variant_name' => $variant->name,
+                'sku' => $variant->sku,
+                'quantity' => $item->quantity,
+                'unit_price_cents' => $variant->price,
+                'line_total_cents' => $variant->price * $item->quantity,
+                'weight_grams' => $variant->weight,
+            ]);
+        }
     }
 
     private function orderNumber(): string

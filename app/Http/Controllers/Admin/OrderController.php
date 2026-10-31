@@ -10,9 +10,11 @@ use App\Enums\ShippingCarrier;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CancelOrderRequest;
 use App\Http\Requests\Admin\FulfillmentNoteRequest;
+use App\Http\Requests\Admin\RefundOrderRequest;
 use App\Http\Requests\Admin\ShipOrderRequest;
 use App\Models\Order;
 use App\Services\OrderFulfillmentService;
+use App\Services\PaymentRefundService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -22,6 +24,7 @@ class OrderController extends Controller
 {
     public function __construct(
         private OrderFulfillmentService $fulfillmentService,
+        private PaymentRefundService $refundService,
     ) {}
 
     public function index(Request $request): View
@@ -105,7 +108,7 @@ class OrderController extends Controller
         $this->authorize('view', $order);
 
         return view('admin.orders.show', [
-            'order' => $order->load(['items', 'activities.actor', 'user']),
+            'order' => $order->load(['items', 'activities.actor', 'user', 'payments.refunds.requester']),
             'carriers' => ShippingCarrier::cases(),
         ]);
     }
@@ -171,5 +174,30 @@ class OrderController extends Controller
         $this->fulfillmentService->cancel($order, $request->user(), $request->validated('reason'));
 
         return back()->with('status', 'Order cancelled.');
+    }
+
+    public function refund(RefundOrderRequest $request, Order $order): RedirectResponse
+    {
+        $this->authorize('refund', $order);
+
+        $payment = $order->payments()->whereIn('status', ['paid', 'partially_refunded'])->first();
+
+        if (! $payment) {
+            return back()->withErrors(['refund' => 'No captured payment is available to refund.']);
+        }
+
+        $data = $request->validated();
+        $amountCents = (int) round(((float) $data['amount']) * 100);
+
+        $this->refundService->request(
+            $order,
+            $payment,
+            $request->user(),
+            $amountCents,
+            $data['reason'] ?? null,
+            $data['request_key'],
+        );
+
+        return back()->with('status', 'Refund request submitted.');
     }
 }

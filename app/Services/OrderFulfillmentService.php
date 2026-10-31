@@ -157,9 +157,9 @@ class OrderFulfillmentService
                 ]);
             }
 
-            if (! in_array($order->payment_status, [PaymentStatus::Pending, PaymentStatus::Failed], true)) {
+            if (! in_array($order->payment_status, [PaymentStatus::Pending, PaymentStatus::Failed, PaymentStatus::Refunded], true)) {
                 throw ValidationException::withMessages([
-                    'order' => 'Only unpaid orders can be cancelled until payment refunds are supported.',
+                    'order' => 'Only unpaid or fully refunded orders can be cancelled.',
                 ]);
             }
 

@@ -2,26 +2,35 @@
 
 namespace Tests\Feature\Cart;
 
+use App\Enums\PaymentStatus;
 use App\Models\Cart;
 use App\Models\FulfillmentSetting;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\PickupLocation;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingRateRule;
 use App\Models\User;
+use App\Services\StripeGateway;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\FakeStripeGateway;
 use Tests\TestCase;
 
 class CheckoutTest extends TestCase
 {
     use RefreshDatabase;
 
+    private FakeStripeGateway $stripe;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed(RolePermissionSeeder::class);
+
+        $this->stripe = new FakeStripeGateway;
+        $this->app->instance(StripeGateway::class, $this->stripe);
 
         FulfillmentSetting::current()->update([
             'shipping_enabled' => true,
@@ -118,8 +127,10 @@ class CheckoutTest extends TestCase
             ->assertOk()
             ->assertSee('Complete Your Order');
 
-        $this->post(route('checkout.store'), $this->checkoutPayload($token))
-            ->assertRedirect();
+        $response = $this->postJson(route('checkout.store'), $this->checkoutPayload($token));
+
+        $response->assertOk()
+            ->assertJsonStructure(['client_secret', 'order_number', 'return_url', 'total_formatted']);
 
         $order = Order::with('items')->firstOrFail();
 
@@ -141,25 +152,32 @@ class CheckoutTest extends TestCase
         ]);
 
         $this->assertSame(1, Cart::firstOrFail()->items()->count());
-        $this->assertNull(session('checkout_token'));
+        $this->assertSame(2500, $this->stripe->createdIntents[0]['amount']);
+        $this->assertSame(1, $order->payments()->count());
+        $this->assertSame(PaymentStatus::Pending, $order->payments()->first()->status);
+        $this->assertSame($token, session('checkout_token'));
     }
 
     public function test_guest_receives_a_signed_order_confirmation(): void
     {
+        $this->stripe->intentStatus = 'succeeded';
+
         $token = $this->checkoutToken();
         $this->addCartItem();
 
-        $response = $this->post(route('checkout.store'), $this->checkoutPayload($token));
-
-        $response->assertRedirectContains('/checkout/confirmation/');
+        $response = $this->postJson(route('checkout.store'), $this->checkoutPayload($token))
+            ->assertOk()
+            ->assertJson(['already_paid' => true]);
 
         $order = Order::firstOrFail();
         $this->assertNull($order->user_id);
+        $this->assertSame(PaymentStatus::Paid, $order->payment_status);
+        $this->assertSame(0, Cart::firstOrFail()->items()->count());
 
-        $this->get($response->headers->get('Location'))
+        $this->get($response->json('redirect_url'))
             ->assertOk()
             ->assertSee($order->order_number)
-            ->assertSee('No payment has been collected');
+            ->assertSee('Your payment is confirmed');
     }
 
     public function test_local_delivery_rejects_unsupported_zip_codes(): void
@@ -190,7 +208,7 @@ class CheckoutTest extends TestCase
         $token = $this->checkoutToken();
         $this->addCartItem(1);
 
-        $this->post(route('checkout.store'), $this->checkoutPayload($token, [
+        $this->postJson(route('checkout.store'), $this->checkoutPayload($token, [
             'fulfillment_method' => 'pickup',
             'pickup_location_id' => $location->id,
             'billing_same_as_fulfillment' => null,
@@ -200,7 +218,7 @@ class CheckoutTest extends TestCase
             'billing_state' => 'TX',
             'billing_postal_code' => '78702',
             'billing_country' => 'United States',
-        ]))->assertRedirect();
+        ]))->assertOk();
 
         $order = Order::firstOrFail();
 
@@ -218,10 +236,12 @@ class CheckoutTest extends TestCase
 
         $payload = $this->checkoutPayload($token);
 
-        $this->post(route('checkout.store'), $payload)->assertRedirect();
-        $this->post(route('checkout.store'), $payload)->assertRedirect();
+        $this->postJson(route('checkout.store'), $payload)->assertOk();
+        $this->postJson(route('checkout.store'), $payload)->assertOk();
 
         $this->assertSame(1, Order::count());
+        $this->assertSame(1, Payment::count());
+        $this->assertCount(1, $this->stripe->createdIntents);
     }
 
     public function test_account_orders_are_private_to_the_customer(): void

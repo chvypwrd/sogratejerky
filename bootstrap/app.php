@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer.auth' => CustomerAuthenticate::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'stripe/webhook',
+        ]);
+
         $middleware->web(append: [
             SecurityHeaders::class,
             RequestId::class,

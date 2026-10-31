@@ -12,7 +12,13 @@
         <header class="page-header">
             <span class="eyebrow">Order Received</span>
             <h1>Thank You</h1>
-            <p class="lead text-muted">Your order has been recorded. No payment has been collected.</p>
+            @if($order->payment_status === \App\Enums\PaymentStatus::Paid)
+                <p class="lead text-muted">Your payment is confirmed and your order has been placed.</p>
+            @elseif($order->payment_status === \App\Enums\PaymentStatus::Processing)
+                <p class="lead text-muted">Your order is recorded and your payment is still processing.</p>
+            @else
+                <p class="lead text-muted">Your order is recorded. Payment has not been confirmed yet.</p>
+            @endif
         </header>
 
         @if(session('status'))

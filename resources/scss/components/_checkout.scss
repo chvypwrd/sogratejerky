@@ -53,6 +53,16 @@
         gap: 0.75rem;
     }
 
+    .checkout-payment {
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+
+        #payment-element {
+            min-height: 120px;
+        }
+    }
+
     .checkout-note {
         color: #9b300f;
         font-size: 0.875rem;

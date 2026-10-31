@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
@@ -115,6 +116,44 @@ class CartService
     public function clear(Cart $cart): void
     {
         $cart->items()->delete();
+    }
+
+    public function consumeForOrder(Order $order): void
+    {
+        if (! $order->cart_id) {
+            return;
+        }
+
+        DB::transaction(function () use ($order) {
+            $cart = Cart::whereKey($order->cart_id)->lockForUpdate()->first();
+
+            if (! $cart) {
+                return;
+            }
+
+            foreach ($order->items()->get() as $item) {
+                if (! $item->product_variant_id) {
+                    continue;
+                }
+
+                $cartItem = CartItem::where('cart_id', $cart->id)
+                    ->where('product_variant_id', $item->product_variant_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $cartItem) {
+                    continue;
+                }
+
+                $remaining = $cartItem->quantity - $item->quantity;
+
+                if ($remaining <= 0) {
+                    $cartItem->delete();
+                } else {
+                    $cartItem->update(['quantity' => $remaining]);
+                }
+            }
+        });
     }
 
     public function subtotal(Cart $cart): int

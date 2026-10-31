@@ -21,6 +21,7 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'checkout_token',
+        'cart_id',
         'user_id',
         'customer_name',
         'customer_email',
@@ -86,6 +87,11 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->latest('id');
     }
 
     public function activities(): HasMany

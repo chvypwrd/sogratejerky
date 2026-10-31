@@ -9,25 +9,33 @@ use App\Models\Order;
 use App\Models\PickupLocation;
 use App\Models\ShippingRateRule;
 use App\Services\CartService;
-use App\Services\CheckoutCalculator;
-use App\Services\OrderService;
+use App\Services\CheckoutAvailability;
+use App\Services\CheckoutPaymentService;
+use App\Services\PaymentReconciler;
+use App\Services\StripeGateway;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 class CheckoutController extends Controller
 {
     public function __construct(
         private CartService $cartService,
-        private CheckoutCalculator $checkoutCalculator,
-        private OrderService $orderService,
+        private CheckoutAvailability $availability,
+        private CheckoutPaymentService $paymentService,
+        private PaymentReconciler $reconciler,
+        private StripeGateway $gateway,
     ) {}
 
     public function index(Request $request): View|RedirectResponse
     {
+        $this->availability->ensureEnabled();
+
         $cart = $this->cartService->resolveCart();
         $cart->load('items.variant.product');
 
@@ -60,17 +68,20 @@ class CheckoutController extends Controller
             'deliveryZones' => DeliveryZone::active()->ordered()->get(),
             'pickupLocations' => PickupLocation::active()->ordered()->get(),
             'addresses' => $addresses,
+            'stripeConfigured' => $this->gateway->configured(),
+            'stripePublishableKey' => $this->gateway->publishableKey(),
+            'stripeTestMode' => $this->gateway->isTestMode(),
+            'saveCardAvailable' => (bool) $request->user(),
         ]);
     }
 
-    public function store(PlaceOrderRequest $request): RedirectResponse
+    public function store(PlaceOrderRequest $request): JsonResponse
     {
-        abort_if(app()->isProduction(), 404);
+        $this->availability->ensureEnabled();
 
         $data = $request->validated();
-        $existing = Order::where('checkout_token', $data['checkout_token'])->first();
 
-        if (! $existing && ! hash_equals((string) session('checkout_token'), $data['checkout_token'])) {
+        if (! hash_equals((string) session('checkout_token'), $data['checkout_token'])) {
             throw ValidationException::withMessages([
                 'checkout_token' => 'Your checkout session expired. Please review your cart and try again.',
             ]);
@@ -78,35 +89,44 @@ class CheckoutController extends Controller
 
         $cart = $this->cartService->resolveCart();
 
-        $order = $existing ?: $this->orderService->createFromCheckout(
-            $cart,
-            $data,
-            $this->checkoutCalculator->calculate($cart, $data['fulfillment_method'], $data, $request->user()),
-            $request->user(),
-            $data['checkout_token'],
+        return response()->json(
+            $this->paymentService->start($cart, $data, $request->user(), $data['checkout_token'])
         );
+    }
 
-        session()->forget('checkout_token');
+    public function paymentReturn(Request $request, Order $order): View
+    {
+        $payment = $order->payments()->first();
+        $error = null;
 
-        if ($request->user()) {
-            return redirect()
-                ->route('account.orders.show', $order)
-                ->with('status', 'Your order has been placed.');
+        if ($payment) {
+            try {
+                $payment = $this->reconciler->reconcilePayment($payment);
+            } catch (Throwable $exception) {
+                report($exception);
+                $payment = $payment->fresh();
+                $error = 'We could not verify the payment status yet. Stripe may still be processing this payment.';
+            }
+        } else {
+            $error = 'No payment attempt was found for this order.';
         }
 
-        return redirect()
-            ->to(URL::temporarySignedRoute(
+        return view('checkout.return', [
+            'order' => $order->fresh()->load('items'),
+            'payment' => $payment,
+            'error' => $error,
+            'confirmationUrl' => URL::temporarySignedRoute(
                 'checkout.confirmation',
                 now()->addDays(7),
-                ['order' => $order->order_number]
-            ))
-            ->with('status', 'Your order has been placed.');
+                ['order' => $order->order_number],
+            ),
+        ]);
     }
 
     public function confirmation(Request $request, Order $order): View
     {
         return view('checkout.confirmation', [
-            'order' => $order->load('items'),
+            'order' => $order->load(['items', 'payments']),
         ]);
     }
 }

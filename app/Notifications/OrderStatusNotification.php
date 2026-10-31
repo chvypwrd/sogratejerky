@@ -2,7 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Enums\FulfillmentMethod;
 use App\Enums\OrderEvent;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,9 +34,38 @@ class OrderStatusNotification extends Notification implements ShouldQueue
             ->line('Order reference: '.$this->order->order_number)
             ->line('Order total: '.$this->order->total_formatted);
 
+        if (in_array($this->event, [OrderEvent::OrderCreated, OrderEvent::PaymentPaid], true)) {
+            $mail->line('Fulfillment: '.$this->order->fulfillment_method->label());
+
+            foreach ($this->order->items as $item) {
+                $mail->line($item->quantity.' x '.$item->product_name.' - '.$item->variant_name);
+            }
+
+            if ($this->event === OrderEvent::PaymentPaid) {
+                $pickup = $this->order->pickup_location_snapshot;
+                $address = $this->order->fulfillment_address_snapshot;
+
+                if ($this->order->fulfillment_method === FulfillmentMethod::Pickup && $pickup) {
+                    $mail->line('Pickup location: '.($pickup['name'] ?? 'SOGRATE pickup'));
+                    $mail->line('We will email you when your order is ready for pickup.');
+                } elseif ($this->order->fulfillment_method === FulfillmentMethod::LocalDelivery) {
+                    $mail->line('We will email you when your order is out for delivery.');
+                } elseif ($address) {
+                    $mail->line('Shipping to: '.($address['city'] ?? '').', '.($address['state'] ?? ''));
+                    $mail->line('We will email tracking information when your order ships.');
+                }
+            }
+        }
+
         match ($this->event) {
-            OrderEvent::OrderCreated => $mail
-                ->line('Your payment has been confirmed and your order is being prepared.'),
+            OrderEvent::OrderCreated, OrderEvent::PaymentPaid => $mail
+                ->line('Your payment has been received and your order is being prepared.'),
+            OrderEvent::PaymentProcessing => $mail
+                ->line('Your payment is still processing.'),
+            OrderEvent::PaymentFailed => $mail
+                ->line('Your payment attempt did not complete. You can return to checkout to try again.'),
+            OrderEvent::RefundRequested, OrderEvent::RefundCompleted => $mail
+                ->line('A refund update is available for this order.'),
             OrderEvent::ReadyForPickup => $this->addPickupDetails($mail),
             OrderEvent::PickedUp => $mail
                 ->line('Your order has been picked up. Thank you for choosing SOGRATE.'),
@@ -58,7 +89,7 @@ class OrderStatusNotification extends Notification implements ShouldQueue
             $mail->action('Contact SOGRATE', route('contact.show'));
         }
 
-        return $mail->salutation('— SOGRATE');
+        return $mail->salutation('- SOGRATE');
     }
 
     private function subject(): string
@@ -71,6 +102,10 @@ class OrderStatusNotification extends Notification implements ShouldQueue
             OrderEvent::Delivered => 'Order '.$this->order->order_number.' has been delivered',
             OrderEvent::Shipped => 'Order '.$this->order->order_number.' has shipped',
             OrderEvent::OrderCancelled => 'Order '.$this->order->order_number.' has been cancelled',
+            OrderEvent::PaymentProcessing => 'Payment for order '.$this->order->order_number.' is processing',
+            OrderEvent::PaymentPaid => 'Your SOGRATE order '.$this->order->order_number.' is confirmed',
+            OrderEvent::PaymentFailed => 'Payment attempt failed for order '.$this->order->order_number,
+            OrderEvent::RefundRequested, OrderEvent::RefundCompleted => 'Refund update for order '.$this->order->order_number,
         };
     }
 
@@ -122,6 +157,10 @@ class OrderStatusNotification extends Notification implements ShouldQueue
 
         if ($this->order->cancellation_reason) {
             $mail->line('Reason: '.$this->order->cancellation_reason);
+        }
+
+        if ($this->order->payment_status === PaymentStatus::Refunded) {
+            return $mail->line('Your payment has been refunded.');
         }
 
         return $mail->line('No payment was collected for this order.');

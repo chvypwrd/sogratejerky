@@ -14,7 +14,8 @@
         "spatie/laravel-medialibrary": "*",
         "spatie/laravel-menu": "*",
         "spatie/laravel-permission": "*",
-        "spatie/laravel-sluggable": "*"
+        "spatie/laravel-sluggable": "*",
+        "stripe/stripe-php": "^22.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

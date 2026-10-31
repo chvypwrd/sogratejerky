@@ -40,9 +40,13 @@
             </div>
         @endif
 
-        @if(app()->isProduction())
+        @if(! $stripeConfigured)
             <div class="alert alert-warning" role="alert">
-                Online payment is not enabled. Order placement is available only in development and test environments.
+                Online payment is not configured. Checkout will be available once Stripe credentials are set.
+            </div>
+        @elseif($stripeTestMode)
+            <div class="alert alert-info" role="status">
+                Stripe test mode is active. No real card will be charged.
             </div>
         @endif
 
@@ -184,7 +188,17 @@
                         </div>
                     </section>
 
-                    <p class="text-muted small mb-0">This checkout creates a pending order for review. No payment is collected in this milestone.</p>
+                    @if($saveCardAvailable && $stripeConfigured)
+                        <section class="checkout-card">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="save_payment_method" id="save_payment_method" value="1" @checked(old('save_payment_method'))>
+                                <label class="form-check-label" for="save_payment_method">Save this card for future SOGRATE purchases</label>
+                            </div>
+                            <p class="form-text mb-0">Saving is optional. Your card details are handled by Stripe.</p>
+                        </section>
+                    @endif
+
+                    <p class="text-muted small mb-0">Payment is processed securely by Stripe. SOGRATE does not store card details.</p>
                 </div>
 
                 <div class="col-lg-5">
@@ -218,7 +232,15 @@
                         </div>
                         <p id="checkout-note" class="checkout-note" role="status"></p>
 
-                        <button type="submit" class="btn btn-brand w-100 mt-3" @disabled(app()->isProduction())>Place Order</button>
+                        <div id="payment-section" class="checkout-payment d-none">
+                            <h3 class="h5">Payment</h3>
+                            <div id="payment-element"></div>
+                            <div id="payment-message" class="checkout-note" role="alert"></div>
+                        </div>
+
+                        <button type="button" id="checkout-payment-button" class="btn btn-brand w-100 mt-3" @disabled(! $stripeConfigured)>
+                            {{ $stripeConfigured ? 'Continue to Payment' : 'Payment Unavailable' }}
+                        </button>
                         <a href="{{ route('cart.index') }}" class="btn btn-brand-outline w-100 mt-2">Back to Cart</a>
                     </aside>
                 </div>
@@ -229,6 +251,9 @@
 @endsection
 
 @section('scripts')
+@if($stripeConfigured)
+<script src="https://js.stripe.com/v3/"></script>
+@endif
 @php
     $checkoutData = [
         'subtotal_cents' => $subtotal,
@@ -258,6 +283,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const billingPanel = document.getElementById('billing-address-panel');
     const billingSameWrapper = document.getElementById('billing-same-wrapper');
     const billingSame = document.getElementById('billing_same_as_fulfillment');
+    const checkoutForm = document.getElementById('checkout-form');
+    const paymentButton = document.getElementById('checkout-payment-button');
+    const paymentSection = document.getElementById('payment-section');
+    const paymentMessage = document.getElementById('payment-message');
+    const paymentConfigured = @json($stripeConfigured);
+    const stripePublishableKey = @json($stripePublishableKey);
+    let stripe = null;
+    let elements = null;
+    let paymentElement = null;
+    let paymentIntentData = null;
+    let paymentProcessing = false;
 
     function money(cents) {
         return '$' + (cents / 100).toFixed(2);
@@ -321,6 +357,137 @@ document.addEventListener('DOMContentLoaded', function () {
 
     billingSame?.addEventListener('change', updateCheckout);
     document.getElementById('fulfillment_postal_code')?.addEventListener('input', updateCheckout);
+
+    function setPaymentMessage(message) {
+        if (paymentMessage) {
+            paymentMessage.textContent = message || '';
+        }
+    }
+
+    function setDetailFieldsDisabled(disabled) {
+        checkoutForm.querySelectorAll('input, select, textarea').forEach((field) => {
+            if (field.name !== '_token' && field.name !== 'checkout_token') {
+                field.disabled = disabled;
+            }
+        });
+    }
+
+    async function beginPayment() {
+        if (!paymentConfigured || paymentProcessing) {
+            return;
+        }
+
+        paymentProcessing = true;
+        paymentButton.disabled = true;
+        paymentButton.textContent = 'Preparing secure payment...';
+        setPaymentMessage('');
+
+        try {
+            const response = await fetch(@json(route('checkout.store')), {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': checkoutForm.querySelector('input[name="_token"]').value,
+                },
+                body: new FormData(checkoutForm),
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const message = data.errors ? Object.values(data.errors).flat()[0] : (data.message || 'Checkout could not be prepared. Please review your details.');
+                throw new Error(message);
+            }
+
+            if (data.already_paid && data.redirect_url) {
+                window.location.href = data.redirect_url;
+                return;
+            }
+
+            if (!data.client_secret || typeof Stripe === 'undefined') {
+                throw new Error('Secure payment could not be initialized.');
+            }
+
+            paymentIntentData = data;
+            stripe = Stripe(data.publishable_key || stripePublishableKey);
+
+            const elementOptions = {
+                clientSecret: data.client_secret,
+                appearance: { theme: 'stripe' },
+            };
+
+            if (data.customer_session_client_secret) {
+                elementOptions.customerSessionClientSecret = data.customer_session_client_secret;
+            }
+
+            elements = stripe.elements(elementOptions);
+            paymentElement = elements.create('payment', { layout: 'tabs' });
+            paymentElement.mount('#payment-element');
+            paymentElement.on('change', (event) => {
+                if (event.error) {
+                    setPaymentMessage(event.error.message);
+                }
+            });
+
+            paymentSection.classList.remove('d-none');
+            setDetailFieldsDisabled(true);
+            document.getElementById('checkout-total').textContent = data.total_formatted;
+            paymentButton.textContent = 'Pay ' + data.total_formatted + ' securely';
+            paymentButton.disabled = false;
+            paymentProcessing = false;
+            paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+            setPaymentMessage(error.message || 'Secure payment could not be initialized.');
+            paymentButton.textContent = 'Continue to Payment';
+            paymentButton.disabled = false;
+            paymentProcessing = false;
+        }
+    }
+
+    async function pay() {
+        if (!stripe || !elements || !paymentIntentData || paymentProcessing) {
+            return;
+        }
+
+        paymentProcessing = true;
+        paymentButton.disabled = true;
+        paymentButton.textContent = 'Processing payment...';
+        setPaymentMessage('');
+
+        try {
+            const result = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: paymentIntentData.return_url,
+                },
+                redirect: 'if_required',
+            });
+
+            if (result.error) {
+                setPaymentMessage(result.error.message || 'Payment could not be completed. Please try again.');
+                paymentButton.textContent = 'Try Payment Again';
+                paymentButton.disabled = false;
+                paymentProcessing = false;
+
+                return;
+            }
+
+            window.location.href = paymentIntentData.return_url;
+        } catch (error) {
+            setPaymentMessage(error.message || 'Payment could not be completed. Please try again.');
+            paymentButton.textContent = 'Try Payment Again';
+            paymentButton.disabled = false;
+            paymentProcessing = false;
+        }
+    }
+
+    paymentButton?.addEventListener('click', () => {
+        if (paymentIntentData) {
+            pay();
+        } else {
+            beginPayment();
+        }
+    });
 
     updateCheckout();
 });
