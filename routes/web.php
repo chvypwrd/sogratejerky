@@ -11,6 +11,10 @@ use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductTagController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -22,6 +26,7 @@ use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\PublicBlogController;
 use App\Http\Controllers\PublicGalleryController;
 use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\PublicShopController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TestimonialController;
@@ -135,6 +140,34 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     Route::post('/contact-messages/{contactMessage}/spam', [ContactMessageController::class, 'spam'])->name('contact-messages.spam');
     Route::post('/contact-messages/{contactMessage}/restore', [ContactMessageController::class, 'restore'])->name('contact-messages.restore');
     Route::delete('/contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+
+    // Products
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index')->middleware('can:products.view');
+    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create')->middleware('can:products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store')->middleware('can:products.create');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit')->middleware('can:products.update');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('can:products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy')->middleware('can:products.delete');
+
+    Route::get('/products/{product}/variants/create', [ProductVariantController::class, 'create'])->name('products.variants.create')->middleware('can:products.update');
+    Route::post('/products/{product}/variants', [ProductVariantController::class, 'store'])->name('products.variants.store')->middleware('can:products.update');
+    Route::get('/products/{product}/variants/{variant}/edit', [ProductVariantController::class, 'edit'])->name('products.variants.edit')->middleware('can:products.update');
+    Route::put('/products/{product}/variants/{variant}', [ProductVariantController::class, 'update'])->name('products.variants.update')->middleware('can:products.update');
+    Route::delete('/products/{product}/variants/{variant}', [ProductVariantController::class, 'destroy'])->name('products.variants.destroy')->middleware('can:products.update');
+
+    Route::get('/product-categories', [ProductCategoryController::class, 'index'])->name('product-categories.index')->middleware('can:products.categories.manage');
+    Route::get('/product-categories/create', [ProductCategoryController::class, 'create'])->name('product-categories.create')->middleware('can:products.categories.manage');
+    Route::post('/product-categories', [ProductCategoryController::class, 'store'])->name('product-categories.store')->middleware('can:products.categories.manage');
+    Route::get('/product-categories/{productCategory}/edit', [ProductCategoryController::class, 'edit'])->name('product-categories.edit')->middleware('can:products.categories.manage');
+    Route::put('/product-categories/{productCategory}', [ProductCategoryController::class, 'update'])->name('product-categories.update')->middleware('can:products.categories.manage');
+    Route::delete('/product-categories/{productCategory}', [ProductCategoryController::class, 'destroy'])->name('product-categories.destroy')->middleware('can:products.categories.manage');
+
+    Route::get('/product-tags', [ProductTagController::class, 'index'])->name('product-tags.index')->middleware('can:products.tags.manage');
+    Route::get('/product-tags/create', [ProductTagController::class, 'create'])->name('product-tags.create')->middleware('can:products.tags.manage');
+    Route::post('/product-tags', [ProductTagController::class, 'store'])->name('product-tags.store')->middleware('can:products.tags.manage');
+    Route::get('/product-tags/{productTag}/edit', [ProductTagController::class, 'edit'])->name('product-tags.edit')->middleware('can:products.tags.manage');
+    Route::put('/product-tags/{productTag}', [ProductTagController::class, 'update'])->name('product-tags.update')->middleware('can:products.tags.manage');
+    Route::delete('/product-tags/{productTag}', [ProductTagController::class, 'destroy'])->name('product-tags.destroy')->middleware('can:products.tags.manage');
 });
 
 Route::get('/admin/preview/{page}', [PreviewController::class, 'show'])
@@ -149,6 +182,11 @@ Route::get('/blog/category/{blogCategory:slug}', [PublicBlogController::class, '
 Route::get('/blog/tag/{blogTag:slug}', [PublicBlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/{slug}', [PublicBlogController::class, 'show'])->name('blog.show');
 Route::post('/blog/{slug}/comments', [PublicBlogController::class, 'storeComment'])->name('blog.comments.store')->middleware('throttle:blog-comments');
+
+Route::get('/shop', [PublicShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/category/{productCategory:slug}', [PublicShopController::class, 'category'])->name('shop.category');
+Route::get('/shop/tag/{productTag:slug}', [PublicShopController::class, 'tag'])->name('shop.tag');
+Route::get('/shop/{product}', [PublicShopController::class, 'show'])->name('shop.show');
 
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/faqs', [FaqController::class, 'index'])->name('faqs.index');
@@ -165,4 +203,4 @@ Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('gallery
 Route::get('/gallery/{gallery:slug}', [PublicGalleryController::class, 'show'])->name('gallery.show');
 
 Route::get('/{slug}', PublicPageController::class)->name('pages.show')
-    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|blog$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');
+    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|shop$|blog$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');

@@ -39,7 +39,7 @@ class RolePermissionTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
 
         $this->assertEquals(3, Role::count());
-        $this->assertEquals(43, Permission::count());
+        $this->assertEquals(49, Permission::count());
     }
 
     public function test_super_admin_receives_all_permissions(): void

@@ -136,6 +136,31 @@
                 </li>
                 @endcan
 
+                @canany(['products.view', 'products.categories.manage', 'products.tags.manage'])
+                <li class="nav-section">Products</li>
+                @endcanany
+                @can('products.view')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">
+                        All Products
+                    </a>
+                </li>
+                @endcan
+                @can('products.categories.manage')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.product-categories.*') ? 'active' : '' }}" href="{{ route('admin.product-categories.index') }}">
+                        Categories
+                    </a>
+                </li>
+                @endcan
+                @can('products.tags.manage')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.product-tags.*') ? 'active' : '' }}" href="{{ route('admin.product-tags.index') }}">
+                        Tags
+                    </a>
+                </li>
+                @endcan
+
                 <li class="nav-section">Appearance</li>
                 @can('menus.view')
                 <li class="nav-item">

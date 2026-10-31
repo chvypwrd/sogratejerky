@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\BlogPost;
+use App\Models\Product;
 use App\Models\SiteBranding;
 
 class StructuredDataService
@@ -149,6 +150,45 @@ class StructuredDataService
 
         if ($post->hasMedia('featured')) {
             $data['image'] = $post->getFirstMediaUrl('featured', 'card');
+        }
+
+        return $data;
+    }
+
+    public function product(Product $product, iterable $variants): array
+    {
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $product->name,
+            'url' => route('shop.show', ['product' => $product->slug]),
+        ];
+
+        $description = $product->seo_description ?: $product->short_description ?: strip_tags((string) $product->description);
+        if ($description) {
+            $data['description'] = $description;
+        }
+
+        $image = $product->getPrimaryImage();
+        if ($image) {
+            $data['image'] = $image->getUrl('card');
+        }
+
+        $offers = [];
+        foreach ($variants as $variant) {
+            $offers[] = [
+                '@type' => 'Offer',
+                'url' => route('shop.show', ['product' => $product->slug, 'variant' => $variant->id]),
+                'price' => number_format($variant->price / 100, 2, '.', ''),
+                'priceCurrency' => 'USD',
+                'availability' => 'https://schema.org/InStock',
+                'sku' => $variant->sku,
+                'name' => $variant->name,
+            ];
+        }
+
+        if ($offers) {
+            $data['offers'] = $offers;
         }
 
         return $data;

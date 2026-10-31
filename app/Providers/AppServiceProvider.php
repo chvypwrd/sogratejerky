@@ -7,6 +7,7 @@ use App\Models\ContactMessage;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
+use App\Models\Product;
 use App\Models\Redirect;
 use App\Models\Setting;
 use App\Policies\BlogPostPolicy;
@@ -14,6 +15,7 @@ use App\Policies\ContactMessagePolicy;
 use App\Policies\MenuItemPolicy;
 use App\Policies\MenuPolicy;
 use App\Policies\PagePolicy;
+use App\Policies\ProductPolicy;
 use App\Policies\RedirectPolicy;
 use App\Policies\SettingPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -47,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Page::class, PagePolicy::class);
         Gate::policy(BlogPost::class, BlogPostPolicy::class);
+        Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Menu::class, MenuPolicy::class);
         Gate::policy(MenuItem::class, MenuItemPolicy::class);
         Gate::policy(Setting::class, SettingPolicy::class);

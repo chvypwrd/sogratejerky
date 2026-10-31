@@ -6,6 +6,8 @@ use App\Enums\RobotsDirective;
 use App\Models\BlogPost;
 use App\Models\Gallery;
 use App\Models\Page;
+use App\Models\Product;
+use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Cache;
 
 class SitemapService
@@ -24,6 +26,38 @@ class SitemapService
                 'url' => $baseUrl,
                 'lastmod' => null,
             ];
+
+            $urls[] = [
+                'url' => $baseUrl.'/shop',
+                'lastmod' => null,
+            ];
+
+            $products = Product::query()
+                ->catalog()
+                ->select(['slug', 'updated_at'])
+                ->orderBy('slug')
+                ->get();
+
+            foreach ($products as $product) {
+                $urls[] = [
+                    'url' => $baseUrl.'/shop/'.$product->slug,
+                    'lastmod' => $product->updated_at?->format('Y-m-d'),
+                ];
+            }
+
+            $productCategories = ProductCategory::query()
+                ->active()
+                ->whereHas('products', fn ($query) => $query->catalog())
+                ->select(['slug', 'updated_at'])
+                ->orderBy('slug')
+                ->get();
+
+            foreach ($productCategories as $category) {
+                $urls[] = [
+                    'url' => $baseUrl.'/shop/category/'.$category->slug,
+                    'lastmod' => $category->updated_at?->format('Y-m-d'),
+                ];
+            }
 
             $urls[] = [
                 'url' => $baseUrl.'/blog',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
 use App\Models\Faq;
+use App\Models\Product;
 use App\Models\Testimonial;
 
 class HomeController extends Controller
@@ -18,12 +19,19 @@ class HomeController extends Controller
 
         $faqs = Faq::active()->ordered()->limit(6)->get();
 
+        $featuredProducts = Product::catalog()
+            ->featured()
+            ->ordered()
+            ->with(['availableVariants', 'categories'])
+            ->limit(3)
+            ->get();
+
         $recentPosts = BlogPost::published()
             ->with(['author', 'categories'])
             ->latestPublished()
             ->limit(3)
             ->get();
 
-        return view('home', compact('testimonials', 'faqs', 'recentPosts'));
+        return view('home', compact('testimonials', 'faqs', 'recentPosts', 'featuredProducts'));
     }
 }

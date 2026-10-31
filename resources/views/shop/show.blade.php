@@ -1,0 +1,204 @@
+@extends('layouts.app')
+
+@section('title', $product->seo_title ?: $product->name)
+
+@section('meta')
+    @php
+        $seoDescription = $product->seo_description ?: $product->short_description ?: \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 160);
+        $canonicalUrl = route('shop.show', ['product' => $product->slug]);
+        $featuredMedia = $product->getPrimaryImage();
+    @endphp
+
+    @if($seoDescription)
+        <meta name="description" content="{{ e($seoDescription) }}">
+    @endif
+    @if($variants->isEmpty())
+        <meta name="robots" content="noindex,follow">
+    @endif
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="{{ e($product->seo_title ?: $product->name) }}">
+    @if($seoDescription)
+        <meta property="og:description" content="{{ e($seoDescription) }}">
+    @endif
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    @if($featuredMedia)
+        <meta property="og:image" content="{{ $featuredMedia->getUrl('card') }}">
+    @endif
+@endsection
+
+@php
+    $mainMedia = $selectedVariant?->getFirstMedia('image') ?? $product->getPrimaryImage();
+    $mainImageUrl = $mainMedia?->getUrl('card');
+    $mainAlt = $mainMedia?->getCustomProperty('alt_text', $selectedVariant?->name ?: $product->name) ?: $product->name;
+    $galleryImages = $product->getMedia('gallery');
+@endphp
+
+@section('content')
+<article class="py-5">
+    <div class="container">
+        <a href="{{ route('shop.index') }}" class="text-muted small mb-4 d-inline-block">&larr; Back to Shop</a>
+
+        <div class="row g-5">
+            <div class="col-lg-7">
+                <div class="product-gallery">
+                    <div class="product-gallery__main">
+                        @if($mainImageUrl)
+                            <img id="product-main-image" src="{{ $mainImageUrl }}" alt="{{ e($mainAlt) }}">
+                        @else
+                            <div class="product-gallery__placeholder" id="product-main-image">{{ config('app.name', 'SOGRATE') }}</div>
+                        @endif
+                    </div>
+
+                    @if($galleryImages->count() > 0)
+                        <div class="product-gallery__thumbs" aria-label="Product images">
+                            @foreach($galleryImages as $media)
+                                <button type="button" class="product-gallery__thumb" data-gallery-image="{{ $media->getUrl('card') }}" aria-label="View product image">
+                                    <img src="{{ $media->getUrl('thumb') }}" alt="{{ e($media->getCustomProperty('alt_text', $product->name)) }}">
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <header class="product-detail-header">
+                    <span class="eyebrow">SOGRATE Jerky</span>
+                    <h1>{{ $product->name }}</h1>
+                    @if($product->short_description)
+                        <p class="lead text-muted">{{ $product->short_description }}</p>
+                    @endif
+
+                    @if($product->categories->isNotEmpty())
+                        <div class="product-categories">
+                            @foreach($product->categories as $category)
+                                <a href="{{ route('shop.category', $category->slug) }}">{{ $category->name }}</a>
+                            @endforeach
+                        </div>
+                    @endif
+                </header>
+
+                @if($variants->count() > 0)
+                    <div class="product-purchase-info">
+                        <div class="product-price product-price--large" id="product-price">{{ $selectedVariant?->price_formatted }}</div>
+
+                        <div class="mb-3">
+                            <label for="variant-select" class="form-label">Choose a size</label>
+                            <select class="form-select" id="variant-select">
+                                @foreach($variants as $variant)
+                                    <option value="{{ $variant->id }}" {{ $selectedVariant?->id === $variant->id ? 'selected' : '' }}>
+                                        {{ $variant->name }} - {{ $variant->price_formatted }} - {{ $variant->weight_display }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <dl class="product-details-list">
+                            <div>
+                                <dt>Weight</dt>
+                                <dd id="product-weight">{{ $selectedVariant?->weight_display }}</dd>
+                            </div>
+                            <div>
+                                <dt>SKU</dt>
+                                <dd id="product-sku">{{ $selectedVariant?->sku }}</dd>
+                            </div>
+                            <div>
+                                <dt>Availability</dt>
+                                <dd id="product-availability">Available</dd>
+                            </div>
+                        </dl>
+                    </div>
+                @else
+                    <div class="alert alert-warning">
+                        This product is currently unavailable. Contact us for availability.
+                    </div>
+                @endif
+
+                <div class="product-purchase-placeholder">
+                    <strong>Online ordering is coming soon.</strong>
+                    <p class="mb-3">Contact the SOGRATE team for availability and ordering questions.</p>
+                    <a href="{{ route('contact.show') }}" class="btn btn-brand">Contact Us</a>
+                </div>
+
+                @if($product->tags->isNotEmpty())
+                    <div class="product-tags">
+                        <span class="product-tags__label">Tags:</span>
+                        @foreach($product->tags as $tag)
+                            <a href="{{ route('shop.tag', $tag->slug) }}">{{ $tag->name }}</a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        @if($product->description)
+            <div class="row mt-5">
+                <div class="col-lg-9">
+                    <div class="rich-content product-description">
+                        {!! $product->description !!}
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+</article>
+@endsection
+
+@section('structured_data')
+    <x-structured-data :data="app(\App\Services\StructuredDataService::class)->product($product, $variants)" />
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const variants = @json($variantData);
+    const select = document.getElementById('variant-select');
+    const mainImage = document.getElementById('product-main-image');
+
+    function updateVariant(id) {
+        const data = variants[id];
+        if (!data) {
+            return;
+        }
+
+        document.getElementById('product-price').textContent = data.price;
+        document.getElementById('product-weight').textContent = data.weight;
+        document.getElementById('product-sku').textContent = data.sku;
+
+        if (mainImage && data.image) {
+            if (mainImage.tagName === 'IMG') {
+                mainImage.src = data.image;
+                mainImage.alt = data.name;
+            }
+        }
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('variant', id);
+        window.history.replaceState({}, '', url.toString());
+    }
+
+    if (select) {
+        select.addEventListener('change', function () {
+            updateVariant(this.value);
+        });
+
+        if (select.value) {
+            const url = new URL(window.location.href);
+            if (url.searchParams.get('variant') !== select.value) {
+                url.searchParams.set('variant', select.value);
+                window.history.replaceState({}, '', url.toString());
+            }
+        }
+    }
+
+    document.querySelectorAll('[data-gallery-image]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            if (mainImage && mainImage.tagName === 'IMG') {
+                mainImage.src = this.dataset.galleryImage;
+            }
+        });
+    });
+});
+</script>
+@endsection

@@ -34,8 +34,8 @@
                     Small-batch beef jerky with bold BBQ flavor, made in Texas and built for sharing.
                 </p>
                 <div class="home-hero__actions">
-                    <a href="{{ route('contact.show') }}" class="btn btn-brand btn-lg">Contact Us</a>
-                    <a href="{{ route('gallery.index') }}" class="btn btn-brand-outline btn-lg">View Gallery</a>
+                    <a href="{{ route('shop.index') }}" class="btn btn-brand btn-lg">Shop Jerky</a>
+                    <a href="{{ route('contact.show') }}" class="btn btn-brand-outline btn-lg">Contact Us</a>
                 </div>
             </div>
             <div class="col-lg-5 text-center text-lg-end">
@@ -70,24 +70,29 @@
     </div>
 </section>
 
+@if($featuredProducts->count() > 0)
 <section class="home-featured" id="featured-jerky">
     <div class="container">
         <div class="section-heading">
             <span class="eyebrow">Featured Jerky</span>
-            <h2 class="section-heading__title">Our first small-batch release is on the way.</h2>
-            <p class="section-heading__subtitle">We are preparing SOGRATE jerky for launch. Contact us for availability and current details.</p>
+            <h2 class="section-heading__title">Seriously good jerky, ready to share.</h2>
+            <p class="section-heading__subtitle">Small-batch SOGRATE favorites, made in Texas.</p>
         </div>
 
-        <div class="home-featured__card text-center">
-            <span class="home-featured__badge">Coming Soon</span>
-            <h3 class="home-featured__title">Seriously good jerky, made in Texas.</h3>
-            <p class="home-featured__text mx-auto">
-                No shortcuts and no filler. Just honest beef jerky built around real BBQ flavor.
-            </p>
-            <a href="{{ route('contact.show') }}" class="btn btn-brand">Ask About Availability</a>
+        <div class="row g-4">
+            @foreach($featuredProducts as $product)
+                <div class="col-sm-6 col-lg-4">
+                    @include('shop._product-card', ['product' => $product])
+                </div>
+            @endforeach
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{{ route('shop.index') }}" class="btn btn-brand-outline">Shop All Jerky</a>
         </div>
     </div>
 </section>
+@endif
 
 <section class="home-quick-order">
     <div class="container">
