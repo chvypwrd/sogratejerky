@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BlogPost;
 use App\Models\SiteBranding;
 
 class StructuredDataService
@@ -109,6 +110,48 @@ class StructuredDataService
     public function galleryBreadcrumbs(string $galleryTitle): array
     {
         return $this->breadcrumbs($galleryTitle, 'Gallery');
+    }
+
+    public function blogPosting(BlogPost $post): array
+    {
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BlogPosting',
+            'headline' => $post->title,
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => route('blog.show', $post->slug),
+            ],
+            'url' => route('blog.show', $post->slug),
+            'author' => [
+                '@type' => 'Person',
+                'name' => $post->author_display_name,
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name' => $this->settings->get('general.site_name', config('app.name', 'SOGRATE')),
+                'url' => url('/'),
+            ],
+        ];
+
+        $description = $post->seo_description ?: $post->excerpt ?: strip_tags((string) $post->content);
+        if ($description) {
+            $data['description'] = $description;
+        }
+
+        if ($post->published_at) {
+            $data['datePublished'] = $post->published_at->toIso8601String();
+        }
+
+        if ($post->updated_at) {
+            $data['dateModified'] = $post->updated_at->toIso8601String();
+        }
+
+        if ($post->hasMedia('featured')) {
+            $data['image'] = $post->getFirstMediaUrl('featured', 'card');
+        }
+
+        return $data;
     }
 
     public function all(): array

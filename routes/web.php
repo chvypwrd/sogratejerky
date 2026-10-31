@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\BlogCommentController;
+use App\Http\Controllers\Admin\BlogPostController;
+use App\Http\Controllers\Admin\BlogTagController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
@@ -15,6 +19,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\PublicBlogController;
 use App\Http\Controllers\PublicGalleryController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\RobotsController;
@@ -60,6 +65,35 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     Route::delete('/pages/{page}', [PageController::class, 'destroy'])->name('pages.destroy');
     Route::post('/pages/{page}/restore', [PageController::class, 'restore'])->name('pages.restore');
     Route::delete('/pages/{page}/force-delete', [PageController::class, 'forceDelete'])->name('pages.force-delete');
+
+    // Blog
+    Route::get('/blog/posts', [BlogPostController::class, 'index'])->name('blog.posts.index')->middleware('can:blog.posts.view');
+    Route::get('/blog/posts/create', [BlogPostController::class, 'create'])->name('blog.posts.create')->middleware('can:blog.posts.create');
+    Route::post('/blog/posts', [BlogPostController::class, 'store'])->name('blog.posts.store')->middleware('can:blog.posts.create');
+    Route::get('/blog/posts/{post}/edit', [BlogPostController::class, 'edit'])->name('blog.posts.edit')->middleware('can:blog.posts.update');
+    Route::put('/blog/posts/{post}', [BlogPostController::class, 'update'])->name('blog.posts.update')->middleware('can:blog.posts.update');
+    Route::delete('/blog/posts/{post}', [BlogPostController::class, 'destroy'])->name('blog.posts.destroy')->middleware('can:blog.posts.delete');
+    Route::post('/blog/posts/{post}/publish', [BlogPostController::class, 'publish'])->name('blog.posts.publish')->middleware('can:blog.posts.update');
+    Route::post('/blog/posts/{post}/unpublish', [BlogPostController::class, 'unpublish'])->name('blog.posts.unpublish')->middleware('can:blog.posts.update');
+
+    Route::get('/blog/categories', [BlogCategoryController::class, 'index'])->name('blog.categories.index')->middleware('can:blog.categories.manage');
+    Route::get('/blog/categories/create', [BlogCategoryController::class, 'create'])->name('blog.categories.create')->middleware('can:blog.categories.manage');
+    Route::post('/blog/categories', [BlogCategoryController::class, 'store'])->name('blog.categories.store')->middleware('can:blog.categories.manage');
+    Route::get('/blog/categories/{blogCategory}/edit', [BlogCategoryController::class, 'edit'])->name('blog.categories.edit')->middleware('can:blog.categories.manage');
+    Route::put('/blog/categories/{blogCategory}', [BlogCategoryController::class, 'update'])->name('blog.categories.update')->middleware('can:blog.categories.manage');
+    Route::delete('/blog/categories/{blogCategory}', [BlogCategoryController::class, 'destroy'])->name('blog.categories.destroy')->middleware('can:blog.categories.manage');
+
+    Route::get('/blog/tags', [BlogTagController::class, 'index'])->name('blog.tags.index')->middleware('can:blog.tags.manage');
+    Route::get('/blog/tags/create', [BlogTagController::class, 'create'])->name('blog.tags.create')->middleware('can:blog.tags.manage');
+    Route::post('/blog/tags', [BlogTagController::class, 'store'])->name('blog.tags.store')->middleware('can:blog.tags.manage');
+    Route::get('/blog/tags/{blogTag}/edit', [BlogTagController::class, 'edit'])->name('blog.tags.edit')->middleware('can:blog.tags.manage');
+    Route::put('/blog/tags/{blogTag}', [BlogTagController::class, 'update'])->name('blog.tags.update')->middleware('can:blog.tags.manage');
+    Route::delete('/blog/tags/{blogTag}', [BlogTagController::class, 'destroy'])->name('blog.tags.destroy')->middleware('can:blog.tags.manage');
+
+    Route::get('/blog/comments', [BlogCommentController::class, 'index'])->name('blog.comments.index')->middleware('can:blog.comments.moderate');
+    Route::post('/blog/comments/{comment}/approve', [BlogCommentController::class, 'approve'])->name('blog.comments.approve')->middleware('can:blog.comments.moderate');
+    Route::post('/blog/comments/{comment}/reject', [BlogCommentController::class, 'reject'])->name('blog.comments.reject')->middleware('can:blog.comments.moderate');
+    Route::delete('/blog/comments/{comment}', [BlogCommentController::class, 'destroy'])->name('blog.comments.destroy')->middleware('can:blog.comments.moderate');
     Route::post('/pages/{page}/publish', [PageController::class, 'publish'])->name('pages.publish');
     Route::post('/pages/{page}/unpublish', [PageController::class, 'unpublish'])->name('pages.unpublish');
 
@@ -107,6 +141,15 @@ Route::get('/admin/preview/{page}', [PreviewController::class, 'show'])
     ->name('pages.preview')
     ->middleware(['signed', 'auth']);
 
+Route::get('/blog', [PublicBlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/search', [PublicBlogController::class, 'search'])->name('blog.search');
+Route::get('/blog/feed', [PublicBlogController::class, 'feed'])->name('blog.feed');
+Route::get('/blog/author/{author}', [PublicBlogController::class, 'author'])->name('blog.author');
+Route::get('/blog/category/{blogCategory:slug}', [PublicBlogController::class, 'category'])->name('blog.category');
+Route::get('/blog/tag/{blogTag:slug}', [PublicBlogController::class, 'tag'])->name('blog.tag');
+Route::get('/blog/{slug}', [PublicBlogController::class, 'show'])->name('blog.show');
+Route::post('/blog/{slug}/comments', [PublicBlogController::class, 'storeComment'])->name('blog.comments.store')->middleware('throttle:blog-comments');
+
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/faqs', [FaqController::class, 'index'])->name('faqs.index');
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
@@ -122,4 +165,4 @@ Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('gallery
 Route::get('/gallery/{gallery:slug}', [PublicGalleryController::class, 'show'])->name('gallery.show');
 
 Route::get('/{slug}', PublicPageController::class)->name('pages.show')
-    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');
+    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|blog$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');

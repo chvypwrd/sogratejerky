@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\Redirect;
 use App\Models\Setting;
+use App\Policies\BlogPostPolicy;
 use App\Policies\ContactMessagePolicy;
 use App\Policies\MenuItemPolicy;
 use App\Policies\MenuPolicy;
@@ -44,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
     protected function registerPolicies(): void
     {
         Gate::policy(Page::class, PagePolicy::class);
+        Gate::policy(BlogPost::class, BlogPostPolicy::class);
         Gate::policy(Menu::class, MenuPolicy::class);
         Gate::policy(MenuItem::class, MenuItemPolicy::class);
         Gate::policy(Setting::class, SettingPolicy::class);
@@ -55,6 +58,10 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('contact', function (Request $request) {
             return Limit::perMinute(5)->by($request->ip());
+        });
+
+        RateLimiter::for('blog-comments', function (Request $request) {
+            return Limit::perMinute(3)->by($request->ip());
         });
     }
 }

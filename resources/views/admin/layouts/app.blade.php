@@ -104,6 +104,38 @@
                 </li>
                 @endcan
 
+                @canany(['blog.posts.view', 'blog.categories.manage', 'blog.tags.manage', 'blog.comments.moderate'])
+                <li class="nav-section">Blog</li>
+                @endcanany
+                @can('blog.posts.view')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.blog.posts.*') ? 'active' : '' }}" href="{{ route('admin.blog.posts.index') }}">
+                        Posts
+                    </a>
+                </li>
+                @endcan
+                @can('blog.categories.manage')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.blog.categories.*') ? 'active' : '' }}" href="{{ route('admin.blog.categories.index') }}">
+                        Categories
+                    </a>
+                </li>
+                @endcan
+                @can('blog.tags.manage')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.blog.tags.*') ? 'active' : '' }}" href="{{ route('admin.blog.tags.index') }}">
+                        Tags
+                    </a>
+                </li>
+                @endcan
+                @can('blog.comments.moderate')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.blog.comments.*') ? 'active' : '' }}" href="{{ route('admin.blog.comments.index') }}">
+                        Comments
+                    </a>
+                </li>
+                @endcan
+
                 <li class="nav-section">Appearance</li>
                 @can('menus.view')
                 <li class="nav-item">

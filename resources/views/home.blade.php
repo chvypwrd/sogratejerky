@@ -159,19 +159,29 @@
 </section>
 @endif
 
+@if($recentPosts->count() > 0)
 <section class="home-blog">
     <div class="container">
         <div class="section-heading">
             <span class="eyebrow">From the Blog</span>
-            <h2 class="section-heading__title">Stories from the pit are coming soon.</h2>
-            <p class="section-heading__subtitle">Recipes, brand updates, and behind-the-scenes notes will live here.</p>
+            <h2 class="section-heading__title">Latest from SOGRATE</h2>
+            <p class="section-heading__subtitle">Recipes, brand updates, and behind-the-scenes notes from the pit.</p>
         </div>
 
-        <div class="empty-state">
-            <p class="mb-0">The SOGRATE blog is part of a future release. Check back soon.</p>
+        <div class="row g-4">
+            @foreach($recentPosts as $post)
+                <div class="col-md-6 col-lg-4">
+                    @include('blog._post-card', ['post' => $post])
+                </div>
+            @endforeach
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{{ route('blog.index') }}" class="btn btn-brand-outline">View All Articles</a>
         </div>
     </div>
 </section>
+@endif
 
 @if($faqs->count() > 0)
 <section class="home-faq">

@@ -16,6 +16,8 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             'dashboard.view',
             'pages.view', 'pages.create', 'pages.update', 'pages.delete', 'pages.publish',
+            'blog.posts.view', 'blog.posts.create', 'blog.posts.update', 'blog.posts.delete',
+            'blog.categories.manage', 'blog.tags.manage', 'blog.comments.moderate',
             'testimonials.view', 'testimonials.create', 'testimonials.update', 'testimonials.delete',
             'faqs.view', 'faqs.create', 'faqs.update', 'faqs.delete',
             'menus.view', 'menus.manage',
@@ -39,6 +41,8 @@ class RolePermissionSeeder extends Seeder
         $administrator->syncPermissions([
             'dashboard.view',
             'pages.view', 'pages.create', 'pages.update', 'pages.delete', 'pages.publish',
+            'blog.posts.view', 'blog.posts.create', 'blog.posts.update', 'blog.posts.delete',
+            'blog.categories.manage', 'blog.tags.manage', 'blog.comments.moderate',
             'testimonials.view', 'testimonials.create', 'testimonials.update', 'testimonials.delete',
             'faqs.view', 'faqs.create', 'faqs.update', 'faqs.delete',
             'menus.view', 'menus.manage',
@@ -54,6 +58,8 @@ class RolePermissionSeeder extends Seeder
         $editor->syncPermissions([
             'dashboard.view',
             'pages.view', 'pages.create', 'pages.update', 'pages.publish',
+            'blog.posts.view', 'blog.posts.create', 'blog.posts.update',
+            'blog.categories.manage', 'blog.tags.manage', 'blog.comments.moderate',
             'testimonials.view', 'testimonials.create', 'testimonials.update',
             'faqs.view', 'faqs.create', 'faqs.update',
             'media.view', 'media.upload',

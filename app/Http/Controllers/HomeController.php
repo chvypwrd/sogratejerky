@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPost;
 use App\Models\Faq;
 use App\Models\Testimonial;
 
@@ -17,6 +18,12 @@ class HomeController extends Controller
 
         $faqs = Faq::active()->ordered()->limit(6)->get();
 
-        return view('home', compact('testimonials', 'faqs'));
+        $recentPosts = BlogPost::published()
+            ->with(['author', 'categories'])
+            ->latestPublished()
+            ->limit(3)
+            ->get();
+
+        return view('home', compact('testimonials', 'faqs', 'recentPosts'));
     }
 }
