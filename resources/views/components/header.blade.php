@@ -55,6 +55,16 @@
                 </ul>
 
                 <div class="header-actions">
+                    @auth
+                        <a href="{{ route('account.dashboard') }}" class="header-account">My Account</a>
+                        <form method="POST" action="{{ route('customer.logout') }}" class="header-account-form">
+                            @csrf
+                            <button type="submit" class="header-account header-account--button">Sign Out</button>
+                        </form>
+                    @else
+                        <a href="{{ route('customer.login') }}" class="header-account">Sign In</a>
+                        <a href="{{ route('customer.register') }}" class="header-account header-account--strong">Create Account</a>
+                    @endauth
                     <a href="{{ route('cart.index') }}" class="header-cart" aria-label="Cart, {{ $cartCount }} items">
                         Cart <span class="header-cart__count">{{ $cartCount }}</span>
                     </a>

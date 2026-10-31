@@ -54,10 +54,10 @@ class RouteTest extends TestCase
             ->assertOk();
     }
 
-    public function test_register_returns_404(): void
+    public function test_register_route_exists(): void
     {
         $this->get('/register')
-            ->assertNotFound();
+            ->assertOk();
     }
 
     public function test_admin_forgot_password_works(): void
@@ -137,9 +137,9 @@ class RouteTest extends TestCase
             ->assertOk();
     }
 
-    public function test_registration_still_absent(): void
+    public function test_customer_registration_route_is_available(): void
     {
         $this->get('/register')
-            ->assertNotFound();
+            ->assertOk();
     }
 }

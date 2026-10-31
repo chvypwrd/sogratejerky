@@ -59,11 +59,11 @@ class ContactRouteTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_registration_still_absent(): void
+    public function test_customer_registration_route_is_available(): void
     {
         $response = $this->get('/register');
 
-        $response->assertNotFound();
+        $response->assertOk();
     }
 
     public function test_all_existing_public_routes_unaffected(): void

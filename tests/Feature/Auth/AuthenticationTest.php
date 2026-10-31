@@ -134,23 +134,11 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect();
     }
 
-    public function test_registration_route_does_not_exist(): void
+    public function test_customer_registration_route_exists(): void
     {
         $response = $this->get('/register');
 
-        $response->assertStatus(404);
-    }
-
-    public function test_registration_post_endpoint_does_not_exist(): void
-    {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password123456',
-            'password_confirmation' => 'password123456',
-        ]);
-
-        $response->assertStatus(404);
+        $response->assertOk();
     }
 
     public function test_repeated_failed_login_attempts_trigger_throttling(): void

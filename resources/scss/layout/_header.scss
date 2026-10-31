@@ -99,9 +99,48 @@
 
     .header-actions {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
+        justify-content: flex-end;
         gap: 0.75rem;
         margin-left: 1rem;
+    }
+
+    .header-account-form {
+        margin: 0;
+    }
+
+    .header-account {
+        display: inline-flex;
+        align-items: center;
+        padding: 0;
+        color: $body-text;
+        background: none;
+        border: 0;
+        font-family: $font-family-headings;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.035em;
+        text-decoration: none;
+        text-transform: uppercase;
+
+        &:hover {
+            color: $brand-primary;
+            text-decoration: none;
+        }
+
+        &:focus-visible {
+            outline: $focus-ring-width solid $focus-ring-color;
+            outline-offset: $focus-ring-offset;
+        }
+
+        &--strong {
+            color: $brand-primary;
+        }
+
+        &--button {
+            cursor: pointer;
+        }
     }
 
     .header-cart {

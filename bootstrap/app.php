@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CustomerAuthenticate;
 use App\Http\Middleware\NoIndexAdmin;
 use App\Http\Middleware\RequestId;
 use App\Http\Middleware\SecurityHeaders;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'noindex.admin' => NoIndexAdmin::class,
+            'customer.auth' => CustomerAuthenticate::class,
         ]);
 
         $middleware->web(append: [

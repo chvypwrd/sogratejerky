@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\BlogPostController;
@@ -21,6 +22,11 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CustomerAddressController;
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\CustomerEmailVerificationController;
+use App\Http\Controllers\CustomerPasswordController;
+use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PreviewController;
@@ -199,6 +205,36 @@ Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear')
 Route::get('/quick-order', [QuickOrderController::class, 'index'])->name('quick-order.index');
 Route::post('/quick-order', [QuickOrderController::class, 'store'])->name('quick-order.store');
 
+Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('customer.login');
+Route::post('/login', [CustomerAuthController::class, 'login'])->name('customer.login.store')->middleware('throttle:login');
+Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('customer.register');
+Route::post('/register', [CustomerAuthController::class, 'register'])->name('customer.register.store')->middleware('throttle:register');
+Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout')->middleware('customer.auth');
+
+Route::get('/forgot-password', [CustomerPasswordController::class, 'showForgot'])->name('customer.password.request');
+Route::post('/forgot-password', [CustomerPasswordController::class, 'sendResetLink'])->name('customer.password.email')->middleware('throttle:6,1');
+Route::get('/reset-password/{token}', [CustomerPasswordController::class, 'showReset'])->name('customer.password.reset');
+Route::post('/reset-password', [CustomerPasswordController::class, 'reset'])->name('customer.password.store')->middleware('throttle:6,1');
+
+Route::middleware('customer.auth')->group(function () {
+    Route::get('/email/verify', [CustomerEmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [CustomerEmailVerificationController::class, 'verify'])->name('verification.verify')->middleware(['signed', 'throttle:6,1']);
+    Route::post('/email/verification-notification', [CustomerEmailVerificationController::class, 'send'])->name('verification.send')->middleware('throttle:6,1');
+
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/', [AccountController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profile', [CustomerProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
+
+        Route::get('/addresses', [CustomerAddressController::class, 'index'])->name('addresses.index');
+        Route::get('/addresses/create', [CustomerAddressController::class, 'create'])->name('addresses.create');
+        Route::post('/addresses', [CustomerAddressController::class, 'store'])->name('addresses.store');
+        Route::get('/addresses/{address}/edit', [CustomerAddressController::class, 'edit'])->name('addresses.edit');
+        Route::put('/addresses/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
+        Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
+    });
+});
+
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/faqs', [FaqController::class, 'index'])->name('faqs.index');
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
@@ -214,4 +250,4 @@ Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('gallery
 Route::get('/gallery/{gallery:slug}', [PublicGalleryController::class, 'show'])->name('gallery.show');
 
 Route::get('/{slug}', PublicPageController::class)->name('pages.show')
-    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|shop$|cart$|quick-order$|blog$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');
+    ->where('slug', '^(?!admin$|register$|login$|password$|logout$|reset-password$|_ignition$|sanctum$|telescope$|shop$|cart$|quick-order$|blog$|register$|forgot-password$|account$|email$|faq$|contact$|gallery$|sitemap\.xml$|robots\.txt$)[a-z0-9]+(?:-[a-z0-9]+)*$');

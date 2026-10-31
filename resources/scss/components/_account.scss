@@ -1,0 +1,99 @@
+// ==========================================================================
+// Customer Account
+// ==========================================================================
+
+.account-auth-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    font-size: $font-size-sm;
+
+    a {
+        color: $brand-secondary;
+        font-weight: 600;
+        text-decoration: none;
+
+        &:hover {
+            color: $brand-primary;
+            text-decoration: underline;
+        }
+    }
+}
+
+.account-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 2rem;
+    background-color: $warm-cream;
+    border: 1px solid $pale-sage;
+    border-radius: $border-radius-lg;
+
+    a,
+    button {
+        display: inline-block;
+        padding: 0.45rem 0.8rem;
+        color: $headings-color;
+        background: none;
+        border: 1px solid transparent;
+        border-radius: $border-radius;
+        font-size: $font-size-sm;
+        font-weight: 600;
+        text-decoration: none;
+
+        &:hover,
+        &.active {
+            color: $white;
+            background-color: $brand-primary;
+            border-color: $brand-primary;
+            text-decoration: none;
+        }
+    }
+
+    .account-nav__logout {
+        margin-left: auto;
+    }
+}
+
+.account-card {
+    height: 100%;
+    padding: 1.5rem;
+    background-color: $white;
+    border: 1px solid $pale-sage;
+    border-radius: $border-radius-lg;
+    box-shadow: $card-shadow;
+
+    h2 {
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+    }
+
+    p {
+        color: $text-muted;
+        font-size: $font-size-sm;
+        line-height: 1.6;
+    }
+
+    &--muted {
+        background-color: $warm-cream;
+    }
+}
+
+.address-card {
+    address {
+        color: $text-muted;
+        font-size: $font-size-sm;
+        line-height: 1.7;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .account-nav {
+        .account-nav__logout {
+            margin-left: 0;
+        }
+    }
+}
