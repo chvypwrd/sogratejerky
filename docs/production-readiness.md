@@ -115,11 +115,15 @@ The seeder creates a verified Super Admin, refuses to promote an existing custom
 
 ## Queue Worker
 
-Run a persistent queue worker under the host process manager, for example:
+For the current SiteGround shared hosting deployment, queue processing is bounded through Laravel's scheduler rather than a permanent worker daemon. See `docs/siteground-queue-setup.md` for the complete procedure.
 
-```bash
-php artisan queue:work --sleep=3 --tries=3
+The scheduler runs:
+
+```text
+queue:work --stop-when-empty --tries=3 --timeout=60
 ```
+
+every minute with overlap protection. The database queue `retry_after` remains 90 seconds, leaving a 30-second safety margin.
 
 Restart workers after deployment with `php artisan queue:restart`. Monitor failed jobs with `php artisan queue:failed`.
 
@@ -128,10 +132,12 @@ Restart workers after deployment with `php artisan queue:restart`. Monitor faile
 Add the Laravel scheduler to cron:
 
 ```cron
-* * * * * cd /path/to/sograte && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /home/CUSTOMER/public_html/Live && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
-The application schedules `blog:publish-scheduled` every minute. Confirm cron is active and scheduled publication works.
+Use the verified production path and PHP executable; the values above are placeholders. The cron entry must point to the stable `Live` deployment directory, not a timestamped release directory. Do not add a separate `queue:work` cron entry.
+
+The application schedules both `blog:publish-scheduled` and the bounded queue worker every minute. Confirm cron is active and `php artisan schedule:list` shows both tasks.
 
 ## Logging and Operations
 

@@ -2,7 +2,7 @@
 
 **Project:** SOGRATE - BBQ & Beef Jerky  
 **Date:** 2026-10-31  
-**Starting checkpoint:** `sograte-m12`  
+**Starting commit:** `3e842d3` (accepted checkpoint `sograte-m12`)
 **Status:** Ready for acceptance  
 **Public launch status:** **NO-GO** (unchanged)
 
@@ -54,7 +54,8 @@ Actual external email delivery is not verified locally because production SMTP h
 - FAQ Bootstrap behavior was verified in a headless browser at mobile width: 5 items loaded collapsed; opening one expanded it; opening another closed the first; clicking the open item closed it.
 - Contact notification dispatch and configurable recipient tests pass with `Notification::fake()`.
 - Fresh `migrate:fresh --seed` and repeated `db:seed` passed with stable content/menu counts.
-- Full test suite passed: **699 tests, 1,831 assertions**.
+- Focused re-verification passed: **76 tests, 204 assertions**.
+- Full test suite passed: **702 tests, 1,850 assertions**.
 - Blade compilation passed.
 - Frontend production build passed.
 - Pint passed on touched PHP files.
@@ -71,4 +72,4 @@ Actual external email delivery is not verified locally because production SMTP h
 
 The four requested refinements are complete and verified. Recommend acceptance.
 
-No deployment, live checkout, real payment, or Git commit/tag/push was performed.
+No deployment, live checkout, real payment, or additional Git commit/tag/push was performed.

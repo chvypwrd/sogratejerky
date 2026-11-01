@@ -9,3 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('blog:publish-scheduled')->everyMinute()->withoutOverlapping();
+
+Schedule::command('queue:work --stop-when-empty --tries=3 --timeout=60')
+    ->everyMinute()
+    ->withoutOverlapping(10);

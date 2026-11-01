@@ -95,8 +95,8 @@ The application does not establish regulatory compliance merely because these ch
 | Contact form storage and notification dispatch | Pass | Submissions persist before notification; configurable recipient and focused Notification::fake coverage pass. Production mail delivery remains pending. |
 | Registration verification and password-reset email | Pending | Send real production/test messages through the selected transport. |
 | Order and fulfillment notifications | Pending | Verify templates, queue processing, and no duplicate sends. |
-| Queue worker | Pending | Deploy and supervise `queue:work`; review failed jobs. |
-| Scheduler | Pending | Activate cron for `schedule:run`; verify scheduled blog publication. |
+| Queue worker | Pending | Bounded `queue:work --stop-when-empty --tries=3 --timeout=60` is scheduled every minute with overlap protection. Install the SiteGround cron and verify processing. |
+| Scheduler | Pending | Activate the single SiteGround cron for `schedule:run`; see `docs/siteground-queue-setup.md` and verify both scheduled tasks. |
 | Logging and webhook failure visibility | Pending | Confirm daily logs, retention, and Stripe event failure monitoring. |
 
 ## 8. Final Purchase Validation
