@@ -72,6 +72,23 @@ class ContactFormTest extends TestCase
         );
     }
 
+    public function test_contact_notification_uses_configured_recipient(): void
+    {
+        Notification::fake();
+        Setting::setValue('contact', 'notification_email', 'ops@example.com');
+
+        $this->post(route('contact.store'), [
+            'name' => 'Recipient Test',
+            'email' => 'recipient@example.com',
+            'message' => 'Please send this message to the configured operations inbox.',
+        ])->assertRedirect(route('contact.show'));
+
+        Notification::assertSentOnDemand(
+            NewContactMessageNotification::class,
+            fn ($notification, $channels, $notifiable) => $notifiable->routes['mail'] === 'ops@example.com'
+        );
+    }
+
     public function test_post_contact_with_valid_data_redirects_with_success(): void
     {
         $data = [

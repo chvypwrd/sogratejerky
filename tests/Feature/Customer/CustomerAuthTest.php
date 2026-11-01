@@ -79,6 +79,36 @@ class CustomerAuthTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_protected_customer_route_returns_to_intended_url_after_login(): void
+    {
+        User::factory()->create([
+            'email' => 'customer@example.com',
+            'password' => 'password123456',
+        ]);
+
+        $this->get(route('account.addresses.index'))
+            ->assertRedirect(route('customer.login'));
+
+        $this->post(route('customer.login.store'), [
+            'email' => 'customer@example.com',
+            'password' => 'password123456',
+        ])->assertRedirect(route('account.addresses.index'));
+    }
+
+    public function test_administrator_logging_in_through_customer_form_goes_to_admin(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@example.com',
+            'password' => 'password123456',
+        ]);
+        $admin->assignRole('Super Admin');
+
+        $this->post(route('customer.login.store'), [
+            'email' => 'admin@example.com',
+            'password' => 'password123456',
+        ])->assertRedirect(route('admin.dashboard'));
+    }
+
     public function test_customer_without_roles_cannot_access_admin(): void
     {
         $user = User::factory()->create();

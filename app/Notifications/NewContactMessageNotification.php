@@ -23,7 +23,7 @@ class NewContactMessageNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
-            ->subject('New contact message — '.config('app.name'))
+            ->subject('New contact message - '.config('app.name'))
             ->greeting('A new contact message has been received.')
             ->line('Name: '.$this->message->name)
             ->line('Email: '.$this->message->email);

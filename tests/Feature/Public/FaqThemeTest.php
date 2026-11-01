@@ -86,6 +86,19 @@ class FaqThemeTest extends TestCase
         $this->assertCount(count($matches[1]), $unique, 'All accordion IDs should be unique');
     }
 
+    public function test_faqs_start_collapsed_and_share_an_accordion_parent(): void
+    {
+        Faq::factory()->active()->create(['question' => 'First FAQ?', 'category' => 'General']);
+        Faq::factory()->active()->create(['question' => 'Second FAQ?', 'category' => 'Support']);
+
+        $response = $this->get(route('faq.index'));
+
+        $response->assertOk();
+        $response->assertDontSee('aria-expanded="true"', false);
+        $response->assertDontSee('accordion-collapse collapse show', false);
+        $response->assertSee('data-bs-parent="#faq-accordion"', false);
+    }
+
     public function test_answers_sanitized(): void
     {
         $faq = Faq::factory()

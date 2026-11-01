@@ -8,7 +8,6 @@ use App\Models\MenuItem;
 use App\Models\Page;
 use App\Services\MenuService;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class MenuSeeder extends Seeder
 {
@@ -77,8 +76,17 @@ class MenuSeeder extends Seeder
     private function seedItems(Menu $menu, array $items): void
     {
         foreach ($items as $itemData) {
+            $lookup = ['menu_id' => $menu->id];
+
+            $lookup = match ($itemData['type']) {
+                'page' => $lookup + ['page_id' => $itemData['page_id']],
+                'gallery' => $lookup + ['gallery_id' => $itemData['gallery_id']],
+                'home' => $lookup + ['type' => 'home'],
+                default => $lookup + ['url' => $itemData['url']],
+            };
+
             MenuItem::firstOrCreate(
-                ['menu_id' => $menu->id, 'slug' => Str::slug($itemData['label'])],
+                $lookup,
                 array_merge($itemData, [
                     'menu_id' => $menu->id,
                     'target' => '_self',

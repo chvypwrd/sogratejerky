@@ -6,6 +6,7 @@ use App\Http\Requests\CustomerLoginRequest;
 use App\Http\Requests\RegisterCustomerRequest;
 use App\Models\User;
 use App\Notifications\CustomerVerifyEmail;
+use App\Services\LoginRedirectService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -15,10 +16,14 @@ use Illuminate\View\View;
 
 class CustomerAuthController extends Controller
 {
+    public function __construct(
+        private LoginRedirectService $loginRedirects,
+    ) {}
+
     public function showLogin(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->route('account.dashboard');
+            return redirect()->to($this->loginRedirects->defaultDestination(Auth::user()));
         }
 
         return view('auth.customer-login');
@@ -39,13 +44,13 @@ class CustomerAuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('account.dashboard'));
+        return $this->loginRedirects->response($request);
     }
 
     public function showRegister(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->route('account.dashboard');
+            return redirect()->to($this->loginRedirects->defaultDestination(Auth::user()));
         }
 
         return view('auth.customer-register');

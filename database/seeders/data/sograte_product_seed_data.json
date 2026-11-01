@@ -1,0 +1,300 @@
+{
+  "source": "Legacy SOGRATE Drupal 7 dump; recovered product data",
+  "review_required": true,
+  "notes": [
+    "All products and variants must remain inactive/unpublished.",
+    "Historical prices are reference only; price_cents is zero intentionally and must be replaced before activation.",
+    "Descriptions are proposed marketing edits, not verified contemporary manufacturing claims.",
+    "Combo six pack requires current composition confirmation; never assume live kit inventory handling.",
+    "No inventory quantities or product photos are included.",
+    "Weights are approximate gram conversions from historical ounces."
+  ],
+  "products": [
+    {
+      "name": "Original Flavor Beef Jerky",
+      "slug": "original-flavor-beef-jerky",
+      "short_description": "The one that started it all.",
+      "description": "Not “regular.” Never regular. Our Original Flavor brings savory seasoning, a gentle peppery kick, and the rich hickory-smoke character that put SOGRATE on the map. A Texas classic with just enough attitude to keep every bite interesting.",
+      "original_description": "We do not call it \"Regular\" for a reason, this is the Sograte Original Flavor Beef Jerky! Original, because of the unique one of a kind flavor unlike any \"regular\" flavor. Original Beef Jerky - Well seasoned and slow smoked with a hickory fire. Original Sograte Hickory Smoked Beef Jerky is a little bit spicy because that is how we believe beef jerky should be. Tender mouths might experience a slight tingling burning sensation, but the heat is not the signature feature. The focus is on the natural hickory smoke flavor. Our all natural flavor comes from a unique blend of spices sprinkled atop of fresh cuts of lean top round beef then slow smoked with a live hickory fire. Our spice blend is designed to naturally enhance the wonderful flavor of the slow smoked meat. The result is a beef jerky flavor unlike anything you may have experienced before. This item consists of more than al pound of Sograte Original Beef Jerky in 6 - 3oz reclosable bags.",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "10011",
+          "weight_grams": 85,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 58,
+          "legacy_published": true,
+          "original_title": "Original Flavor Beef Jerky, 3oz"
+        },
+        {
+          "name": "6 Pack (6 × 3 oz)",
+          "sku": "10013",
+          "weight_grams": 510,
+          "historical_price_cents": 3600,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 44,
+          "legacy_published": true,
+          "original_title": "Original Flavor Beef Jerky, 6 Pack"
+        }
+      ]
+    },
+    {
+      "name": "Black Pepper Beef Jerky",
+      "slug": "black-pepper-beef-jerky",
+      "short_description": "Big pepper. Bigger personality.",
+      "description": "For anyone who believes black pepper deserves the spotlight. A generous coating of coarse-ground pepper delivers an assertive bite, balanced by savory seasoning and the hickory-smoke flavor SOGRATE is known for.",
+      "original_description": "Sograte Black Pepper Beef Jerky - Well seasoned and slow smoked with a hickory fire. Black Pepper Sograte Hickory Smoked Beef Jerky is heavily coated in course ground black pepper. The heat is more noticeable, but not over powering. Our all natural flavor comes from a unique blend of spices sprinkled atop of fresh cuts of lean top round beef then slow smoked with a live hickory fire. Our spice blend is designed to naturally enhance the wonderful flavor of the slow smoked meat. The result is a beef jerky flavor unlike anything you may have experienced before. This item consists of more than a pound of Sograte Black Pepper Beef Jerky in 6 - 3oz reclosable bags.",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "10031",
+          "weight_grams": 85,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 60,
+          "legacy_published": true,
+          "original_title": "Black Pepper Beef Jerky, 3oz"
+        },
+        {
+          "name": "6 Pack (6 × 3 oz)",
+          "sku": "10033",
+          "weight_grams": 510,
+          "historical_price_cents": 3600,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 45,
+          "legacy_published": true,
+          "original_title": "Black Pepper Beef Jerky, 6 Pack"
+        }
+      ]
+    },
+    {
+      "name": "Smokin’ Habanero Beef Jerky",
+      "slug": "smokin-habanero-beef-jerky",
+      "short_description": "Bring the heat. Keep the smoke.",
+      "description": "Habanero takes center stage in this fiery favorite. Crushed pepper and bold seasoning build serious, lingering heat, while hickory smoke brings it all together. Made for chile lovers who like their jerky with a challenge.",
+      "original_description": "Sograte Smokin' Habanero Beef Jerky - Well seasoned and slow smoked with a hickory fire. Smokin Habanero Sograte Hickory Smoked Beef Jerky is dusted with our great dry rub featuring a heavy load of dried and crushed habanero peppers. This is the gift that keeps on giving. The heat is intense and will leave a lingering burn for quite some time. Not for the casual jerky eaters. Our all natural flavor comes from a unique blend of spices sprinkled atop of fresh cuts of lean top round beef then slow smoked with a live hickory fire. Our spice blend is designed to naturally enhance the wonderful flavor of the slow smoked meat. The result is a beef jerky flavor unlike anything you may have experienced before. This item consists of more than a pound of Sograte Smokin Habanero Beef Jerky in 6 - 3oz reclosable bags.",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "10041",
+          "weight_grams": 85,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 57,
+          "legacy_published": true,
+          "original_title": "Smokin Habanero Beef Jerky, 3oz"
+        },
+        {
+          "name": "6 Pack (6 × 3 oz)",
+          "sku": "10043",
+          "weight_grams": 510,
+          "historical_price_cents": 3600,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 46,
+          "legacy_published": true,
+          "original_title": "Smokin Habanero Beef Jerky, 6 Pack"
+        }
+      ]
+    },
+    {
+      "name": "Texas Heat Beef Jerky",
+      "slug": "texas-heat-beef-jerky",
+      "short_description": "A little Texas sunset in every bite.",
+      "description": "Tangy cayenne-pepper sauce meets SOGRATE’s original-style seasonings for a lively, warming kick. Savory, smoky and full of Texas character, this is the flavor for folks who want noticeable heat without losing the beef.",
+      "original_description": "This unique new flavor from Sograte Beef Jerky is sure to warm you all the way to the bone. Seasoned with a cayenne pepper sauce blended with Sograte original seasonings, Texas Heat has a tangy heat that is warmer than the sunset on a dry August night. Sograte Beef Jerky gets it's all natural flavor from a unique blend of spices sprinkled atop of fresh cuts of lean top round beef then slow smoked with a live hickory fire. Our spice blend is designed to naturally enhance the wonderful flavor of the slow smoked meat. The result is a beef jerky flavor unlike anything you may have experienced before. This item consists of more than a pound of Sograte Texas Heat beef jerky in 6 - 3oz recloseable bags.",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "10051",
+          "weight_grams": 85,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 59,
+          "legacy_published": true,
+          "original_title": "Texas Heat Beef Jerky, 3oz"
+        },
+        {
+          "name": "6 Pack (6 × 3 oz)",
+          "sku": "10053",
+          "weight_grams": 510,
+          "historical_price_cents": 3600,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 48,
+          "legacy_published": true,
+          "original_title": "Texas Heat Beef Jerky, 6 Pack"
+        }
+      ]
+    },
+    {
+      "name": "Chili Lime Beef Jerky",
+      "slug": "chili-lime-beef-jerky",
+      "short_description": "Bright lime. Gentle chile. Texas smoke.",
+      "description": "A lively combination of tangy lime, mild chile, savory spices and hickory-smoke character. This flavor walks the line between bright and smoky, with a gentle kick that invites another bite.",
+      "original_description": "Chili Lime beef jerky utilizes a Sograte combination of mild chili and tangy lime along with our unique blend of spices for a classic Latin flavor with a Texas twist. We season and slow smoke the lean muscle meat over a hickory fire giving you a flavorful beef jerky with a gental heat, slight tang and some Texas style hickory smoke.",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "10061",
+          "weight_grams": 85,
+          "historical_price_cents": 500,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 66,
+          "legacy_published": false,
+          "original_title": "Chili Lime Beef Jerky, 3oz"
+        },
+        {
+          "name": "6 Pack (6 × 3 oz)",
+          "sku": "10063",
+          "weight_grams": 510,
+          "historical_price_cents": 2800,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 67,
+          "legacy_published": false,
+          "original_title": "Chili Lime Beef Jerky, 6 Pack"
+        }
+      ]
+    },
+    {
+      "name": "Teriyaki Beef Jerky",
+      "slug": "teriyaki-beef-jerky",
+      "short_description": "Sweet meets savory—with a smoky finish.",
+      "description": "A carefully balanced blend of sweet, salty and gently spicy flavors, layered with SOGRATE’s signature hickory-smoke character. The original recipe featured a house-made teriyaki sauce applied before smoking for a bold, satisfying finish.",
+      "original_description": "Sograte Teriyaki Beef Jerky focuses on a balance of sweet, salty and spicy flavor and is rounded out with our signature hickory smoke flavor. Our very own teriyaki sauce is made in house and features our unique blend of spices. As with all Sograte Beef Jerky, we do not marinade in soy sauce so the meat retains its natural flavor and texture. We carefully apply the teriyaki sauce before loading the meat in the smokehouse for smoke curing. All of this comes together as a very balanced beef jerky flavor that explodes in your mouth with every bite.",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "10071",
+          "weight_grams": 85,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 69,
+          "legacy_published": true,
+          "original_title": "Teriyaki Beef Jerky, 3oz"
+        },
+        {
+          "name": "6 Pack (6 × 3 oz)",
+          "sku": "10073",
+          "weight_grams": 510,
+          "historical_price_cents": 3600,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 68,
+          "legacy_published": true,
+          "original_title": "Teriyaki Beef Jerky, 6 Pack"
+        }
+      ]
+    },
+    {
+      "name": "Beef Jerky Combo Six Pack",
+      "slug": "beef-jerky-combo-six-pack",
+      "short_description": "Six flavors. One very good decision.",
+      "description": "Can’t pick a favorite? Take the flavor tour. The original combo featured one bag each of Original Flavor, Black Pepper, Texas Heat, Smokin’ Habanero, Teriyaki and Chili Lime. Confirm the current assortment and package sizes before offering this bundle.",
+      "original_description": "Cant decide on your favorite beef jerky? Try the Combo Pack and try them all! The Combo Pack includes one of each of the following Sograte Beef Jerky flavors: Original Flavor Black Pepper Texas Heat Smokin Habanero Teriyaki Chili Lime",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "6 Pack (6 × 3 oz)",
+          "sku": "10000",
+          "weight_grams": 510,
+          "historical_price_cents": 3600,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 3671,
+          "legacy_published": true,
+          "original_title": "Beef Jerky Combo, 6 Pack"
+        }
+      ]
+    },
+    {
+      "name": "Baconstein Peppered Bacon Jerky",
+      "slug": "baconstein-peppered-bacon-jerky",
+      "short_description": "A delicious experiment escaped the lab.",
+      "description": "Born of a pig. Created by SOGRATE Labs. Baconstein combines sweet-and-salty bacon character, peppery seasoning and a smoky bite. A little mischievous, a lot savory—this monster was made for snacking.",
+      "original_description": "Baconstein - New from Sograte Labs. Born of a pig but a creation of man. Humanity need not fear, for this creation is here to please. Baconstein is the perfect fusion of sweet and salty and moist and crunchy all in a spicy, smokey little bite. The 3oz bag of peppered Baconstein Bacon Bites features a bounty of savory bacon seasoned with the Sograte spices and slow smoked over a hickory fire. You better get a few bags because one will not be enough! See what others are saying: \" Thanks a million for the Baconstein!! Awesome, you've got a winner on your hands there!\" \"..one of the best things I ever ate! I gotta have more!\" \"Holy Sh*t \"",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "11001",
+          "weight_grams": 85,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 3867,
+          "legacy_published": true,
+          "original_title": "Baconstein Bacon Jerky - Peppered, 3oz Bag"
+        }
+      ]
+    },
+    {
+      "name": "Holy Ghost Beef Jerky",
+      "slug": "holy-ghost-beef-jerky",
+      "short_description": "Not for the faint of palate.",
+      "description": "Ghost chile and habanero join forces for a fearless, fiery jerky with an intense, lingering burn. Beneath the heat is the savory seasoning and hickory-smoke character of the original SOGRATE style. Consider yourself warned.",
+      "original_description": "Sograte Holy Ghost Beef Jerky - featuring the worlds hottest pepper, the Ghost Chili aka Naga Jolokia. Sograte Hickory Smoked Holy Ghost Beef Jerky is extremely hot, do not attempt if you are not certain of your ability to withstand the intense heat. The Ghost Chili is combined with some Habanero in our signature spice blend for a tongue numbing, endorphin rushing, out-of-body experience. Our all natural flavor comes from a unique blend of spices sprinkled atop of fresh cuts of lean top round beef then slow smoked with a live hickory fire. Our spice blend is designed to naturally enhance the wonderful flavor of the slow smoked meat. The result is a beef jerky flavor unlike anything you may have experienced before. 2oz bag",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "2 oz Bag",
+          "sku": "10081",
+          "weight_grams": 57,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 4141,
+          "legacy_published": false,
+          "original_title": "Holy Ghost Beef Jerky, 2oz"
+        }
+      ]
+    },
+    {
+      "name": "Baconstein Habanero Bacon Jerky",
+      "slug": "baconstein-habanero-bacon-jerky",
+      "short_description": "The monster learned to breathe fire.",
+      "description": "Take Baconstein’s sweet, savory, smoky bacon bite and turn up the dial with habanero. The heat builds as the flavor unfolds, delivering a wild mix of spice, richness and crunch. Handle with delicious caution.",
+      "original_description": "The latest addition to our Baconstein bacon jerky line-up. The Habanero Baconstein kicks the concept up a few notches with the slow building heat from the ultra hot habanero pepper. The perfect combination of sweet, salty, crunchy chewy and melt in your mouth bacon fat along with intense habanero heat is a full on sensory overload! Better get an extra bag because this one doesnt last long! Warning: heat level = HOT",
+      "active": false,
+      "publication_note": "Draft only. Copy is editorial; verify current recipe, labels, production method and availability.",
+      "variants": [
+        {
+          "name": "3 oz Bag",
+          "sku": "11002",
+          "weight_grams": 85,
+          "historical_price_cents": 675,
+          "price_cents": 0,
+          "active": false,
+          "old_drupal_node_id": 4493,
+          "legacy_published": true,
+          "original_title": "Habanero Baconstein Bacon Jerky - 3oz"
+        }
+      ]
+    }
+  ]
+}

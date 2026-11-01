@@ -92,6 +92,7 @@ The application does not establish regulatory compliance merely because these ch
 | Gate | Status | Evidence / action |
 |---|---|---|
 | Production mail transport and sender | Pending | Configure SMTP/API provider, verified sender, SPF/DKIM/DMARC. |
+| Contact form storage and notification dispatch | Pass | Submissions persist before notification; configurable recipient and focused Notification::fake coverage pass. Production mail delivery remains pending. |
 | Registration verification and password-reset email | Pending | Send real production/test messages through the selected transport. |
 | Order and fulfillment notifications | Pending | Verify templates, queue processing, and no duplicate sends. |
 | Queue worker | Pending | Deploy and supervise `queue:work`; review failed jobs. |

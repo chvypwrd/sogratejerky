@@ -121,6 +121,7 @@ class PasswordResetTest extends TestCase
             'email' => 'admin@example.com',
             'password' => 'oldpassword123456',
         ]);
+        $user->assignRole('Super Admin');
 
         $token = app('auth.password.broker')->createToken($user);
 
@@ -146,6 +147,7 @@ class PasswordResetTest extends TestCase
             'email' => 'admin@example.com',
             'password' => 'oldpassword123456',
         ]);
+        $user->assignRole('Super Admin');
 
         $token = app('auth.password.broker')->createToken($user);
 

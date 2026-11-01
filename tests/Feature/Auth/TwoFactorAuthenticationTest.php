@@ -112,6 +112,7 @@ class TwoFactorAuthenticationTest extends TestCase
             'email' => 'admin@example.com',
             'password' => 'password123456',
         ]);
+        $user->assignRole('Super Admin');
 
         $recoveryCodes = ['recovery-code-1', 'recovery-code-2'];
 
