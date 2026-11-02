@@ -32,13 +32,14 @@ class AdminDashboardTest extends TestCase
         $this->admin->assignRole('Administrator');
     }
 
-    private function paidOrder(int $totalCents, string $placedAt, string $productName = 'Original Beef Jerky'): Order
+    private function paidOrder(int $totalCents, string $placedAt, string $productName = 'Original Beef Jerky', bool $isTest = false): Order
     {
         $order = Order::factory()->paid()->shipping()->create([
             'total_cents' => $totalCents,
             'subtotal_cents' => $totalCents,
             'fulfillment_fee_cents' => 0,
             'placed_at' => $placedAt,
+            'is_test_order' => $isTest,
         ]);
 
         Payment::create([
@@ -107,6 +108,36 @@ class AdminDashboardTest extends TestCase
         $peppered = $report['bestSellers']->firstWhere('product_name', 'Peppered Beef Jerky');
         $this->assertNotNull($peppered);
         $this->assertSame(2, $peppered->units);
+    }
+
+    public function test_dashboard_excludes_test_orders_from_financial_and_operational_reports(): void
+    {
+        $regular = $this->paidOrder(2500, now()->format('Y-m-d H:i:s'));
+        $this->paidOrder(9000, now()->format('Y-m-d H:i:s'), 'Test-Only Product', true);
+
+        PaymentRefund::create([
+            'payment_id' => $regular->payments()->firstOrFail()->id,
+            'order_id' => $regular->id,
+            'request_key' => 'dashboard-regular-refund',
+            'amount_cents' => 500,
+            'currency' => 'USD',
+            'status' => RefundStatus::Succeeded,
+            'refunded_at' => now(),
+        ]);
+
+        $report = $this->actingAs($this->admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->viewData('report');
+
+        $this->assertSame(1, $report['ordersToday']);
+        $this->assertSame(1, $report['ordersMonth']);
+        $this->assertSame(2500, $report['grossToday']);
+        $this->assertSame(2500, $report['grossMonth']);
+        $this->assertSame(500, $report['refundsMonth']);
+        $this->assertSame(2000, $report['netMonth']);
+        $this->assertSame(1, $report['awaitingFulfillment']);
+        $this->assertNull($report['bestSellers']->firstWhere('product_name', 'Test-Only Product'));
     }
 
     public function test_dashboard_handles_an_empty_database_and_month_filter(): void

@@ -16,6 +16,8 @@ enum OrderEvent: string
     case PaymentFailed = 'payment_failed';
     case RefundRequested = 'refund_requested';
     case RefundCompleted = 'refund_completed';
+    case TestOrderMarked = 'test_order_marked';
+    case TestOrderUnmarked = 'test_order_unmarked';
 
     public function label(): string
     {
@@ -32,6 +34,8 @@ enum OrderEvent: string
             self::PaymentFailed => 'Payment failed',
             self::RefundRequested => 'Refund requested',
             self::RefundCompleted => 'Refund completed',
+            self::TestOrderMarked => 'Marked as test order',
+            self::TestOrderUnmarked => 'Test order status removed',
         };
     }
 }

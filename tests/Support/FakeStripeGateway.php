@@ -15,6 +15,8 @@ class FakeStripeGateway extends StripeGateway
 
     public string $intentStatus = 'requires_payment_method';
 
+    public bool $intentLivemode = false;
+
     public string $refundStatus = 'succeeded';
 
     public array $createdIntents = [];
@@ -67,6 +69,7 @@ class FakeStripeGateway extends StripeGateway
             'amount' => $params['amount'],
             'currency' => $params['currency'],
             'client_secret' => 'pi_secret_'.$id,
+            'livemode' => $this->intentLivemode,
             'metadata' => (object) ($params['metadata'] ?? []),
             'last_payment_error' => null,
         ];

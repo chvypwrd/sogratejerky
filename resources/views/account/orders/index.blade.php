@@ -44,7 +44,31 @@
                             <tbody>
                                 @foreach($orders as $order)
                                     <tr>
-                                        <td><strong>{{ $order->order_number }}</strong></td>
+                                        <td>
+                                            <strong>{{ $order->order_number }}</strong>
+                                            @php
+                                                $summaryItems = $order->items->take(3);
+                                                $moreItemCount = $order->items->count() - $summaryItems->count();
+                                            @endphp
+                                            <div class="small text-muted mt-1">
+                                                @if($order->items->isEmpty())
+                                                    <span>Item details unavailable</span>
+                                                @else
+                                                    @foreach($summaryItems as $item)
+                                                        <span class="d-block">
+                                                            {{ $item->product_name }}
+                                                            @if($item->variant_name)
+                                                                <span class="text-muted">- {{ $item->variant_name }}</span>
+                                                            @endif
+                                                            <span class="fw-semibold">&times; {{ $item->quantity }}</span>
+                                                        </span>
+                                                    @endforeach
+                                                    @if($moreItemCount > 0)
+                                                        <span class="d-block mt-1">+ {{ $moreItemCount }} more {{ \Illuminate\Support\Str::plural('item', $moreItemCount) }}</span>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </td>
                                         <td>{{ $order->placed_at?->format('M j, Y') ?? '—' }}</td>
                                         <td>{{ $order->items_count }}</td>
                                         <td><span class="badge bg-{{ $order->order_status->color() }}">{{ $order->order_status->label() }}</span></td>

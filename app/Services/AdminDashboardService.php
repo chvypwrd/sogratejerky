@@ -36,10 +36,10 @@ class AdminDashboardService
         return [
             'month' => $monthStart->format('Y-m'),
             'monthLabel' => $monthStart->format('F Y'),
-            'ordersToday' => Order::query()
+            'ordersToday' => Order::regular()
                 ->whereBetween('placed_at', [$todayStart, $todayEnd])
                 ->count(),
-            'ordersMonth' => Order::query()
+            'ordersMonth' => Order::regular()
                 ->whereBetween('placed_at', [$monthStart, $monthEnd])
                 ->count(),
             'grossToday' => $grossToday,
@@ -50,7 +50,7 @@ class AdminDashboardService
             'refundsMonthFormatted' => $this->formatCents($refundsMonth),
             'netMonth' => $netMonth,
             'netMonthFormatted' => $this->formatCents($netMonth),
-            'awaitingFulfillment' => Order::query()
+            'awaitingFulfillment' => Order::regular()
                 ->whereIn('payment_status', [PaymentStatus::Paid, PaymentStatus::PartiallyRefunded])
                 ->where('fulfillment_status', 'unfulfilled')
                 ->where('order_status', '!=', 'cancelled')
@@ -62,7 +62,7 @@ class AdminDashboardService
             'salesTrendRefunds' => $trend->pluck('refunds')->all(),
             'salesTrendNet' => $trend->pluck('net')->all(),
             'fulfillmentMethods' => $this->fulfillmentMethodBreakdown($monthStart, $monthEnd),
-            'recentOrders' => Order::query()
+            'recentOrders' => Order::regular()
                 ->withCount('items')
                 ->orderByDesc('placed_at')
                 ->orderByDesc('id')
@@ -75,6 +75,7 @@ class AdminDashboardService
     private function paidSalesBetween(CarbonInterface $from, CarbonInterface $to): int
     {
         return (int) Payment::query()
+            ->whereHas('order', fn ($query) => $query->regular())
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$from, $to])
             ->sum('amount_cents');
@@ -83,6 +84,7 @@ class AdminDashboardService
     private function refundsBetween(CarbonInterface $from, CarbonInterface $to): int
     {
         return (int) PaymentRefund::query()
+            ->whereHas('order', fn ($query) => $query->regular())
             ->where('status', RefundStatus::Succeeded->value)
             ->whereBetween('refunded_at', [$from, $to])
             ->sum('amount_cents');
@@ -91,6 +93,7 @@ class AdminDashboardService
     private function paidSalesByDay(CarbonInterface $from, CarbonInterface $to): Collection
     {
         return Payment::query()
+            ->whereHas('order', fn ($query) => $query->regular())
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$from, $to])
             ->selectRaw('DATE(paid_at) as report_date, SUM(amount_cents) as total')
@@ -101,6 +104,7 @@ class AdminDashboardService
     private function refundsByDay(CarbonInterface $from, CarbonInterface $to): Collection
     {
         return PaymentRefund::query()
+            ->whereHas('order', fn ($query) => $query->regular())
             ->where('status', RefundStatus::Succeeded->value)
             ->whereBetween('refunded_at', [$from, $to])
             ->selectRaw('DATE(refunded_at) as report_date, SUM(amount_cents) as total')
@@ -133,7 +137,7 @@ class AdminDashboardService
 
     private function fulfillmentMethodBreakdown(CarbonInterface $from, CarbonInterface $to): Collection
     {
-        $counts = Order::query()
+        $counts = Order::regular()
             ->whereBetween('placed_at', [$from, $to])
             ->selectRaw('fulfillment_method, COUNT(*) as total')
             ->groupBy('fulfillment_method')
@@ -157,6 +161,7 @@ class AdminDashboardService
                 PaymentStatus::Refunded->value,
             ])
             ->where('orders.order_status', '!=', 'cancelled')
+            ->where('orders.is_test_order', false)
             ->whereBetween('orders.placed_at', [$from, $to])
             ->selectRaw('order_items.product_name, order_items.variant_name, order_items.sku, SUM(order_items.quantity) as units, SUM(order_items.line_total_cents) as revenue_cents')
             ->groupBy('order_items.product_name', 'order_items.variant_name', 'order_items.sku')

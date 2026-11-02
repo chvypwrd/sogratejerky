@@ -35,9 +35,16 @@
         <div class="text-muted">Placed {{ $order->placed_at?->format('F j, Y g:i A') ?? '—' }}</div>
     </div>
     <div class="text-end">
+        <div class="mb-2">
+            <a href="{{ route('admin.orders.work-order', $order) }}" class="btn btn-sm btn-outline-dark" target="_blank" rel="noopener">Print Work Order</a>
+            <a href="{{ route('admin.orders.invoice', $order) }}" class="btn btn-sm btn-outline-dark" target="_blank" rel="noopener">Print Invoice / Receipt</a>
+        </div>
         <span class="badge bg-{{ $order->order_status->color() }}">{{ $order->order_status->label() }}</span>
         <span class="badge bg-{{ $order->payment_status->color() }}">{{ $order->payment_status->label() }}</span>
         <span class="badge bg-{{ $order->fulfillment_status->color() }}">{{ $order->fulfillment_status->label() }}</span>
+        @if($order->is_test_order)
+            <span class="badge bg-warning text-dark">Test Order</span>
+        @endif
     </div>
 </div>
 
@@ -55,6 +62,22 @@
         </ul>
     </div>
 @endif
+
+@can('fulfill', $order)
+    <div class="card mb-4">
+        <div class="card-header"><strong>Test Order Classification</strong></div>
+        <div class="card-body">
+            <p class="text-muted small mb-3">Marking as a test order requires verified Stripe test-mode PaymentIntent evidence. This does not refund, cancel, or delete any payment or order records.</p>
+            <form method="POST" action="{{ route('admin.orders.test-status', $order) }}">
+                @csrf
+                <input type="hidden" name="is_test_order" value="{{ $order->is_test_order ? '0' : '1' }}">
+                <button type="submit" class="btn btn-sm {{ $order->is_test_order ? 'btn-outline-secondary' : 'btn-outline-warning' }}">
+                    {{ $order->is_test_order ? 'Remove Test Order Flag' : 'Mark as Test Order' }}
+                </button>
+            </form>
+        </div>
+    </div>
+@endcan
 
 <div class="row g-4 mb-4">
     <div class="col-lg-8">

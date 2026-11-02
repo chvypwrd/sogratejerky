@@ -8,6 +8,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShippingCarrier;
 use Database\Factories\OrderFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -51,6 +52,7 @@ class Order extends Model
         'cancellation_reason',
         'placed_at',
         'ga4_purchase_tracked_at',
+        'is_test_order',
     ];
 
     protected function casts(): array
@@ -78,7 +80,18 @@ class Order extends Model
             'cancelled_at' => 'datetime',
             'placed_at' => 'datetime',
             'ga4_purchase_tracked_at' => 'datetime',
+            'is_test_order' => 'boolean',
         ];
+    }
+
+    public function scopeRegular(Builder $query): Builder
+    {
+        return $query->where('is_test_order', false);
+    }
+
+    public function scopeTestOrders(Builder $query): Builder
+    {
+        return $query->where('is_test_order', true);
     }
 
     public function user(): BelongsTo

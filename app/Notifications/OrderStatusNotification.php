@@ -66,6 +66,8 @@ class OrderStatusNotification extends Notification implements ShouldQueue
                 ->line('Your payment attempt did not complete. You can return to checkout to try again.'),
             OrderEvent::RefundRequested, OrderEvent::RefundCompleted => $mail
                 ->line('A refund update is available for this order.'),
+            OrderEvent::TestOrderMarked, OrderEvent::TestOrderUnmarked => $mail
+                ->line('This order was updated by the Sograte team.'),
             OrderEvent::ReadyForPickup => $this->addPickupDetails($mail),
             OrderEvent::PickedUp => $mail
                 ->line('Your order has been picked up. Thank you for choosing Sograte.'),
@@ -106,6 +108,7 @@ class OrderStatusNotification extends Notification implements ShouldQueue
             OrderEvent::PaymentPaid => 'Your Sograte order '.$this->order->order_number.' is confirmed',
             OrderEvent::PaymentFailed => 'Payment attempt failed for order '.$this->order->order_number,
             OrderEvent::RefundRequested, OrderEvent::RefundCompleted => 'Refund update for order '.$this->order->order_number,
+            OrderEvent::TestOrderMarked, OrderEvent::TestOrderUnmarked => 'Order '.$this->order->order_number.' updated',
         };
     }
 

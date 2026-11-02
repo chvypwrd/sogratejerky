@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\FulfillmentMethod;
 use App\Enums\FulfillmentStatus;
+use App\Enums\OrderEvent;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\RefundStatus;
 use App\Enums\ShippingCarrier;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CancelOrderRequest;
@@ -13,12 +15,17 @@ use App\Http\Requests\Admin\FulfillmentNoteRequest;
 use App\Http\Requests\Admin\RefundOrderRequest;
 use App\Http\Requests\Admin\ShipOrderRequest;
 use App\Models\Order;
+use App\Models\SiteBranding;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaymentRefundService;
+use App\Services\SettingsService;
+use App\Services\StripeGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 class OrderController extends Controller
 {
@@ -40,11 +47,19 @@ class OrderController extends Controller
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'sort' => ['nullable', Rule::in(['newest', 'oldest'])],
+            'order_type' => ['nullable', Rule::in(['regular', 'test', 'all'])],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
+        $orderType = $validated['order_type'] ?? 'regular';
 
         $query = Order::query()->withCount('items');
+
+        if ($orderType === 'regular') {
+            $query->regular();
+        } elseif ($orderType === 'test') {
+            $query->testOrders();
+        }
 
         if ($search !== '') {
             $query->where(function ($query) use ($search) {
@@ -78,19 +93,23 @@ class OrderController extends Controller
             ->withQueryString();
 
         $summary = [
-            'awaiting_payment' => Order::where('payment_status', PaymentStatus::Pending->value)
+            'awaiting_payment' => Order::regular()
+                ->where('payment_status', PaymentStatus::Pending->value)
                 ->where('order_status', '!=', OrderStatus::Cancelled->value)
                 ->count(),
-            'paid_awaiting_fulfillment' => Order::where('payment_status', PaymentStatus::Paid->value)
+            'paid_awaiting_fulfillment' => Order::regular()
+                ->where('payment_status', PaymentStatus::Paid->value)
                 ->where('fulfillment_status', FulfillmentStatus::Unfulfilled->value)
                 ->where('order_status', '!=', OrderStatus::Cancelled->value)
                 ->count(),
-            'ready_for_pickup' => Order::where('fulfillment_status', FulfillmentStatus::ReadyForPickup->value)->count(),
-            'out_for_delivery' => Order::where('fulfillment_status', FulfillmentStatus::OutForDelivery->value)->count(),
-            'recently_fulfilled' => Order::whereNotNull('fulfilled_at')
+            'ready_for_pickup' => Order::regular()->where('fulfillment_status', FulfillmentStatus::ReadyForPickup->value)->count(),
+            'out_for_delivery' => Order::regular()->where('fulfillment_status', FulfillmentStatus::OutForDelivery->value)->count(),
+            'recently_fulfilled' => Order::regular()->whereNotNull('fulfilled_at')
                 ->where('fulfilled_at', '>=', now()->subDays(7))
                 ->count(),
         ];
+
+        $validated['order_type'] = $orderType;
 
         return view('admin.orders.index', [
             'orders' => $orders,
@@ -111,6 +130,55 @@ class OrderController extends Controller
             'order' => $order->load(['items', 'activities.actor', 'user', 'payments.refunds.requester']),
             'carriers' => ShippingCarrier::cases(),
         ]);
+    }
+
+    public function updateTestStatus(Request $request, Order $order, StripeGateway $gateway): RedirectResponse
+    {
+        $this->authorize('fulfill', $order);
+
+        $request->validate([
+            'is_test_order' => ['required', 'boolean'],
+        ]);
+
+        $isTestOrder = $request->boolean('is_test_order');
+
+        if ($isTestOrder && ! $order->is_test_order) {
+            $this->assertVerifiedTestOrder($order, $gateway);
+        }
+
+        $previous = (bool) $order->is_test_order;
+
+        if ($previous !== $isTestOrder) {
+            $order->update(['is_test_order' => $isTestOrder]);
+
+            $order->activities()->create([
+                'event' => ($isTestOrder ? OrderEvent::TestOrderMarked : OrderEvent::TestOrderUnmarked)->value,
+                'previous_status' => $previous ? 'test' : 'regular',
+                'new_status' => $isTestOrder ? 'test' : 'regular',
+                'actor_id' => $request->user()->id,
+                'actor_name' => $request->user()->name,
+                'note' => $isTestOrder
+                    ? 'Order marked as a test order after Stripe test-mode verification.'
+                    : 'Test order classification removed.',
+                'occurred_at' => now(),
+            ]);
+        }
+
+        return back()->with('status', $isTestOrder ? 'Order marked as a test order.' : 'Test order flag removed.');
+    }
+
+    public function workOrder(Order $order): View
+    {
+        $this->authorize('view', $order);
+
+        return view('admin.orders.print.work-order', $this->printData($order));
+    }
+
+    public function invoice(Order $order): View
+    {
+        $this->authorize('view', $order);
+
+        return view('admin.orders.print.invoice', $this->printData($order));
     }
 
     public function markReadyForPickup(FulfillmentNoteRequest $request, Order $order): RedirectResponse
@@ -199,5 +267,67 @@ class OrderController extends Controller
         );
 
         return back()->with('status', 'Refund request submitted.');
+    }
+
+    private function assertVerifiedTestOrder(Order $order, StripeGateway $gateway): void
+    {
+        $payments = $order->payments()
+            ->whereNotNull('payment_intent_id')
+            ->get();
+
+        if ($payments->isEmpty()) {
+            throw ValidationException::withMessages([
+                'is_test_order' => 'This order has no Stripe PaymentIntent to verify as a test order.',
+            ]);
+        }
+
+        foreach ($payments as $payment) {
+            try {
+                $intent = $gateway->retrievePaymentIntent($payment->payment_intent_id);
+            } catch (Throwable $exception) {
+                report($exception);
+
+                throw ValidationException::withMessages([
+                    'is_test_order' => 'The Stripe payment could not be verified. The order was not marked as a test order.',
+                ]);
+            }
+
+            if (data_get($intent, 'livemode') !== false) {
+                throw ValidationException::withMessages([
+                    'is_test_order' => 'This order contains live Stripe payments and cannot be marked as a test order.',
+                ]);
+            }
+        }
+    }
+
+    private function printData(Order $order): array
+    {
+        $order->loadMissing(['items', 'user', 'payments.refunds', 'activities.actor']);
+
+        $branding = SiteBranding::getOrCreateSafely();
+        $settings = app(SettingsService::class);
+        $payment = $order->payments->first(fn ($payment) => $payment->paid_at !== null)
+            ?? $order->payments->first();
+        $refundedCents = $payment
+            ? (int) $payment->refunds
+                ->filter(fn ($refund) => $refund->status === RefundStatus::Succeeded)
+                ->sum('amount_cents')
+            : 0;
+
+        return [
+            'order' => $order,
+            'logoUrl' => $branding && $branding->hasLogo()
+                ? $branding->getLogoUrl()
+                : asset('brand/sograte-wordmark.png'),
+            'business' => [
+                'name' => $settings->get('general.site_name', config('app.name', 'Sograte')),
+                'email' => $settings->get('contact.email', ''),
+                'phone' => $settings->get('contact.phone', ''),
+                'address' => $settings->get('contact.address', ''),
+            ],
+            'payment' => $payment,
+            'refundedCents' => $refundedCents,
+            'orderNote' => $order->activities->first(fn ($activity) => filled($activity->note))?->note,
+        ];
     }
 }

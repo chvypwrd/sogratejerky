@@ -17,6 +17,7 @@ class AccountOrderController extends Controller
         return view('account.orders.index', [
             'orders' => $request->user()
                 ->orders()
+                ->with(['items' => fn ($query) => $query->orderBy('id')])
                 ->withCount('items')
                 ->latest('placed_at')
                 ->paginate(10),

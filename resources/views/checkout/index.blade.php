@@ -201,7 +201,7 @@
                                         <input type="radio" name="fulfillment_method" value="local_delivery" @checked(old('fulfillment_method', $defaultMethod) === 'local_delivery')>
                                         <span>
                                             <strong>Local Delivery</strong>
-                                            <small>Available in supported ZIP codes.</small>
+                                            <small>Available in supported Lubbock, TX ZIP codes.</small>
                                         </span>
                                     </label>
                                 @endif

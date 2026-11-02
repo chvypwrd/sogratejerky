@@ -187,7 +187,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index')->middleware('can:orders.view');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show')->middleware('can:orders.view');
+    Route::get('/orders/{order}/work-order', [OrderController::class, 'workOrder'])->name('orders.work-order')->middleware('can:orders.view');
+    Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice')->middleware('can:orders.view');
 
+    Route::post('/orders/{order}/test-status', [OrderController::class, 'updateTestStatus'])->name('orders.test-status')->middleware('can:orders.fulfill');
     Route::post('/orders/{order}/ready-for-pickup', [OrderController::class, 'markReadyForPickup'])->name('orders.ready-for-pickup')->middleware('can:orders.fulfill');
     Route::post('/orders/{order}/picked-up', [OrderController::class, 'markPickedUp'])->name('orders.picked-up')->middleware('can:orders.fulfill');
     Route::post('/orders/{order}/out-for-delivery', [OrderController::class, 'markOutForDelivery'])->name('orders.out-for-delivery')->middleware('can:orders.fulfill');
