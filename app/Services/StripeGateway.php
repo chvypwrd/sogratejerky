@@ -63,7 +63,7 @@ class StripeGateway
     {
         $this->ensureConfigured();
 
-        return PaymentIntent::cancel($paymentIntentId);
+        return PaymentIntent::retrieve($paymentIntentId)->cancel();
     }
 
     public function createCustomer(User $user): string

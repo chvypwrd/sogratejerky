@@ -441,8 +441,8 @@ document.addEventListener('DOMContentLoaded', function () {
             paymentProcessing = false;
             paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (error) {
-            setPaymentMessage(error.message || 'Secure payment could not be initialized.');
-            paymentButton.textContent = 'Continue to Payment';
+            setPaymentMessage(error.message || 'Secure payment could not be initialized. Please try again.');
+            paymentButton.textContent = 'Retry Payment Setup';
             paymentButton.disabled = false;
             paymentProcessing = false;
         }

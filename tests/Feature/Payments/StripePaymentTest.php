@@ -171,6 +171,7 @@ class StripePaymentTest extends TestCase
         $payment = $order->payments()->firstOrFail();
 
         $this->assertSame(2500, $this->stripe->createdIntents[0]['amount']);
+        $this->assertArrayNotHasKey('payment_method_types', $this->stripe->createdIntents[0]);
         $this->assertSame('cus_test_'.$user->id, $this->stripe->createdIntents[0]['customer']);
         $this->assertSame('off_session', $this->stripe->createdIntents[0]['setup_future_usage']);
         $this->assertSame(2500, $payment->amount_cents);

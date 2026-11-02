@@ -161,7 +161,6 @@ class CheckoutPaymentService
         $params = [
             'amount' => $order->total_cents,
             'currency' => strtolower($order->currency),
-            'payment_method_types' => ['card'],
             'description' => 'SOGRATE order '.$order->order_number,
             'receipt_email' => $order->customer_email,
             'metadata' => [
