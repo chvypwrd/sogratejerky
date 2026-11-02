@@ -17,12 +17,16 @@ use App\Models\ProductVariant;
 use App\Models\ShippingRateRule;
 use App\Models\StripeEvent;
 use App\Models\User;
+use App\Notifications\AdminPaidOrderNotification;
 use App\Notifications\OrderStatusNotification;
 use App\Services\CheckoutAvailability;
 use App\Services\PaymentReconciler;
+use App\Services\SettingsService;
 use App\Services\StripeGateway;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -119,6 +123,11 @@ class StripePaymentTest extends TestCase
         return [$response, Order::with('items')->firstOrFail()];
     }
 
+    private function setNotificationEmail(string $email): void
+    {
+        app(SettingsService::class)->set('contact.notification_email', $email);
+    }
+
     private function paymentForOrder(Order $order, string $status = PaymentStatus::Paid->value): Payment
     {
         return Payment::create([
@@ -179,9 +188,95 @@ class StripePaymentTest extends TestCase
         $this->assertSame('cus_test_'.$user->id, $user->fresh()->stripe_customer_id);
     }
 
+    public function test_paid_order_queues_admin_notification_to_configured_recipient(): void
+    {
+        Notification::fake();
+        $this->setNotificationEmail('orders@example.com');
+
+        [, $order] = $this->startCheckout();
+        $payment = $order->payments()->firstOrFail();
+
+        app(PaymentReconciler::class)->handleEvent($this->paymentEvent($payment, 'payment_intent.succeeded'));
+
+        $order->refresh();
+
+        $this->assertSame(PaymentStatus::Paid, $order->payment_status);
+        $this->assertSame(OrderStatus::Placed, $order->order_status);
+        Notification::assertSentOnDemand(
+            AdminPaidOrderNotification::class,
+            fn ($notification, $channels, $notifiable) => $notifiable->routes['mail'] === 'orders@example.com'
+                && $notification->order->is($order),
+        );
+        Notification::assertSentOnDemandTimes(AdminPaidOrderNotification::class, 1);
+        Notification::assertSentOnDemandTimes(OrderStatusNotification::class, 1);
+    }
+
+    public function test_admin_paid_order_notification_contains_required_details(): void
+    {
+        $order = Order::factory()->paid()->pickup()->create([
+            'customer_name' => 'Taylor Buyer',
+            'customer_email' => 'taylor@example.com',
+            'total_cents' => 4210,
+        ]);
+
+        $mail = (new AdminPaidOrderNotification($order))->toMail(new AnonymousNotifiable);
+        $lines = implode(' ', $mail->introLines);
+
+        $this->assertSame('New paid SOGRATE order '.$order->order_number, $mail->subject);
+        $this->assertStringContainsString($order->order_number, $lines);
+        $this->assertStringContainsString('Taylor Buyer', $lines);
+        $this->assertStringContainsString('taylor@example.com', $lines);
+        $this->assertStringContainsString('$42.10', $lines);
+        $this->assertStringContainsString('Pickup', $lines);
+        $this->assertStringContainsString('Paid', $lines);
+        $this->assertStringContainsString('Confirmed by Stripe', $lines);
+        $this->assertSame(route('admin.orders.show', $order), $mail->actionUrl);
+    }
+
+    public function test_missing_notification_email_does_not_interrupt_payment_reconciliation(): void
+    {
+        Notification::fake();
+        Log::spy();
+        $this->setNotificationEmail('');
+
+        [, $order] = $this->startCheckout();
+        $payment = $order->payments()->firstOrFail();
+
+        app(PaymentReconciler::class)->handleEvent($this->paymentEvent($payment, 'payment_intent.succeeded'));
+
+        $order->refresh();
+
+        $this->assertSame(PaymentStatus::Paid, $order->payment_status);
+        $this->assertSame(OrderStatus::Placed, $order->order_status);
+        Notification::assertSentOnDemandTimes(AdminPaidOrderNotification::class, 0);
+        Notification::assertSentOnDemandTimes(OrderStatusNotification::class, 1);
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn (string $message, array $context = []) => str_contains($message, 'contact.notification_email')
+                && ($context['order_id'] ?? null) === $order->id)
+            ->once();
+    }
+
+    public function test_repeated_payment_success_events_queue_admin_notification_once(): void
+    {
+        Notification::fake();
+        $this->setNotificationEmail('orders@example.com');
+
+        [, $order] = $this->startCheckout();
+        $payment = $order->payments()->firstOrFail();
+        $reconciler = app(PaymentReconciler::class);
+
+        $reconciler->handleEvent($this->paymentEvent($payment, 'payment_intent.succeeded'));
+        $reconciler->handleEvent($this->paymentEvent($payment, 'payment_intent.succeeded'));
+
+        $this->assertSame(2, StripeEvent::count());
+        Notification::assertSentOnDemandTimes(AdminPaidOrderNotification::class, 1);
+        Notification::assertSentOnDemandTimes(OrderStatusNotification::class, 1);
+    }
+
     public function test_successful_webhook_is_idempotent_and_consumes_only_ordered_cart_items(): void
     {
         Notification::fake();
+        $this->setNotificationEmail('orders@example.com');
 
         [, $order] = $this->startCheckout();
         $payment = $order->payments()->firstOrFail();
@@ -217,6 +312,7 @@ class StripePaymentTest extends TestCase
         $this->assertSame(1, Cart::firstOrFail()->items()->count());
         $this->assertSame($unrelatedVariant->id, Cart::firstOrFail()->items()->first()->product_variant_id);
         Notification::assertSentOnDemandTimes(OrderStatusNotification::class, 1);
+        Notification::assertSentOnDemandTimes(AdminPaidOrderNotification::class, 1);
     }
 
     public function test_stale_failure_event_does_not_regress_paid_order(): void
@@ -242,6 +338,7 @@ class StripePaymentTest extends TestCase
     public function test_failed_payment_remains_retryable_and_does_not_notify(): void
     {
         Notification::fake();
+        $this->setNotificationEmail('orders@example.com');
 
         [, $order] = $this->startCheckout();
         $payment = $order->payments()->firstOrFail();
@@ -260,6 +357,24 @@ class StripePaymentTest extends TestCase
         $this->assertSame(OrderStatus::PendingPayment, $order->order_status);
         $this->assertSame('card_declined', $payment->error_code);
         Notification::assertNothingSent();
+        Notification::assertSentOnDemandTimes(AdminPaidOrderNotification::class, 0);
+    }
+
+    public function test_canceled_payment_does_not_queue_paid_order_notification(): void
+    {
+        Notification::fake();
+        $this->setNotificationEmail('orders@example.com');
+
+        [, $order] = $this->startCheckout();
+        $payment = $order->payments()->firstOrFail();
+
+        app(PaymentReconciler::class)->handleEvent($this->paymentEvent($payment, 'payment_intent.canceled', [
+            'status' => 'canceled',
+        ]));
+
+        $this->assertSame(PaymentStatus::Failed, $payment->fresh()->status);
+        Notification::assertNothingSent();
+        Notification::assertSentOnDemandTimes(AdminPaidOrderNotification::class, 0);
     }
 
     public function test_browser_return_reconciles_verified_payment_status(): void

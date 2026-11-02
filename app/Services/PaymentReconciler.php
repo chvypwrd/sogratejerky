@@ -10,8 +10,10 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentRefund;
 use App\Models\StripeEvent;
+use App\Notifications\AdminPaidOrderNotification;
 use App\Notifications\OrderStatusNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -22,6 +24,7 @@ class PaymentReconciler
     public function __construct(
         private StripeGateway $gateway,
         private CartService $cartService,
+        private SettingsService $settingsService,
     ) {}
 
     public function reconcilePayment(Payment $payment): Payment
@@ -168,7 +171,30 @@ class PaymentReconciler
                 } catch (Throwable $exception) {
                     report($exception);
                 }
+
+                $this->notifyAdminOfPaidOrder($paidOrder);
             }
+        }
+    }
+
+    private function notifyAdminOfPaidOrder(Order $order): void
+    {
+        $notificationEmail = trim((string) $this->settingsService->get('contact.notification_email', ''));
+
+        if ($notificationEmail === '' || filter_var($notificationEmail, FILTER_VALIDATE_EMAIL) === false) {
+            Log::warning('Administrative paid-order notification skipped because contact.notification_email is empty or invalid.', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+            ]);
+
+            return;
+        }
+
+        try {
+            Notification::route('mail', $notificationEmail)
+                ->notify(new AdminPaidOrderNotification($order));
+        } catch (Throwable $exception) {
+            report($exception);
         }
     }
 

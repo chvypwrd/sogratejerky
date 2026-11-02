@@ -1,0 +1,34 @@
+Administrative Order Email Notifications — Test Results
+Date: 2026-11-01
+
+Command:
+php artisan test tests/Feature/Payments/StripePaymentTest.php
+
+Result:
+PASS
+Tests: 17
+Assertions: 136
+
+Command:
+php artisan test tests/Feature/Cart/CheckoutTest.php tests/Feature/Admin/OrderManagementTest.php
+
+Result:
+PASS
+Tests: 19
+Assertions: 157
+
+Command:
+vendor\bin\pint app\Notifications\AdminPaidOrderNotification.php app\Services\PaymentReconciler.php tests\Feature\Payments\StripePaymentTest.php
+
+Result:
+PASS
+
+Command:
+php artisan view:cache
+
+Result:
+INFO Blade templates cached successfully.
+
+Notes:
+- Full application test suite was not rerun for this focused change.
+- No commit, push, or deployment was performed.
