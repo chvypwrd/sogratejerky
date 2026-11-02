@@ -396,6 +396,7 @@ class StripePaymentTest extends TestCase
             ->assertSee('Payment confirmed');
 
         $this->assertSame(PaymentStatus::Paid, $order->fresh()->payment_status);
+        $this->assertNotSame($order->checkout_token, session('checkout_token'));
         Notification::assertSentOnDemandTimes(OrderStatusNotification::class, 1);
     }
 

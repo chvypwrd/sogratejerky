@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PlaceOrderRequest;
+use App\Models\Cart;
 use App\Models\DeliveryZone;
 use App\Models\FulfillmentSetting;
 use App\Models\Order;
 use App\Models\PickupLocation;
 use App\Models\ShippingRateRule;
+use App\Models\User;
 use App\Services\CartService;
 use App\Services\CheckoutAvailability;
 use App\Services\CheckoutPaymentService;
@@ -47,12 +49,7 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'One or more items in your cart are unavailable. Please update your cart before checking out.');
         }
 
-        $token = session('checkout_token');
-
-        if (! is_string($token) || strlen($token) < 40) {
-            $token = Str::random(64);
-            session(['checkout_token' => $token]);
-        }
+        $token = $this->checkoutTokenFor($cart, $request->user());
 
         $addresses = $request->user()
             ? $request->user()->addresses()->orderByDesc('is_default_shipping')->orderBy('id')->get()
@@ -88,10 +85,42 @@ class CheckoutController extends Controller
         }
 
         $cart = $this->cartService->resolveCart();
+        $token = $data['checkout_token'];
+        $order = Order::query()->where('checkout_token', $token)->first();
 
-        return response()->json(
-            $this->paymentService->start($cart, $data, $request->user(), $data['checkout_token'])
-        );
+        if ($order && ($order->isTerminalCheckout() || ! $order->belongsToCheckoutContext($cart, $request->user()))) {
+            $token = $this->rotateCheckoutToken();
+        }
+
+        $response = $this->paymentService->start($cart, $data, $request->user(), $token);
+        $response['checkout_token'] = $token;
+
+        return response()->json($response);
+    }
+
+    private function checkoutTokenFor(Cart $cart, ?User $user): string
+    {
+        $token = session('checkout_token');
+
+        if (! is_string($token) || strlen($token) < 40) {
+            return $this->rotateCheckoutToken();
+        }
+
+        $order = Order::query()->where('checkout_token', $token)->first();
+
+        if ($order && ($order->isTerminalCheckout() || ! $order->belongsToCheckoutContext($cart, $user))) {
+            return $this->rotateCheckoutToken();
+        }
+
+        return $token;
+    }
+
+    private function rotateCheckoutToken(): string
+    {
+        $token = Str::random(64);
+        session(['checkout_token' => $token]);
+
+        return $token;
     }
 
     public function paymentReturn(Request $request, Order $order): View
@@ -111,8 +140,14 @@ class CheckoutController extends Controller
             $error = 'No payment attempt was found for this order.';
         }
 
+        $order = $order->fresh()->load('items');
+
+        if ($payment && $order->isTerminalCheckout() && hash_equals((string) session('checkout_token'), (string) $order->checkout_token)) {
+            $this->rotateCheckoutToken();
+        }
+
         return view('checkout.return', [
-            'order' => $order->fresh()->load('items'),
+            'order' => $order,
             'payment' => $payment,
             'error' => $error,
             'confirmationUrl' => URL::temporarySignedRoute(

@@ -403,6 +403,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(message);
             }
 
+            if (data.checkout_token) {
+                checkoutForm.querySelector('input[name="checkout_token"]').value = data.checkout_token;
+            }
+
             if (data.already_paid && data.redirect_url) {
                 window.location.href = data.redirect_url;
                 return;

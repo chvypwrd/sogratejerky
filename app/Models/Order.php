@@ -124,6 +124,28 @@ class Order extends Model
         return $this->order_status === OrderStatus::Cancelled;
     }
 
+    public function isTerminalCheckout(): bool
+    {
+        return $this->isCancelled() || in_array($this->payment_status, [
+            PaymentStatus::Paid,
+            PaymentStatus::PartiallyRefunded,
+            PaymentStatus::Refunded,
+        ], true);
+    }
+
+    public function belongsToCheckoutContext(Cart $cart, ?User $user): bool
+    {
+        if ((int) $this->cart_id !== (int) $cart->id) {
+            return false;
+        }
+
+        if ($this->user_id === null) {
+            return $user === null;
+        }
+
+        return $user !== null && (int) $this->user_id === (int) $user->id;
+    }
+
     public function isFulfillmentComplete(): bool
     {
         return $this->fulfilled_at !== null;

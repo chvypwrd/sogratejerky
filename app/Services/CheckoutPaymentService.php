@@ -27,13 +27,25 @@ class CheckoutPaymentService
         $summary = $this->calculator->calculate($cart, $data['fulfillment_method'], $data, $user);
         $order = Order::where('checkout_token', $checkoutToken)->first();
 
+        if ($order && ! $order->belongsToCheckoutContext($cart, $user)) {
+            throw ValidationException::withMessages([
+                'checkout_token' => 'This checkout session is no longer valid. Please review your cart and try again.',
+            ]);
+        }
+
         if ($order && $order->isCancelled()) {
             throw ValidationException::withMessages([
                 'checkout_token' => 'This checkout was cancelled. Please start a new checkout.',
             ]);
         }
 
-        if ($order && in_array($order->payment_status, [PaymentStatus::Paid, PaymentStatus::PartiallyRefunded, PaymentStatus::Refunded], true)) {
+        if ($order && $order->isTerminalCheckout()) {
+            if (! $this->cartMatchesOrderContents($order, $cart)) {
+                throw ValidationException::withMessages([
+                    'checkout_token' => 'This checkout has already been completed. Please start a new checkout.',
+                ]);
+            }
+
             return $this->paidResponse($order);
         }
 
@@ -233,6 +245,32 @@ class CheckoutPaymentService
     {
         return (int) data_get($intent, 'amount') === $summary['total_cents']
             && strtoupper((string) data_get($intent, 'currency')) === 'USD';
+    }
+
+    private function cartMatchesOrderContents(Order $order, Cart $cart): bool
+    {
+        $cart->loadMissing('items');
+
+        if ($cart->items->isEmpty()) {
+            return true;
+        }
+
+        $order->loadMissing('items');
+
+        $cartQuantities = $cart->items
+            ->groupBy('product_variant_id')
+            ->map(fn ($items) => (int) $items->sum('quantity'))
+            ->sortKeys()
+            ->all();
+
+        $orderQuantities = $order->items
+            ->whereNotNull('product_variant_id')
+            ->groupBy('product_variant_id')
+            ->map(fn ($items) => (int) $items->sum('quantity'))
+            ->sortKeys()
+            ->all();
+
+        return $cartQuantities === $orderQuantities;
     }
 
     private function cancelStaleIntent(Payment $payment): void

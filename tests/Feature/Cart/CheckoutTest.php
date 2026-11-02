@@ -12,9 +12,12 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingRateRule;
 use App\Models\User;
+use App\Services\CartService;
+use App\Services\CheckoutPaymentService;
 use App\Services\StripeGateway;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Tests\Support\FakeStripeGateway;
 use Tests\TestCase;
 
@@ -236,12 +239,213 @@ class CheckoutTest extends TestCase
 
         $payload = $this->checkoutPayload($token);
 
-        $this->postJson(route('checkout.store'), $payload)->assertOk();
-        $this->postJson(route('checkout.store'), $payload)->assertOk();
+        $this->postJson(route('checkout.store'), $payload)
+            ->assertOk()
+            ->assertJsonPath('checkout_token', $token);
+        $this->postJson(route('checkout.store'), $payload)
+            ->assertOk()
+            ->assertJsonPath('checkout_token', $token);
 
+        $this->assertSame($token, session('checkout_token'));
         $this->assertSame(1, Order::count());
         $this->assertSame(1, Payment::count());
         $this->assertCount(1, $this->stripe->createdIntents);
+    }
+
+    public function test_completed_checkout_rotates_token_and_creates_a_new_order(): void
+    {
+        $this->stripe->intentStatus = 'succeeded';
+
+        $oldToken = $this->checkoutToken();
+        $this->addCartItem();
+        $paidResponse = $this->postJson(route('checkout.store'), $this->checkoutPayload($oldToken))
+            ->assertOk()
+            ->assertJson(['already_paid' => true]);
+
+        $oldOrder = Order::firstOrFail();
+        $confirmationUrl = $paidResponse->json('redirect_url');
+
+        $this->assertSame(PaymentStatus::Paid, $oldOrder->payment_status);
+        $this->assertSame(0, Cart::firstOrFail()->items()->count());
+
+        $this->stripe->intentStatus = 'requires_payment_method';
+        $this->addCartItem();
+
+        $this->get(route('checkout.index'))->assertOk();
+
+        $newToken = session('checkout_token');
+
+        $this->assertIsString($newToken);
+        $this->assertNotSame($oldToken, $newToken);
+
+        $newResponse = $this->postJson(route('checkout.store'), $this->checkoutPayload($newToken))
+            ->assertOk();
+
+        $this->assertArrayNotHasKey('already_paid', $newResponse->json());
+
+        $newOrder = Order::latest('id')->firstOrFail();
+
+        $this->assertNotSame($oldOrder->id, $newOrder->id);
+        $this->assertSame(PaymentStatus::Pending, $newOrder->payment_status);
+        $this->assertSame($newToken, session('checkout_token'));
+
+        $this->get($confirmationUrl)
+            ->assertOk()
+            ->assertSee($oldOrder->order_number);
+    }
+
+    public function test_completed_checkout_token_cannot_reuse_paid_order_for_new_cart_contents(): void
+    {
+        $this->stripe->intentStatus = 'succeeded';
+
+        $oldToken = $this->checkoutToken();
+        $this->addCartItem();
+        $this->postJson(route('checkout.store'), $this->checkoutPayload($oldToken))
+            ->assertOk()
+            ->assertJson(['already_paid' => true]);
+
+        $oldOrder = Order::firstOrFail();
+
+        $this->stripe->intentStatus = 'requires_payment_method';
+        $this->addCartItem();
+        $this->withSession(['checkout_token' => $oldToken]);
+
+        $response = $this->postJson(route('checkout.store'), $this->checkoutPayload($oldToken))
+            ->assertOk();
+
+        $newOrder = Order::latest('id')->firstOrFail();
+
+        $this->assertArrayNotHasKey('already_paid', $response->json());
+        $this->assertNotSame($oldOrder->id, $newOrder->id);
+        $this->assertSame(2, Order::count());
+        $this->assertNotSame($oldToken, session('checkout_token'));
+    }
+
+    public function test_partially_refunded_checkout_does_not_block_a_new_purchase(): void
+    {
+        $this->stripe->intentStatus = 'succeeded';
+
+        $oldToken = $this->checkoutToken();
+        $this->addCartItem();
+        $this->postJson(route('checkout.store'), $this->checkoutPayload($oldToken))
+            ->assertOk()
+            ->assertJson(['already_paid' => true]);
+
+        $oldOrder = Order::firstOrFail();
+        $oldOrder->update(['payment_status' => PaymentStatus::PartiallyRefunded]);
+        $oldOrder->payments()->firstOrFail()->update(['status' => PaymentStatus::PartiallyRefunded]);
+
+        $this->stripe->intentStatus = 'requires_payment_method';
+        $this->addCartItem();
+
+        $this->get(route('checkout.index'))->assertOk();
+
+        $newToken = session('checkout_token');
+
+        $this->assertNotSame($oldToken, $newToken);
+
+        $response = $this->postJson(route('checkout.store'), $this->checkoutPayload($newToken))
+            ->assertOk();
+
+        $this->assertArrayNotHasKey('already_paid', $response->json());
+        $this->assertSame(PaymentStatus::PartiallyRefunded, $oldOrder->fresh()->payment_status);
+        $this->assertSame(2, Order::count());
+        $this->assertSame(PaymentStatus::Pending, Order::latest('id')->firstOrFail()->payment_status);
+    }
+
+    public function test_new_guest_browser_session_gets_a_distinct_checkout_identity(): void
+    {
+        $this->stripe->intentStatus = 'succeeded';
+
+        $firstToken = $this->checkoutToken();
+        $this->addCartItem();
+        $this->postJson(route('checkout.store'), $this->checkoutPayload($firstToken))
+            ->assertOk()
+            ->assertJson(['already_paid' => true]);
+
+        $firstOrder = Order::firstOrFail();
+
+        $this->assertNull($firstOrder->user_id);
+
+        $this->flushSession();
+        $this->defaultCookies = [];
+        $this->unencryptedCookies = [];
+
+        $this->stripe->intentStatus = 'requires_payment_method';
+        $this->addCartItem();
+
+        $this->get(route('checkout.index'))->assertOk();
+
+        $secondToken = session('checkout_token');
+
+        $this->assertNotSame($firstToken, $secondToken);
+
+        $response = $this->postJson(route('checkout.store'), $this->checkoutPayload($secondToken))
+            ->assertOk();
+
+        $this->assertArrayNotHasKey('already_paid', $response->json());
+
+        $secondOrder = Order::latest('id')->firstOrFail();
+
+        $this->assertNull($secondOrder->user_id);
+        $this->assertNotSame($firstOrder->id, $secondOrder->id);
+        $this->assertNotSame($firstOrder->cart_id, $secondOrder->cart_id);
+    }
+
+    public function test_checkout_token_cannot_reuse_another_customers_paid_order(): void
+    {
+        $owner = User::factory()->create();
+        $this->actingAs($owner);
+
+        $this->stripe->intentStatus = 'succeeded';
+
+        $ownerToken = $this->checkoutToken();
+        $this->addCartItem();
+        $this->postJson(route('checkout.store'), $this->checkoutPayload($ownerToken))
+            ->assertOk()
+            ->assertJson(['already_paid' => true]);
+
+        $ownerOrder = Order::firstOrFail();
+
+        $other = User::factory()->create();
+        $this->actingAs($other);
+        $this->stripe->intentStatus = 'requires_payment_method';
+        $this->addCartItem();
+        $this->withSession(['checkout_token' => $ownerToken]);
+
+        $response = $this->postJson(route('checkout.store'), $this->checkoutPayload($ownerToken))
+            ->assertOk();
+
+        $this->assertArrayNotHasKey('already_paid', $response->json());
+
+        $newOrder = Order::latest('id')->firstOrFail();
+
+        $this->assertSame($other->id, $newOrder->user_id);
+        $this->assertNotSame($ownerOrder->id, $newOrder->id);
+        $this->assertNotSame($ownerToken, session('checkout_token'));
+    }
+
+    public function test_payment_service_rejects_paid_order_for_different_cart_contents(): void
+    {
+        $this->stripe->intentStatus = 'succeeded';
+
+        $token = $this->checkoutToken();
+        $this->addCartItem();
+        $this->postJson(route('checkout.store'), $this->checkoutPayload($token))
+            ->assertOk()
+            ->assertJson(['already_paid' => true]);
+
+        $this->stripe->intentStatus = 'requires_payment_method';
+        $this->addCartItem();
+
+        $cart = app(CartService::class)->resolveCart();
+
+        try {
+            app(CheckoutPaymentService::class)->start($cart, $this->checkoutPayload($token), null, $token);
+            $this->fail('A completed checkout token was reused for different cart contents.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('checkout_token', $exception->errors());
+        }
     }
 
     public function test_account_orders_are_private_to_the_customer(): void
