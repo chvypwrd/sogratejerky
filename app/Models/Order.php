@@ -50,6 +50,7 @@ class Order extends Model
         'cancelled_at',
         'cancellation_reason',
         'placed_at',
+        'ga4_purchase_tracked_at',
     ];
 
     protected function casts(): array
@@ -76,6 +77,7 @@ class Order extends Model
             'fulfilled_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'placed_at' => 'datetime',
+            'ga4_purchase_tracked_at' => 'datetime',
         ];
     }
 

@@ -1,0 +1,27 @@
+Checkout Token Lifecycle and Completed Order Reuse Fix — Test Results
+Date: 2026-11-01
+
+Command:
+php artisan test tests/Feature/Cart tests/Feature/Payments/StripePaymentTest.php tests/Feature/Admin/OrderManagementTest.php
+
+Result:
+PASS
+Tests: 57
+Assertions: 417
+
+Command:
+vendor\bin\pint app\Models\Order.php app\Http\Controllers\CheckoutController.php app\Services\CheckoutPaymentService.php tests\Feature\Cart\CheckoutTest.php tests\Feature\Payments\StripePaymentTest.php
+
+Result:
+PASS
+
+Command:
+php artisan view:cache
+
+Result:
+INFO Blade templates cached successfully.
+
+Notes:
+- Focused checkout, cart, payment, and order suites were run.
+- Full application test suite was not rerun for this focused change.
+- No commit, push, or deployment was performed.

@@ -258,6 +258,8 @@
     $checkoutData = [
         'subtotal_cents' => $subtotal,
         'item_count' => $itemCount,
+        'value' => round($subtotal / 100, 2),
+        'items' => $gaItems,
         'shipping_basis' => $setting->shipping_basis->value,
         'shipping_rules' => $shippingRules->map(fn ($rule) => [
             'min_value' => $rule->min_value,
@@ -268,6 +270,9 @@
             'zip_code' => $zone->zip_code,
             'fee_cents' => $zone->fee_cents,
         ])->all(),
+        'local_delivery_threshold_enabled' => $setting->local_delivery_threshold_enabled,
+        'local_delivery_threshold_cents' => $setting->local_delivery_threshold_cents,
+        'local_delivery_flat_fee_cents' => $setting->local_delivery_flat_fee_cents,
         'pickup_locations' => $pickupLocations->map(fn ($location) => [
             'id' => $location->id,
             'fee_cents' => $location->fee_cents,
@@ -303,6 +308,26 @@ document.addEventListener('DOMContentLoaded', function () {
         return document.querySelector('input[name="fulfillment_method"]:checked')?.value || null;
     }
 
+    function trackAddShippingInfo() {
+        if (typeof window.gtag !== 'function') {
+            return;
+        }
+
+        const method = selectedMethod();
+        const tiers = {
+            shipping: 'Shipping',
+            local_delivery: 'Local Delivery',
+            pickup: 'Pickup',
+        };
+
+        window.gtag('event', 'add_shipping_info', {
+            currency: 'USD',
+            value: checkout.value,
+            shipping_tier: tiers[method] || 'Fulfillment',
+            items: checkout.items,
+        });
+    }
+
     function updateCheckout() {
         const method = selectedMethod();
         const note = document.getElementById('checkout-note');
@@ -328,7 +353,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const zip = (document.getElementById('fulfillment_postal_code')?.value || '').trim().toUpperCase();
             const zone = checkout.delivery_zones.find((item) => item.zip_code === zip);
             if (zone) {
-                fee = zone.fee_cents;
+                fee = checkout.local_delivery_threshold_enabled
+                    && checkout.subtotal_cents <= checkout.local_delivery_threshold_cents
+                    ? checkout.local_delivery_flat_fee_cents
+                    : zone.fee_cents;
             } else {
                 message = zip ? 'Local delivery is not available for this ZIP code.' : 'Enter your ZIP code to see local delivery availability.';
             }
@@ -411,6 +439,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.location.href = data.redirect_url;
                 return;
             }
+
+            trackAddShippingInfo();
 
             if (!data.client_secret || typeof Stripe === 'undefined') {
                 throw new Error('Secure payment could not be initialized.');

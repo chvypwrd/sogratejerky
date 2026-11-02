@@ -60,7 +60,7 @@ class CheckoutCalculator
         if ($method === FulfillmentMethod::Shipping) {
             $fee = $this->shippingFee($setting, $subtotal, $itemCount);
         } elseif ($method === FulfillmentMethod::LocalDelivery) {
-            $fee = $this->deliveryFee($fulfillmentAddress);
+            $fee = $this->deliveryFee($fulfillmentAddress, $subtotal, $setting);
         } else {
             $pickupLocation = $this->pickupLocation($data['pickup_location_id'] ?? null);
             $fee = $pickupLocation->fee_cents;
@@ -116,7 +116,7 @@ class CheckoutCalculator
         return $rule->fee_cents;
     }
 
-    private function deliveryFee(?array $address): int
+    private function deliveryFee(?array $address, int $subtotal, FulfillmentSetting $setting): int
     {
         $zip = strtoupper(trim((string) ($address['postal_code'] ?? '')));
 
@@ -126,6 +126,10 @@ class CheckoutCalculator
             throw ValidationException::withMessages([
                 'fulfillment_postal_code' => 'Local delivery is not available for this ZIP code.',
             ]);
+        }
+
+        if ($setting->local_delivery_threshold_enabled && $subtotal <= $setting->local_delivery_threshold_cents) {
+            return $setting->local_delivery_flat_fee_cents;
         }
 
         return $zone->fee_cents;

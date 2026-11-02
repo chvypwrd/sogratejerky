@@ -136,6 +136,40 @@ class SettingsAdminTest extends TestCase
         $this->assertDatabaseHas('settings', ['group' => 'social', 'key' => 'youtube', 'value' => 'https://youtube.com/test']);
     }
 
+    public function test_can_configure_ga4_settings(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Administrator');
+
+        $this->actingAs($user)->put(route('admin.settings.update'), $this->validSettings([
+            'settings' => [
+                'site_name' => 'SOGRATE',
+                'enabled' => '1',
+                'measurement_id' => 'G-ABC123XYZ',
+            ],
+        ]))->assertRedirect();
+
+        $this->assertDatabaseHas('settings', ['group' => 'analytics', 'key' => 'enabled', 'value' => '1']);
+        $this->assertDatabaseHas('settings', ['group' => 'analytics', 'key' => 'measurement_id', 'value' => 'G-ABC123XYZ']);
+    }
+
+    public function test_invalid_ga4_measurement_id_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Administrator');
+
+        $this->actingAs($user)
+            ->from(route('admin.settings.index'))
+            ->put(route('admin.settings.update'), $this->validSettings([
+                'settings' => [
+                    'site_name' => 'SOGRATE',
+                    'enabled' => '1',
+                    'measurement_id' => 'UA-12345',
+                ],
+            ]))
+            ->assertSessionHasErrors('settings.measurement_id');
+    }
+
     public function test_unsafe_url_scheme_rejected(): void
     {
         $user = User::factory()->create();

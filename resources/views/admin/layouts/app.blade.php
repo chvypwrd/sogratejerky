@@ -9,6 +9,7 @@
     <title>@hasSection('title')@yield('title') | @endif{{ config('app.name') }} — Admin</title>
 
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         .admin-sidebar {
@@ -69,159 +70,7 @@
                 {{ config('app.name') }}
             </a>
             <hr class="text-secondary">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                        Dashboard
-                    </a>
-                </li>
-
-                <li class="nav-section">Content</li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}" href="{{ route('admin.pages.index') }}">
-                        Pages
-                    </a>
-                </li>
-                @can('testimonials.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}" href="{{ route('admin.testimonials.index') }}">
-                        Testimonials
-                    </a>
-                </li>
-                @endcan
-                @can('faqs.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.faqs.*') ? 'active' : '' }}" href="{{ route('admin.faqs.index') }}">
-                        FAQs
-                    </a>
-                </li>
-                @endcan
-                @can('galleries.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.galleries.*') ? 'active' : '' }}" href="{{ route('admin.galleries.index') }}">
-                        Galleries
-                    </a>
-                </li>
-                @endcan
-
-                @canany(['blog.posts.view', 'blog.categories.manage', 'blog.tags.manage', 'blog.comments.moderate'])
-                <li class="nav-section">Blog</li>
-                @endcanany
-                @can('blog.posts.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.blog.posts.*') ? 'active' : '' }}" href="{{ route('admin.blog.posts.index') }}">
-                        Posts
-                    </a>
-                </li>
-                @endcan
-                @can('blog.categories.manage')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.blog.categories.*') ? 'active' : '' }}" href="{{ route('admin.blog.categories.index') }}">
-                        Categories
-                    </a>
-                </li>
-                @endcan
-                @can('blog.tags.manage')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.blog.tags.*') ? 'active' : '' }}" href="{{ route('admin.blog.tags.index') }}">
-                        Tags
-                    </a>
-                </li>
-                @endcan
-                @can('blog.comments.moderate')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.blog.comments.*') ? 'active' : '' }}" href="{{ route('admin.blog.comments.index') }}">
-                        Comments
-                    </a>
-                </li>
-                @endcan
-
-                @canany(['products.view', 'products.categories.manage', 'products.tags.manage'])
-                <li class="nav-section">Products</li>
-                @endcanany
-                @can('products.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">
-                        All Products
-                    </a>
-                </li>
-                @endcan
-                @can('products.categories.manage')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.product-categories.*') ? 'active' : '' }}" href="{{ route('admin.product-categories.index') }}">
-                        Categories
-                    </a>
-                </li>
-                @endcan
-                @can('products.tags.manage')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.product-tags.*') ? 'active' : '' }}" href="{{ route('admin.product-tags.index') }}">
-                        Tags
-                    </a>
-                </li>
-                @endcan
-
-                <li class="nav-section">Appearance</li>
-                @can('menus.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.menus.*') ? 'active' : '' }}" href="{{ route('admin.menus.index') }}">
-                        Menus
-                    </a>
-                </li>
-                @endcan
-                <li class="nav-item"><span class="nav-link text-muted">Media</span></li>
-
-                <li class="nav-section">Communications</li>
-                @can('contacts.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}" href="{{ route('admin.contact-messages.index') }}">
-                        Contact Messages
-                    </a>
-                </li>
-                @endcan
-
-                @can('orders.view')
-                <li class="nav-section">Orders</li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">
-                        All Orders
-                    </a>
-                </li>
-                @endcan
-
-                @can('fulfillment.view')
-                <li class="nav-section">Fulfillment</li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.fulfillment.*') ? 'active' : '' }}" href="{{ route('admin.fulfillment.index') }}">
-                        Configuration
-                    </a>
-                </li>
-                @endcan
-
-                <li class="nav-section">Administration</li>
-                <li class="nav-item"><span class="nav-link text-muted">Users</span></li>
-                <li class="nav-item"><span class="nav-link text-muted">Roles</span></li>
-                @can('settings.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.index') }}">
-                        Settings
-                    </a>
-                </li>
-                @endcan
-                @can('redirects.view')
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.redirects.*') ? 'active' : '' }}" href="{{ route('admin.redirects.index') }}">
-                        Redirects
-                    </a>
-                </li>
-                @endcan
-
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.security') ? 'active' : '' }}" href="{{ route('admin.security') }}">
-                        Security
-                    </a>
-                </li>
-            </ul>
+            @include('admin.partials.navigation')
 
             <div class="mt-auto pt-3 border-top border-secondary">
                 <a href="{{ route('home') }}" class="nav-link" target="_blank">Visit Site</a>
@@ -246,23 +95,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body admin-sidebar">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.security') ? 'active' : '' }}" href="{{ route('admin.security') }}">Security</a>
-                    </li>
-                    <li class="nav-item mt-3">
-                        <a href="{{ route('home') }}" class="nav-link" target="_blank">Visit Site</a>
-                    </li>
-                    <li class="nav-item">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="nav-link btn btn-link text-start">Logout</button>
-                        </form>
-                    </li>
-                </ul>
+                @include('admin.partials.navigation')
+                <div class="mt-3 border-top border-secondary pt-3">
+                    <a href="{{ route('home') }}" class="nav-link" target="_blank">Visit Site</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="nav-link btn btn-link text-start">Logout</button>
+                    </form>
+                </div>
             </div>
         </div>
 

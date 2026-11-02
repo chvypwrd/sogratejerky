@@ -50,6 +50,9 @@ class FulfillmentController extends Controller
             'local_delivery_enabled' => $request->boolean('local_delivery_enabled'),
             'pickup_enabled' => $request->boolean('pickup_enabled'),
             'shipping_basis' => $data['shipping_basis'],
+            'local_delivery_threshold_enabled' => $request->boolean('local_delivery_threshold_enabled'),
+            'local_delivery_threshold_cents' => (int) round(((float) ($data['local_delivery_threshold'] ?? 0)) * 100),
+            'local_delivery_flat_fee_cents' => (int) round(((float) ($data['local_delivery_flat_fee'] ?? 0)) * 100),
         ]);
 
         return redirect()->route('admin.fulfillment.index')->with('status', 'Fulfillment settings updated.');

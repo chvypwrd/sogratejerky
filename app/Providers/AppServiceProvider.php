@@ -27,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -51,6 +52,15 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return null;
+        });
+
+        View::composer('admin.layouts.app', function ($view) {
+            $user = auth()->user();
+
+            $view->with(
+                'unreadMessageCount',
+                $user && $user->can('contacts.view') ? ContactMessage::newMessages()->count() : 0,
+            );
         });
     }
 

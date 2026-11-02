@@ -14,7 +14,7 @@
             @endif
         </small>
         @if(!$item['enabled'])
-            <span class="badge bg-secondary ms-2">Disabled</span>
+            <span class="badge bg-warning text-dark ms-2">Inactive</span>
         @endif
     </div>
     <div class="btn-group btn-group-sm">

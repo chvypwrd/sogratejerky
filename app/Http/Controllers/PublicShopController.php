@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
 use App\Models\ProductVariant;
+use App\Services\AnalyticsService;
 use App\Services\PageSlugRedirectService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,10 @@ use Illuminate\View\View;
 
 class PublicShopController extends Controller
 {
+    public function __construct(
+        private AnalyticsService $analytics,
+    ) {}
+
     public function index(Request $request): View
     {
         $products = $this->productQuery($request)->paginate(12)->withQueryString();
@@ -84,6 +89,14 @@ class PublicShopController extends Controller
 
         $variants = $product->availableVariants;
         $selectedVariant = $variants->firstWhere('id', $request->integer('variant')) ?? $variants->first();
+
+        if ($selectedVariant) {
+            $this->analytics->queue('view_item', [
+                'currency' => 'USD',
+                'value' => round($selectedVariant->price / 100, 2),
+                'items' => [$this->analytics->productItem($product, $selectedVariant)],
+            ]);
+        }
 
         $variantData = $variants->mapWithKeys(function (ProductVariant $variant) use ($product) {
             return [

@@ -72,11 +72,13 @@ class MenuService
         }
     }
 
-    public function buildMenuTree(int $menuId, ?int $parentId = null): array
+    public function buildMenuTree(int $menuId, ?int $parentId = null, bool $includeDisabled = false): array
     {
-        $query = MenuItem::where('menu_id', $menuId)
-            ->where('enabled', true)
-            ->orderBy('sort_order');
+        $query = MenuItem::where('menu_id', $menuId)->orderBy('sort_order');
+
+        if (! $includeDisabled) {
+            $query->where('enabled', true);
+        }
 
         if ($parentId === null) {
             $query->whereNull('parent_id');
@@ -90,7 +92,7 @@ class MenuService
 
         foreach ($items as $item) {
             $node = $item->toArray();
-            $node['children'] = $this->buildMenuTree($menuId, $item->id);
+            $node['children'] = $this->buildMenuTree($menuId, $item->id, $includeDisabled);
             $tree[] = $node;
         }
 

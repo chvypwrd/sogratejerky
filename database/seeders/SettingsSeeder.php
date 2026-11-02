@@ -22,6 +22,8 @@ class SettingsSeeder extends Seeder
             'seo.default_title' => 'SOGRATE | BBQ & Beef Jerky',
             'seo.default_description' => 'SOGRATE is a Texas-made BBQ and beef jerky brand. Seriously good jerky, made in Texas.',
             'seo.google_site_verification' => '',
+            'analytics.enabled' => '0',
+            'analytics.measurement_id' => '',
             'appearance.footer_text' => 'Small-batch beef jerky made in Texas.',
         ];
 

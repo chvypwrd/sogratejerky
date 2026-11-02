@@ -12,6 +12,9 @@ class FulfillmentSetting extends Model
         'local_delivery_enabled',
         'pickup_enabled',
         'shipping_basis',
+        'local_delivery_threshold_enabled',
+        'local_delivery_threshold_cents',
+        'local_delivery_flat_fee_cents',
     ];
 
     protected function casts(): array
@@ -21,6 +24,9 @@ class FulfillmentSetting extends Model
             'local_delivery_enabled' => 'boolean',
             'pickup_enabled' => 'boolean',
             'shipping_basis' => ShippingBasis::class,
+            'local_delivery_threshold_enabled' => 'boolean',
+            'local_delivery_threshold_cents' => 'integer',
+            'local_delivery_flat_fee_cents' => 'integer',
         ];
     }
 
@@ -31,6 +37,9 @@ class FulfillmentSetting extends Model
             'local_delivery_enabled' => false,
             'pickup_enabled' => false,
             'shipping_basis' => ShippingBasis::Subtotal,
+            'local_delivery_threshold_enabled' => false,
+            'local_delivery_threshold_cents' => 0,
+            'local_delivery_flat_fee_cents' => 0,
         ]);
     }
 }

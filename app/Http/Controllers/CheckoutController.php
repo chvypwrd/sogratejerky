@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\PickupLocation;
 use App\Models\ShippingRateRule;
 use App\Models\User;
+use App\Services\AnalyticsService;
 use App\Services\CartService;
 use App\Services\CheckoutAvailability;
 use App\Services\CheckoutPaymentService;
@@ -32,6 +33,7 @@ class CheckoutController extends Controller
         private CheckoutPaymentService $paymentService,
         private PaymentReconciler $reconciler,
         private StripeGateway $gateway,
+        private AnalyticsService $analytics,
     ) {}
 
     public function index(Request $request): View|RedirectResponse
@@ -50,6 +52,14 @@ class CheckoutController extends Controller
         }
 
         $token = $this->checkoutTokenFor($cart, $request->user());
+        $subtotal = $this->cartService->subtotal($cart);
+        $gaItems = $this->analytics->cartItems($cart);
+
+        $this->analytics->queue('begin_checkout', [
+            'currency' => 'USD',
+            'value' => round($subtotal / 100, 2),
+            'items' => $gaItems,
+        ]);
 
         $addresses = $request->user()
             ? $request->user()->addresses()->orderByDesc('is_default_shipping')->orderBy('id')->get()
@@ -57,9 +67,10 @@ class CheckoutController extends Controller
 
         return view('checkout.index', [
             'cart' => $cart,
-            'subtotal' => $this->cartService->subtotal($cart),
+            'subtotal' => $subtotal,
             'itemCount' => $this->cartService->itemCount($cart),
             'checkoutToken' => $token,
+            'gaItems' => $gaItems,
             'setting' => FulfillmentSetting::current(),
             'shippingRules' => ShippingRateRule::active()->ordered()->get(),
             'deliveryZones' => DeliveryZone::active()->ordered()->get(),
@@ -160,8 +171,22 @@ class CheckoutController extends Controller
 
     public function confirmation(Request $request, Order $order): View
     {
+        $order->load(['items', 'payments']);
+
+        if ($this->analytics->enabled() && $order->ga4_purchase_tracked_at === null && $order->payments->contains(fn ($payment) => $payment->paid_at !== null)) {
+            $claimed = Order::query()
+                ->whereKey($order->id)
+                ->whereNull('ga4_purchase_tracked_at')
+                ->update(['ga4_purchase_tracked_at' => now()]);
+
+            if ($claimed === 1) {
+                $this->analytics->queue('purchase', $this->analytics->purchaseParams($order));
+                $order->refresh()->load(['items', 'payments']);
+            }
+        }
+
         return view('checkout.confirmation', [
-            'order' => $order->load(['items', 'payments']),
+            'order' => $order,
         ]);
     }
 }

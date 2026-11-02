@@ -60,6 +60,40 @@ class FulfillmentManagementTest extends TestCase
         $this->assertSame('quantity', $setting->shipping_basis->value);
     }
 
+    public function test_admin_can_configure_local_delivery_threshold_pricing(): void
+    {
+        $this->actingAs($this->admin())
+            ->put(route('admin.fulfillment.settings.update'), [
+                'shipping_enabled' => '1',
+                'local_delivery_enabled' => '1',
+                'pickup_enabled' => '1',
+                'shipping_basis' => 'subtotal',
+                'local_delivery_threshold_enabled' => '1',
+                'local_delivery_threshold' => '50.00',
+                'local_delivery_flat_fee' => '5.00',
+            ])
+            ->assertRedirect(route('admin.fulfillment.index'));
+
+        $setting = FulfillmentSetting::current();
+
+        $this->assertTrue($setting->local_delivery_threshold_enabled);
+        $this->assertSame(5000, $setting->local_delivery_threshold_cents);
+        $this->assertSame(500, $setting->local_delivery_flat_fee_cents);
+    }
+
+    public function test_local_delivery_threshold_rejects_negative_amounts(): void
+    {
+        $this->actingAs($this->admin())
+            ->from(route('admin.fulfillment.index'))
+            ->put(route('admin.fulfillment.settings.update'), [
+                'shipping_basis' => 'subtotal',
+                'local_delivery_threshold_enabled' => '1',
+                'local_delivery_threshold' => '-1',
+                'local_delivery_flat_fee' => '-5',
+            ])
+            ->assertSessionHasErrors(['local_delivery_threshold', 'local_delivery_flat_fee']);
+    }
+
     public function test_shipping_basis_cannot_change_while_active_rules_exist(): void
     {
         ShippingRateRule::create([

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\QuickOrderRequest;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\AnalyticsService;
 use App\Services\CartService;
+use App\Services\CheckoutAvailability;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -15,6 +17,8 @@ class QuickOrderController extends Controller
 {
     public function __construct(
         private CartService $cartService,
+        private CheckoutAvailability $checkoutAvailability,
+        private AnalyticsService $analytics,
     ) {}
 
     public function index(): View
@@ -79,6 +83,21 @@ class QuickOrderController extends Controller
                 $this->cartService->addVariantToCart($cart, $variants->get($variantId), $quantity, 'items');
             }
         });
+
+        foreach ($selection as $variantId => $quantity) {
+            $item = $this->analytics->variantItem($variants->get($variantId), $quantity);
+            $this->analytics->queue('add_to_cart', [
+                'currency' => 'USD',
+                'value' => round($item['price'] * $quantity, 2),
+                'items' => [$item],
+            ]);
+        }
+
+        if (! $this->checkoutAvailability->enabled()) {
+            return redirect()
+                ->route('cart.index')
+                ->with('status', 'Selected items added to your cart. Checkout is currently unavailable.');
+        }
 
         return redirect()
             ->route('checkout.index')

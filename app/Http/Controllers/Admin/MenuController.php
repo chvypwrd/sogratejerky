@@ -29,7 +29,7 @@ class MenuController extends Controller
     {
         $this->authorize('view', $menu);
 
-        $items = $this->menuService->buildMenuTree($menu->id);
+        $items = $this->menuService->buildMenuTree($menu->id, null, true);
 
         return view('admin.menus.edit', compact('menu', 'items'));
     }

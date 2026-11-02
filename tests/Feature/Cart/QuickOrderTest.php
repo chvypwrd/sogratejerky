@@ -67,6 +67,24 @@ class QuickOrderTest extends TestCase
         $this->assertDatabaseHas('cart_items', ['product_variant_id' => $second->id, 'quantity' => 3]);
     }
 
+    public function test_quick_order_redirects_to_cart_with_message_when_checkout_is_disabled(): void
+    {
+        config(['commerce.checkout_enabled' => false]);
+
+        [, $variant] = $this->productWithVariant();
+
+        $this->post(route('quick-order.store'), [
+            'items' => [$variant->id => 2],
+        ])
+            ->assertRedirect(route('cart.index'))
+            ->assertSessionHas('status', 'Selected items added to your cart. Checkout is currently unavailable.');
+
+        $this->assertDatabaseHas('cart_items', [
+            'product_variant_id' => $variant->id,
+            'quantity' => 2,
+        ]);
+    }
+
     public function test_quick_order_rejects_invalid_or_inactive_variants_atomically(): void
     {
         [, $valid] = $this->productWithVariant();

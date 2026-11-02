@@ -21,6 +21,10 @@ return [
         'default_description' => ['type' => 'text', 'label' => 'Default Description', 'default' => 'SOGRATE is a Texas-made BBQ and beef jerky brand. Seriously good jerky, made in Texas.', 'validation' => 'nullable|string|max:500'],
         'google_site_verification' => ['type' => 'string', 'label' => 'Google Site Verification', 'default' => '', 'validation' => 'nullable|string|max:255'],
     ],
+    'analytics' => [
+        'enabled' => ['type' => 'boolean', 'label' => 'Enable Google Analytics 4', 'default' => false, 'validation' => 'nullable|boolean'],
+        'measurement_id' => ['type' => 'string', 'label' => 'GA4 Measurement ID', 'default' => '', 'validation' => 'nullable|string|max:50|regex:/^G-[A-Z0-9]+$/i'],
+    ],
     'appearance' => [
         'footer_text' => ['type' => 'text', 'label' => 'Footer Text', 'default' => '', 'validation' => 'nullable|string|max:1000'],
     ],

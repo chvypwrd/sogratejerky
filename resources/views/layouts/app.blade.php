@@ -8,6 +8,20 @@
         $defaultDescription = '';
     }
     $branding = \App\Models\SiteBranding::getOrCreateSafely();
+
+    $analyticsService = null;
+    $ga4MeasurementId = null;
+
+    try {
+        $analyticsService = app(\App\Services\AnalyticsService::class);
+
+        if ($analyticsService->enabled()) {
+            $ga4MeasurementId = $analyticsService->measurementId();
+        }
+    } catch (\Throwable $e) {
+        $analyticsService = null;
+        $ga4MeasurementId = null;
+    }
 @endphp
 
 <!DOCTYPE html>
@@ -49,6 +63,16 @@
         <meta name="google-site-verification" content="{{ e($gscKey) }}">
     @endif
 
+    @if($ga4MeasurementId)
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $ga4MeasurementId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', @json($ga4MeasurementId), { anonymize_ip: true });
+        </script>
+    @endif
+
     @yield('meta')
 
     <title>@hasSection('title')@yield('title') | {{ $siteName }}@else{{ $siteName }}@endif</title>
@@ -67,6 +91,20 @@
     @include('components.footer')
 
     @yield('structured_data')
+
+    @if($ga4MeasurementId && $analyticsService)
+        @php
+            $ga4Events = $analyticsService->pullEvents();
+        @endphp
+        @if(! empty($ga4Events))
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                @foreach($ga4Events as $ga4Event)
+                    window.dataLayer.push(@json(array_merge(['event' => $ga4Event['event']], $ga4Event['params'])));
+                @endforeach
+            </script>
+        @endif
+    @endif
 
     @yield('scripts')
 </body>

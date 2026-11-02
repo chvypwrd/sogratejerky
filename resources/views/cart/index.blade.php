@@ -117,6 +117,11 @@
                             <strong>${{ number_format($subtotal / 100, 2) }}</strong>
                         </div>
                         <p class="cart-summary__note">Available items only. Taxes and shipping are calculated later.</p>
+                        @if($fulfillmentSettings->local_delivery_enabled && $fulfillmentSettings->local_delivery_threshold_enabled)
+                            <p class="cart-summary__note">
+                                Local delivery: ${{ number_format($fulfillmentSettings->local_delivery_flat_fee_cents / 100, 2) }} for merchandise subtotals up to ${{ number_format($fulfillmentSettings->local_delivery_threshold_cents / 100, 2) }}. Zone fees apply above that amount.
+                            </p>
+                        @endif
 
                         <div class="cart-summary__checkout">
                             @if($hasUnavailableItems)

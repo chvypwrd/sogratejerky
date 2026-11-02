@@ -146,6 +146,44 @@ class MenuAdminTest extends TestCase
         ]);
     }
 
+    public function test_inactive_items_remain_visible_and_can_be_reactivated(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Administrator');
+        $menu = $this->createMenu();
+        $parent = $this->createMenuItem([
+            'menu_id' => $menu->id,
+            'label' => 'Inactive Parent',
+            'enabled' => false,
+        ]);
+        $child = $this->createMenuItem([
+            'menu_id' => $menu->id,
+            'parent_id' => $parent->id,
+            'label' => 'Active Child',
+            'enabled' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('admin.menus.edit', $menu))
+            ->assertOk()
+            ->assertSee('Inactive Parent')
+            ->assertSee('Active Child')
+            ->assertSee('Inactive');
+
+        $this->actingAs($user)->put(route('admin.menus.items.update', [$menu, $parent]), [
+            'label' => 'Inactive Parent',
+            'type' => 'custom',
+            'url' => $parent->url,
+            'enabled' => true,
+        ])->assertRedirect();
+
+        $this->assertTrue($parent->fresh()->enabled);
+
+        $publicItems = app(MenuService::class)->getMenu(MenuLocation::Primary);
+
+        $this->assertSame('Inactive Parent', $publicItems[0]['label']);
+    }
+
     public function test_can_delete_menu_item(): void
     {
         $user = User::factory()->create();

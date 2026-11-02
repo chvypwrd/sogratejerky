@@ -53,6 +53,19 @@
                                    id="settings_{{ $key }}"
                                    name="settings[{{ $key }}]"
                                    value="{{ old("settings.{$key}", $settings[$group][$key] ?? $config['default']) }}">
+                        @elseif($config['type'] === 'boolean')
+                            @php
+                                $booleanValue = old("settings.{$key}", $settings[$group][$key] ?? $config['default']);
+                            @endphp
+                            <input type="hidden" name="settings[{{ $key }}]" value="0">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input @error("settings.{$key}") is-invalid @enderror"
+                                       type="checkbox"
+                                       id="settings_{{ $key }}"
+                                       name="settings[{{ $key }}]"
+                                       value="1"
+                                       @checked(filter_var($booleanValue, FILTER_VALIDATE_BOOLEAN))>
+                            </div>
                         @else
                             <input type="text" class="form-control @error("settings.{$key}") is-invalid @enderror"
                                    id="settings_{{ $key }}"

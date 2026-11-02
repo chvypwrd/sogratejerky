@@ -54,6 +54,30 @@
                 <div class="col-lg-2 d-flex align-items-start">
                     <button type="submit" class="btn btn-primary w-100">Save Settings</button>
                 </div>
+
+                <div class="col-12">
+                    <hr>
+                    <h3 class="h6">Local delivery threshold pricing</h3>
+                    <p class="text-muted small mb-3">When enabled, eligible delivery subtotals at or below the threshold use the flat fee. Above the threshold, the selected delivery zone fee applies. The threshold does not change ZIP eligibility.</p>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="local_delivery_threshold_enabled" id="local_delivery_threshold_enabled" value="1" @checked(old('local_delivery_threshold_enabled', $setting->local_delivery_threshold_enabled))>
+                                <label class="form-check-label" for="local_delivery_threshold_enabled">Enable threshold pricing</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="local_delivery_threshold" class="form-label">Threshold amount ($)</label>
+                            <input type="number" min="0" step="0.01" name="local_delivery_threshold" id="local_delivery_threshold" class="form-control @error('local_delivery_threshold') is-invalid @enderror" value="{{ old('local_delivery_threshold', number_format($setting->local_delivery_threshold_cents / 100, 2, '.', '')) }}">
+                            @error('local_delivery_threshold')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="local_delivery_flat_fee" class="form-label">Flat delivery fee ($)</label>
+                            <input type="number" min="0" step="0.01" name="local_delivery_flat_fee" id="local_delivery_flat_fee" class="form-control @error('local_delivery_flat_fee') is-invalid @enderror" value="{{ old('local_delivery_flat_fee', number_format($setting->local_delivery_flat_fee_cents / 100, 2, '.', '')) }}">
+                            @error('local_delivery_flat_fee')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
