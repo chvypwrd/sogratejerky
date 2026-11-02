@@ -8,6 +8,9 @@
         <h1 class="h3 mb-1">Orders</h1>
         <p class="text-muted mb-0">Review payments, fulfillment progress, and customer orders.</p>
     </div>
+    @can('orders.refund')
+        <a href="{{ route('admin.orders.test-cleanup') }}" class="btn btn-outline-warning">Test Order Cleanup</a>
+    @endcan
 </div>
 
 @if($errors->any())

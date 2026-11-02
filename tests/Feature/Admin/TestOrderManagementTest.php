@@ -83,6 +83,50 @@ class TestOrderManagementTest extends TestCase
         $this->assertSame(PaymentStatus::Paid, $order->payments()->firstOrFail()->status);
     }
 
+    public function test_historical_test_order_can_be_marked_using_read_only_test_key_while_live_gateway_is_configured(): void
+    {
+        $admin = $this->admin();
+        $order = Order::factory()->paid()->shipping()->create();
+        $intentId = 'pi_hist_'.Str::lower(Str::random(10));
+
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'provider' => 'stripe',
+            'payment_intent_id' => $intentId,
+            'amount_cents' => $order->total_cents,
+            'currency' => 'USD',
+            'status' => PaymentStatus::Paid,
+            'paid_at' => now(),
+            'stripe_livemode' => null,
+        ]);
+
+        $this->stripe->hasTestVerificationKey = true;
+        $this->stripe->testModeIntents[$intentId] = (object) [
+            'id' => $intentId,
+            'livemode' => false,
+        ];
+
+        $this->actingAs($admin)
+            ->post(route('admin.orders.test-status', $order), ['is_test_order' => '1'])
+            ->assertRedirect();
+
+        $this->assertTrue($order->fresh()->is_test_order);
+        $this->assertFalse($payment->fresh()->stripe_livemode);
+        $this->assertDatabaseHas('order_activities', [
+            'order_id' => $order->id,
+            'event' => OrderEvent::TestOrderMarked->value,
+        ]);
+    }
+
+    public function test_restricted_test_key_is_accepted_for_read_only_verification(): void
+    {
+        config(['services.stripe.test_secret' => 'rk_test_example']);
+
+        $gateway = new StripeGateway;
+
+        $this->assertTrue($gateway->testModeVerificationConfigured());
+    }
+
     public function test_live_stripe_order_cannot_be_marked_as_test(): void
     {
         $order = $this->orderWithPayment(true);

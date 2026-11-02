@@ -6,6 +6,7 @@ use App\Enums\OrderEvent;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RefundStatus;
+use App\Models\DeletedTestOrderPaymentIntent;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentRefund;
@@ -59,6 +60,16 @@ class PaymentReconciler
         }
 
         try {
+            if ($this->isDeletedTestOrderEvent($event)) {
+                $receipt->update([
+                    'status' => 'processed',
+                    'processed_at' => now(),
+                    'failure_message' => null,
+                ]);
+
+                return;
+            }
+
             if (str_starts_with($eventType, 'payment_intent.')) {
                 $this->handlePaymentIntentEvent($event);
             } elseif (str_starts_with($eventType, 'refund.')) {
@@ -98,6 +109,7 @@ class PaymentReconciler
 
                 $payment->update([
                     'status' => PaymentStatus::Paid,
+                    'stripe_livemode' => data_get($intent, 'livemode'),
                     'paid_at' => now(),
                     'error_code' => null,
                     'error_message' => null,
@@ -127,6 +139,7 @@ class PaymentReconciler
             if (in_array($intentStatus, ['processing', 'requires_action', 'requires_confirmation'], true)) {
                 $payment->update([
                     'status' => PaymentStatus::Processing,
+                    'stripe_livemode' => data_get($intent, 'livemode'),
                     'error_code' => null,
                     'error_message' => null,
                 ]);
@@ -145,6 +158,7 @@ class PaymentReconciler
 
                 $payment->update([
                     'status' => PaymentStatus::Failed,
+                    'stripe_livemode' => data_get($intent, 'livemode'),
                     'error_code' => $errorCode,
                     'error_message' => $errorMessage ?: ($intentStatus === 'canceled' ? 'Payment intent canceled.' : 'Payment failed.'),
                     'canceled_at' => $intentStatus === 'canceled' ? now() : $payment->canceled_at,
@@ -250,6 +264,44 @@ class PaymentReconciler
                 }
             }
         });
+    }
+
+    private function isDeletedTestOrderEvent(object $event): bool
+    {
+        $object = data_get($event, 'data.object');
+
+        if (! is_object($object)) {
+            return false;
+        }
+
+        $paymentIntentIds = [];
+        $paymentIntentId = data_get($object, 'payment_intent');
+
+        if (is_object($paymentIntentId)) {
+            $paymentIntentId = $paymentIntentId->id ?? null;
+        }
+
+        if (is_string($paymentIntentId) && $paymentIntentId !== '') {
+            $paymentIntentIds[] = $paymentIntentId;
+        }
+
+        $eventType = (string) data_get($event, 'type');
+
+        if (str_starts_with($eventType, 'payment_intent.')) {
+            $objectId = data_get($object, 'id');
+
+            if (is_string($objectId) && $objectId !== '') {
+                $paymentIntentIds[] = $objectId;
+            }
+        }
+
+        if ($paymentIntentIds === []) {
+            return false;
+        }
+
+        return DeletedTestOrderPaymentIntent::query()
+            ->whereIn('payment_intent_id', array_values(array_unique($paymentIntentIds)))
+            ->exists();
     }
 
     private function handlePaymentIntentEvent(object $event): void

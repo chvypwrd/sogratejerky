@@ -19,7 +19,7 @@
 | Writable storage/cache and storage link | Pending | Verify `storage/`, `bootstrap/cache/`, and `public/storage` on the host. |
 | Deployment/rollback procedure | Pass | Documented in `docs/production-readiness.md`. |
 | Backup and restore procedure | Pass | Procedure documented in docs/production-readiness.md; local non-destructive restore passed. |
-| Production backup schedule/off-host restore drill | Pending | Configure recurring backups, off-host storage, retention, and a production restore drill. |
+| Production backup schedule/off-host restore drill | Pending | Spatie backup schedules, retention, monitoring, and failure notifications are configured; production off-site credentials and a production restore drill remain pending. |
 | Administrator account seeding | Pass | `AdminUserSeeder` uses environment credentials, refuses customer promotion, preserves existing passwords/roles/2FA, and is not part of `DatabaseSeeder`. Production execution remains pending. |
 | Standard About/FAQ content and navigation | Pass | About is seeded published; known FAQs are active, the unapproved refund FAQ is inactive, and About/Contact menu links are seeded. Policy footer links appear only after publication. |
 

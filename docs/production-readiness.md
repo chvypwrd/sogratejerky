@@ -149,34 +149,67 @@ The application schedules both `blog:publish-scheduled` and the bounded queue wo
 
 ## Database and Media Backup
 
-### Database
+SOGRATE uses `spatie/laravel-backup` for scheduled backups. The existing SiteGround cron entry runs `php artisan schedule:run` every minute; no second backup cron is required.
 
-```bash
-mysqldump -u <user> -p --single-transaction --routines --triggers <database> > sograte-$(date +%Y%m%d-%H%M).sql
+### Scheduled backups
+
+| Schedule | Command | Purpose |
+|---|---|---|
+| Daily 02:00 UTC | `backup:run --only-db` | Database-only backup |
+| Daily 02:15 UTC | `backup:run --only-files` | Customer-uploaded images and media |
+| Weekly Sunday 03:00 UTC | `backup:run --config=backup_full` | Comprehensive database and application-file backup |
+| Daily 04:00 UTC | `backup:clean` | Retention cleanup |
+| Daily 08:00 UTC | `backup:monitor` | Backup health and failure monitoring |
+
+### Storage and security
+
+- Local backups use the private `backups` disk at `storage/app/backups`, outside the public document root.
+- Add an off-site disk only after credentials are configured, for example `BACKUP_DISKS=backups,s3`.
+- AWS/S3 credentials belong only in the protected production `.env`, never in the repository.
+- Set `BACKUP_ARCHIVE_PASSWORD` to encrypt archives. Store the password separately from the application.
+- The full backup excludes `.env`, `vendor`, `node_modules`, `public/build`, logs, framework caches, backup archives, and release directories.
+- `BACKUP_FOLLOW_LINKS=false` by default. Verify the real media path on SiteGround shared storage before enabling symlink following.
+- Keep backups outside `public/` and restrict file permissions to the deployment user.
+
+### Required environment values
+
+```env
+BACKUP_NAME=Sograte
+BACKUP_DISKS=backups
+BACKUP_NOTIFICATION_EMAIL=ops@example.com
+BACKUP_ARCHIVE_PASSWORD=
+BACKUP_ENCRYPTION=default
+BACKUP_MAX_STORAGE_MB=5000
+BACKUP_FOLLOW_LINKS=false
+DB_DUMP_BINARY_PATH=
 ```
 
-### Media
+If `mysqldump` is not on the PHP process PATH, set `DB_DUMP_BINARY_PATH` to the directory containing `mysqldump`.
 
-Back up `storage/app/public` and the database `media` table together. Uploaded product, page, blog, gallery, and branding files live there.
+### Backup verification
 
-### Retention and Storage
+```bash
+php artisan backup:list
+php artisan backup:run --only-db
+php artisan backup:monitor
+php artisan schedule:list
+```
 
-- Keep daily database backups and regular media backups.
-- Store copies off-host with restricted access.
-- Encrypt backups where supported.
-- Define retention consistent with business and legal requirements.
+Inspect new archives and confirm the ZIP contains the `db-dumps` SQL file and/or `storage/app/public` media files. Do not place archives in `public/`.
 
-### Restore Procedure
+### Restore procedure
 
 1. Put the application in maintenance mode.
-2. Restore the database:
-   `mysql -u <user> -p <database> < backup.sql`
-3. Restore `storage/app/public`.
-4. Rebuild caches with `php artisan optimize`.
-5. Run `php artisan app:production-check`.
-6. Verify health and representative pages before bringing the site online.
+2. Retrieve the selected archive from the private local or off-site disk.
+3. Extract the archive to a temporary private directory.
+4. Restore the SQL dump:
+   `mysql -u <user> -p <database> < database.sql`
+5. Restore `storage/app/public` from the archive.
+6. Rebuild caches with `php artisan optimize`.
+7. Run `php artisan app:production-check`.
+8. Verify representative storefront, account, admin, payment-status, and media pages before bringing the site online.
 
-A local non-destructive database restore verification was completed during Milestone 12 by restoring a dump into a temporary database. Production backup schedules and off-host restore drills remain launch tasks.
+For a restore drill, restore into a temporary database first and never overwrite production without a verified pre-restore backup. The local Milestone 12 non-destructive restore verification remains valid; production schedules, off-site storage, and a production restore drill remain launch tasks.
 
 ## Rollback
 

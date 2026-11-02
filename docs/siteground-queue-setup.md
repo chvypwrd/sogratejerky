@@ -63,12 +63,19 @@ From the stable application directory:
 php artisan schedule:list
 ```
 
-Confirm both tasks appear:
+Confirm the scheduled tasks appear:
 
 ```text
 * * * * * php artisan blog:publish-scheduled
 * * * * * php artisan queue:work --stop-when-empty --tries=3 --timeout=60
+0 2 * * * php artisan backup:run --only-db
+15 2 * * * php artisan backup:run --only-files
+0 3 * * 0 php artisan backup:run --config=backup_full
+0 4 * * * php artisan backup:clean
+0 8 * * * php artisan backup:monitor
 ```
+
+The backup tasks use the same scheduler cron. See `docs/production-readiness.md` for backup storage, retention, notifications, and restore procedures.
 
 Manually exercise the scheduler once:
 

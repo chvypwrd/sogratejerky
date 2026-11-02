@@ -20,6 +20,7 @@ use App\Services\OrderFulfillmentService;
 use App\Services\PaymentRefundService;
 use App\Services\SettingsService;
 use App\Services\StripeGateway;
+use App\Services\TestOrderCleanupService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -122,14 +123,66 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Order $order): View
+    public function show(Order $order, TestOrderCleanupService $cleanup): View
     {
         $this->authorize('view', $order);
 
+        $order->load(['items', 'activities.actor', 'user', 'payments.refunds.requester']);
+
         return view('admin.orders.show', [
-            'order' => $order->load(['items', 'activities.actor', 'user', 'payments.refunds.requester']),
+            'order' => $order,
             'carriers' => ShippingCarrier::cases(),
+            'testCleanup' => $order->is_test_order ? $cleanup->inspect($order, true) : null,
         ]);
+    }
+
+    public function testCleanup(Request $request, TestOrderCleanupService $cleanup): View
+    {
+        $this->authorize('viewAny', Order::class);
+
+        $orders = Order::testOrders()
+            ->latest('placed_at')
+            ->paginate(25)
+            ->withQueryString();
+
+        $orders->getCollection()->transform(function (Order $order) use ($cleanup) {
+            $order->setAttribute('test_cleanup', $cleanup->inspect($order, true));
+
+            return $order;
+        });
+
+        return view('admin.orders.test-cleanup.index', compact('orders'));
+    }
+
+    public function previewTestCleanup(Order $order, TestOrderCleanupService $cleanup): View
+    {
+        $this->authorize('refund', $order);
+
+        return view('admin.orders.test-cleanup.preview', [
+            'order' => $order,
+            'inspection' => $cleanup->inspect($order, true),
+        ]);
+    }
+
+    public function destroyTestOrder(Request $request, Order $order, TestOrderCleanupService $cleanup): RedirectResponse
+    {
+        $this->authorize('refund', $order);
+
+        $request->validate([
+            'confirm_order_number' => ['required', 'string'],
+        ]);
+
+        if ($request->input('confirm_order_number') !== $order->order_number) {
+            throw ValidationException::withMessages([
+                'confirm_order_number' => 'Enter the exact order number to confirm permanent deletion.',
+            ]);
+        }
+
+        $audit = $cleanup->delete($order, $request->user());
+
+        return redirect()
+            ->route('admin.orders.test-cleanup')
+            ->with('status', 'Test order '.$audit->order_number.' permanently deleted. Audit record #'.$audit->id.'.');
     }
 
     public function updateTestStatus(Request $request, Order $order, StripeGateway $gateway): RedirectResponse
@@ -282,8 +335,22 @@ class OrderController extends Controller
         }
 
         foreach ($payments as $payment) {
+            if ($payment->stripe_livemode === true) {
+                throw ValidationException::withMessages([
+                    'is_test_order' => 'This order contains live Stripe payments and cannot be marked as a test order.',
+                ]);
+            }
+
+            if ($payment->stripe_livemode === false) {
+                continue;
+            }
+
+            $usingTestKey = $gateway->testModeVerificationConfigured();
+
             try {
-                $intent = $gateway->retrievePaymentIntent($payment->payment_intent_id);
+                $intent = $usingTestKey
+                    ? $gateway->retrieveTestModePaymentIntent($payment->payment_intent_id)
+                    : $gateway->retrievePaymentIntent($payment->payment_intent_id);
             } catch (Throwable $exception) {
                 report($exception);
 
@@ -297,6 +364,8 @@ class OrderController extends Controller
                     'is_test_order' => 'This order contains live Stripe payments and cannot be marked as a test order.',
                 ]);
             }
+
+            $payment->update(['stripe_livemode' => false]);
         }
     }
 

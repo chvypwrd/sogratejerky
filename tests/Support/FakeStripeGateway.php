@@ -17,6 +17,10 @@ class FakeStripeGateway extends StripeGateway
 
     public bool $intentLivemode = false;
 
+    public bool $hasTestVerificationKey = false;
+
+    public array $testModeIntents = [];
+
     public string $refundStatus = 'succeeded';
 
     public array $createdIntents = [];
@@ -86,6 +90,20 @@ class FakeStripeGateway extends StripeGateway
         }
 
         return $this->intents[$paymentIntentId];
+    }
+
+    public function testModeVerificationConfigured(): bool
+    {
+        return $this->hasTestVerificationKey;
+    }
+
+    public function retrieveTestModePaymentIntent(string $paymentIntentId): object
+    {
+        if (! isset($this->testModeIntents[$paymentIntentId])) {
+            throw new RuntimeException('Test-mode payment intent not found.');
+        }
+
+        return $this->testModeIntents[$paymentIntentId];
     }
 
     public function cancelPaymentIntent(string $paymentIntentId): object

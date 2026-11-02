@@ -13,6 +13,7 @@ use Stripe\PaymentMethod;
 use Stripe\Refund;
 use Stripe\SetupIntent;
 use Stripe\Stripe;
+use Stripe\StripeClient;
 use Stripe\Webhook;
 
 class StripeGateway
@@ -42,6 +43,27 @@ class StripeGateway
         }
 
         $this->configure();
+    }
+
+    public function testModeVerificationConfigured(): bool
+    {
+        return filled(config('services.stripe.test_secret'));
+    }
+
+    public function retrieveTestModePaymentIntent(string $paymentIntentId): object
+    {
+        $secret = (string) config('services.stripe.test_secret');
+
+        if ($secret === '') {
+            throw new \RuntimeException('Stripe test-mode verification is not configured.');
+        }
+
+        $client = new StripeClient([
+            'api_key' => $secret,
+            'api_version' => (string) config('services.stripe.api_version', '2026-10-28.endive'),
+        ]);
+
+        return $client->paymentIntents->retrieve($paymentIntentId);
     }
 
     public function createPaymentIntent(array $params, string $idempotencyKey): object

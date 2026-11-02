@@ -116,6 +116,7 @@ class CheckoutPaymentService
                 'user_id' => $order->user_id,
                 'provider' => 'stripe',
                 'payment_intent_id' => data_get($intent, 'id'),
+                'stripe_livemode' => data_get($intent, 'livemode'),
                 'stripe_customer_id' => $customerId,
                 'amount_cents' => $order->total_cents,
                 'currency' => strtoupper($order->currency),
@@ -201,6 +202,7 @@ class CheckoutPaymentService
 
         $payment->update([
             'status' => $status,
+            'stripe_livemode' => data_get($intent, 'livemode'),
             'error_code' => data_get($intent, 'last_payment_error.code'),
             'error_message' => data_get($intent, 'last_payment_error.message'),
             'canceled_at' => $intentStatus === 'canceled' ? now() : $payment->canceled_at,

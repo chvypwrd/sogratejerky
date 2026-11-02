@@ -15,6 +15,7 @@ class Payment extends Model
         'user_id',
         'provider',
         'payment_intent_id',
+        'stripe_livemode',
         'stripe_customer_id',
         'amount_cents',
         'currency',
@@ -29,6 +30,7 @@ class Payment extends Model
     {
         return [
             'amount_cents' => 'integer',
+            'stripe_livemode' => 'boolean',
             'status' => PaymentStatus::class,
             'paid_at' => 'datetime',
             'canceled_at' => 'datetime',

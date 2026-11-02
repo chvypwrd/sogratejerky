@@ -75,6 +75,16 @@
                     {{ $order->is_test_order ? 'Remove Test Order Flag' : 'Mark as Test Order' }}
                 </button>
             </form>
+
+            @if($order->is_test_order)
+                @can('refund', $order)
+                    @if($testCleanup && $testCleanup['eligible'])
+                        <a href="{{ route('admin.orders.test-cleanup.preview', $order) }}" class="btn btn-sm btn-outline-danger mt-3">Delete Test Order</a>
+                    @else
+                        <p class="small text-muted mt-3 mb-0">Permanent deletion unavailable: {{ $testCleanup['reason'] ?? 'verification is unavailable.' }}</p>
+                    @endif
+                @endcan
+            @endif
         </div>
     </div>
 @endcan
