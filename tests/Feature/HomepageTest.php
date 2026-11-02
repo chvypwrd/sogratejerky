@@ -20,7 +20,7 @@ class HomepageTest extends TestCase
     {
         $response = $this->get(route('home'));
 
-        $response->assertSee('SOGRATE');
+        $response->assertSee('Sograte');
     }
 
     public function test_homepage_contains_hero_headline(): void

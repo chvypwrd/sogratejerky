@@ -10,7 +10,7 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         $settings = [
-            'general.site_name' => 'SOGRATE',
+            'general.site_name' => 'Sograte',
             'general.tagline' => 'Texas Made. Seriously Good Jerky.',
             'contact.email' => '',
             'contact.phone' => '',
@@ -19,8 +19,8 @@ class SettingsSeeder extends Seeder
             'social.facebook' => '',
             'social.instagram' => '',
             'social.youtube' => '',
-            'seo.default_title' => 'SOGRATE | BBQ & Beef Jerky',
-            'seo.default_description' => 'SOGRATE is a Texas-made BBQ and beef jerky brand. Seriously good jerky, made in Texas.',
+            'seo.default_title' => 'Sograte | BBQ & Beef Jerky',
+            'seo.default_description' => 'Sograte is a Texas-made BBQ and beef jerky brand. Seriously good jerky, made in Texas.',
             'seo.google_site_verification' => '',
             'analytics.enabled' => '0',
             'analytics.measurement_id' => '',

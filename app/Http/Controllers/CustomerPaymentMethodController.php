@@ -6,6 +6,7 @@ use App\Services\StripeGateway;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Throwable;
 
@@ -15,6 +16,8 @@ class CustomerPaymentMethodController extends Controller
     {
         $methods = [];
         $error = null;
+        $setupClientSecret = null;
+        $publishableKey = null;
 
         if ($gateway->configured()) {
             try {
@@ -23,6 +26,29 @@ class CustomerPaymentMethodController extends Controller
                 report($exception);
                 $error = 'Saved payment methods could not be loaded right now.';
             }
+
+            if ($error === null && $methods === []) {
+                try {
+                    $user = $request->user();
+                    $customerId = $user->stripe_customer_id;
+
+                    if (! $customerId) {
+                        $customerId = $gateway->createCustomer($user);
+                        $user->update(['stripe_customer_id' => $customerId]);
+                    }
+
+                    $setupIntent = $gateway->createSetupIntent(
+                        $customerId,
+                        'saved_payment_method_'.$user->id.'_'.Str::uuid(),
+                    );
+
+                    $setupClientSecret = $setupIntent->client_secret ?? null;
+                    $publishableKey = $gateway->publishableKey();
+                } catch (Throwable $exception) {
+                    report($exception);
+                    $error = 'A payment method could not be set up right now.';
+                }
+            }
         } else {
             $error = 'Saved payment methods are not available until online payment is configured.';
         }
@@ -30,6 +56,8 @@ class CustomerPaymentMethodController extends Controller
         return view('account.payment-methods.index', [
             'methods' => $methods,
             'error' => $error,
+            'setupClientSecret' => $setupClientSecret,
+            'publishableKey' => $publishableKey,
         ]);
     }
 

@@ -18,7 +18,7 @@
         <header class="page-header">
             <span class="eyebrow">Checkout</span>
             <h1>Complete Your Order</h1>
-            <p class="lead text-muted">Choose how you would like to receive your SOGRATE jerky.</p>
+            <p class="lead text-muted">Choose how you would like to receive your Sograte jerky.</p>
         </header>
 
         @if(session('status'))
@@ -31,7 +31,7 @@
 
         @if($errors->any())
             <div class="alert alert-danger" role="alert">
-                <strong>We could not place your order.</strong>
+                <strong>Please review the errors below.</strong>
                 <ul class="mb-0 mt-2">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -39,6 +39,105 @@
                 </ul>
             </div>
         @endif
+
+        @auth
+            <section class="checkout-card mb-4" aria-labelledby="checkout-account-heading">
+                <h2 class="h4" id="checkout-account-heading">Your Account</h2>
+                <p class="mb-0">
+                    Signed in as <strong>{{ auth()->user()->name }}</strong> ({{ auth()->user()->email }}).
+                    <a href="{{ route('account.dashboard') }}">Manage your account</a>
+                </p>
+            </section>
+        @else
+            @php
+                $accountTab = old('account_action') === 'register'
+                    ? 'create'
+                    : (old('account_action') === 'signin' ? 'signin' : 'guest');
+            @endphp
+            <section class="checkout-card mb-4" aria-labelledby="checkout-account-heading">
+                <h2 class="h4" id="checkout-account-heading">Your Account</h2>
+                <p class="text-muted">Continue as a guest, sign in to your account, or create an account for faster checkout next time.</p>
+
+                <ul class="nav nav-pills mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ $accountTab === 'guest' ? 'active' : '' }}" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#checkout-account-guest" aria-controls="checkout-account-guest" aria-selected="{{ $accountTab === 'guest' ? 'true' : 'false' }}">Continue as Guest</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ $accountTab === 'signin' ? 'active' : '' }}" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#checkout-account-signin" aria-controls="checkout-account-signin" aria-selected="{{ $accountTab === 'signin' ? 'true' : 'false' }}">Sign In</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ $accountTab === 'create' ? 'active' : '' }}" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#checkout-account-create" aria-controls="checkout-account-create" aria-selected="{{ $accountTab === 'create' ? 'true' : 'false' }}">Create an Account</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade {{ $accountTab === 'guest' ? 'show active' : '' }}" id="checkout-account-guest" role="tabpanel">
+                        <p class="mb-0">No account is required. You can complete checkout as a guest.</p>
+                    </div>
+
+                    <div class="tab-pane fade {{ $accountTab === 'signin' ? 'show active' : '' }}" id="checkout-account-signin" role="tabpanel">
+                        <form method="POST" action="{{ route('customer.login.store') }}" class="row g-3">
+                            @csrf
+                            <input type="hidden" name="return_to" value="checkout">
+                            <input type="hidden" name="account_action" value="signin">
+                            <div class="col-md-6">
+                                <label for="checkout_login_email" class="form-label">Email</label>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="checkout_login_email" name="email" value="{{ old('email') }}" autocomplete="email" required>
+                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="checkout_login_password" class="form-label">Password</label>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="checkout_login_password" name="password" autocomplete="current-password" required>
+                                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" id="checkout_login_remember" value="1">
+                                    <label class="form-check-label" for="checkout_login_remember">Remember me</label>
+                                </div>
+                                <button type="submit" class="btn btn-brand">Sign In</button>
+                            </div>
+                            <div class="col-12">
+                                <a href="{{ route('customer.password.request') }}" class="small">Forgot your password?</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade {{ $accountTab === 'create' ? 'show active' : '' }}" id="checkout-account-create" role="tabpanel">
+                        <form method="POST" action="{{ route('customer.register.store') }}" class="row g-3">
+                            @csrf
+                            <input type="hidden" name="return_to" value="checkout">
+                            <input type="hidden" name="account_action" value="register">
+                            <div class="col-md-6">
+                                <label for="checkout_account_name" class="form-label">Name</label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" id="checkout_account_name" name="name" value="{{ old('name', old('customer_name')) }}" autocomplete="name" required>
+                                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="checkout_account_email" class="form-label">Email</label>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="checkout_account_email" name="email" value="{{ old('email', old('customer_email')) }}" autocomplete="email" required>
+                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="checkout_account_password" class="form-label">Password</label>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="checkout_account_password" name="password" autocomplete="new-password" required>
+                                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="checkout_account_password_confirmation" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="checkout_account_password_confirmation" name="password_confirmation" autocomplete="new-password" required>
+                            </div>
+                            <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <span class="small text-muted">Already have an account?
+                                    <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-bs-toggle="tab" data-bs-target="#checkout-account-signin">Sign in</button>
+                                </span>
+                                <button type="submit" class="btn btn-brand">Create Account</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        @endauth
 
         @if(! $stripeConfigured)
             <div class="alert alert-warning" role="alert">
@@ -192,13 +291,13 @@
                         <section class="checkout-card">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="save_payment_method" id="save_payment_method" value="1" @checked(old('save_payment_method'))>
-                                <label class="form-check-label" for="save_payment_method">Save this card for future SOGRATE purchases</label>
+                                <label class="form-check-label" for="save_payment_method">Save this card for future Sograte purchases</label>
                             </div>
                             <p class="form-text mb-0">Saving is optional. Your card details are handled by Stripe.</p>
                         </section>
                     @endif
 
-                    <p class="text-muted small mb-0">Payment is processed securely by Stripe. SOGRATE does not store card details.</p>
+                    <p class="text-muted small mb-0">Payment is processed securely by Stripe. Sograte does not store card details.</p>
                 </div>
 
                 <div class="col-lg-5">
@@ -282,6 +381,29 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const checkout = @json($checkoutData);
+
+    function syncAccountField(source, target) {
+        if (!source || !target) {
+            return;
+        }
+
+        if (target.value !== '') {
+            target.dataset.userEdited = 'true';
+        }
+
+        source.addEventListener('input', function () {
+            if (target.dataset.userEdited !== 'true') {
+                target.value = source.value;
+            }
+        });
+
+        target.addEventListener('input', function () {
+            target.dataset.userEdited = 'true';
+        });
+    }
+
+    syncAccountField(document.getElementById('customer_name'), document.getElementById('checkout_account_name'));
+    syncAccountField(document.getElementById('customer_email'), document.getElementById('checkout_account_email'));
 
     const fulfillmentPanel = document.getElementById('fulfillment-address-panel');
     const pickupPanel = document.getElementById('pickup-panel');

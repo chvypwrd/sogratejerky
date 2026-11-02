@@ -5,7 +5,7 @@
 @section('content')
 <section class="error-page">
     <div class="container">
-        <span class="eyebrow">SOGRATE</span>
+        <span class="eyebrow">Sograte</span>
         <h1>Page Not Found</h1>
         <p class="lead">The page you're looking for doesn't exist or has been moved.</p>
         <div class="d-flex flex-wrap gap-3 justify-content-center">

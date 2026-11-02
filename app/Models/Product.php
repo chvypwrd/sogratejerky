@@ -107,7 +107,7 @@ class Product extends Model implements HasMedia
         $source = trim(preg_replace('/\s+/', ' ', html_entity_decode((string) $source, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
 
         if ($source === '') {
-            $source = 'Shop '.$this->name.' from SOGRATE, Texas-made beef jerky.';
+            $source = 'Shop '.$this->name.' from Sograte, Texas-made beef jerky.';
         }
 
         return Str::limit($source, $limit);

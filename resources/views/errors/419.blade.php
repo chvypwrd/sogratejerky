@@ -5,7 +5,7 @@
 @section('content')
 <section class="error-page">
     <div class="container">
-        <span class="eyebrow">SOGRATE</span>
+        <span class="eyebrow">Sograte</span>
         <h1>Session Expired</h1>
         <p class="lead">Your session expired. Please refresh and try again.</p>
         <div class="d-flex flex-wrap gap-3 justify-content-center">

@@ -1,6 +1,6 @@
 # Milestone 10 Completion Report - Stripe Payment Integration
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-31  
 **Status:** Ready for acceptance, with live Stripe test-mode validation still required before launch
 
@@ -11,7 +11,7 @@
 - Added a `CheckoutAvailability` gate with `CHECKOUT_ENABLED` and `ALLOW_PRODUCTION_CHECKOUT`.
 - Production checkout remains disabled by default, and production also requires a configured webhook signing secret.
 - Added `config/commerce.php` and the Stripe block in `config/services.php`; no credentials are committed.
-- Uses Stripe.js and the embedded Payment Element. Card data is never collected in ordinary SOGRATE form fields.
+- Uses Stripe.js and the embedded Payment Element. Card data is never collected in ordinary Sograte form fields.
 
 ## Checkout and PaymentIntents
 

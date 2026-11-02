@@ -32,7 +32,7 @@ class LaunchContentSeederTest extends TestCase
     {
         $about = Page::where('slug', 'about')->firstOrFail();
         $this->assertSame(PageStatus::Published, $about->status);
-        $this->get(route('pages.show', 'about'))->assertOk()->assertSee('About SOGRATE');
+        $this->get(route('pages.show', 'about'))->assertOk()->assertSee('About Sograte');
 
         foreach (['privacy-policy', 'terms-and-conditions', 'shipping-policy', 'refund-policy'] as $slug) {
             $page = Page::where('slug', $slug)->firstOrFail();

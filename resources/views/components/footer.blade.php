@@ -1,7 +1,7 @@
 @php
     try {
         $settingsService = app(\App\Services\SettingsService::class);
-        $siteName = $settingsService->get('general.site_name', config('app.name', 'SOGRATE'));
+        $siteName = $settingsService->get('general.site_name', config('app.name', 'Sograte'));
         $tagline = $settingsService->get('general.tagline', 'Texas Made. Seriously Good Jerky.');
         $contactEmail = $settingsService->get('contact.email', '');
         $contactPhone = $settingsService->get('contact.phone', '');
@@ -11,7 +11,7 @@
         $youtube = $settingsService->get('social.youtube', '');
         $footerText = $settingsService->get('appearance.footer_text', '');
     } catch (\Throwable $e) {
-        $siteName = config('app.name', 'SOGRATE');
+        $siteName = config('app.name', 'Sograte');
         $tagline = 'Texas Made. Seriously Good Jerky.';
         $contactEmail = '';
         $contactPhone = '';

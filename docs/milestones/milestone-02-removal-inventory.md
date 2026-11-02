@@ -66,4 +66,4 @@ This inventory identifies the retained Safe and Sound legacy business modules th
 
 ## Retention Note
 
-Pages, testimonials, FAQs, galleries, contact, menus, settings, redirects, SEO, media, authentication, 2FA, roles, and security tooling remain part of the SOGRATE foundation.
+Pages, testimonials, FAQs, galleries, contact, menus, settings, redirects, SEO, media, authentication, 2FA, roles, and security tooling remain part of the Sograte foundation.

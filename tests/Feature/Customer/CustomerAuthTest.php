@@ -79,6 +79,22 @@ class CustomerAuthTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_authenticated_header_moves_sign_out_into_account_dropdown(): void
+    {
+        $user = User::factory()->create();
+
+        $html = $this->actingAs($user)
+            ->get(route('home'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('id="customer-account-menu"', $html);
+        $this->assertStringContainsString('data-bs-toggle="dropdown"', $html);
+        $this->assertStringContainsString('>Sign Out</button>', $html);
+        $this->assertStringNotContainsString('header-account--button', $html);
+        $this->assertSame(1, substr_count($html, 'action="'.route('customer.logout').'"'));
+    }
+
     public function test_protected_customer_route_returns_to_intended_url_after_login(): void
     {
         User::factory()->create([

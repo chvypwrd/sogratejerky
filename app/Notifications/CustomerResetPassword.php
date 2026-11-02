@@ -9,7 +9,7 @@ class CustomerResetPassword extends ResetPassword
     public function toMail($notifiable)
     {
         return parent::toMail($notifiable)
-            ->subject('Reset your SOGRATE password');
+            ->subject('Reset your Sograte password');
     }
 
     protected function resetUrl($notifiable): string

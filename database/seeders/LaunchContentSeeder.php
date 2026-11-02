@@ -25,14 +25,14 @@ class LaunchContentSeeder extends Seeder
         $pages = [
             [
                 'slug' => 'about',
-                'title' => 'About SOGRATE',
+                'title' => 'About Sograte',
                 'excerpt' => 'Texas-made beef jerky with roots in backyard BBQ, competition, and shared flavor.',
-                'meta_title' => 'About SOGRATE | Texas-Made Beef Jerky',
-                'meta_description' => 'Learn how SOGRATE grew from backyard BBQ and a simple phrase into a Texas-made beef jerky brand.',
+                'meta_title' => 'About Sograte | Texas-Made Beef Jerky',
+                'meta_description' => 'Learn how Sograte grew from backyard BBQ and a simple phrase into a Texas-made beef jerky brand.',
                 'status' => PageStatus::Published->value,
                 'published_at' => now(),
                 'body' => <<<'HTML'
-<p><strong>SOGRATE</strong> began with backyard BBQ and a simple phrase: &ldquo;Man, this is so great.&rdquo; That phrase became our name and carried us into our first BBQ competition.</p>
+<p><strong>Sograte</strong> began with backyard BBQ and a simple phrase: &ldquo;Man, this is so great.&rdquo; That phrase became our name and carried us into our first BBQ competition.</p>
 <p>We later expanded into vending and catering. Beef jerky started as a way to promote the brand and share our flavor, eventually becoming part of a retail operation that also sold BBQ and homebrew supplies.</p>
 <p>That retail chapter has closed. Today our focus is beef jerky: Texas made, small-batch, and seriously good.</p>
 <p><strong>Texas Made. Seriously Good Jerky.</strong></p>
@@ -41,13 +41,13 @@ HTML,
             [
                 'slug' => 'privacy-policy',
                 'title' => 'Privacy Policy',
-                'excerpt' => 'How SOGRATE handles customer information in its current website and order workflow.',
-                'meta_title' => 'Privacy Policy | SOGRATE',
-                'meta_description' => 'Draft privacy information for SOGRATE customers, pending owner and legal review.',
+                'excerpt' => 'How Sograte handles customer information in its current website and order workflow.',
+                'meta_title' => 'Privacy Policy | Sograte',
+                'meta_description' => 'Draft privacy information for Sograte customers, pending owner and legal review.',
                 'status' => PageStatus::Draft->value,
                 'published_at' => null,
                 'body' => $this->draftNotice('Privacy Policy').<<<'HTML'
-<p>SOGRATE collects the information needed to provide customer accounts, shopping carts, checkout, order fulfillment, customer support, and transactional communications.</p>
+<p>Sograte collects the information needed to provide customer accounts, shopping carts, checkout, order fulfillment, customer support, and transactional communications.</p>
 <h2>Information we collect</h2>
 <ul>
 <li>Account details such as name, email address, and password credentials.</li>
@@ -55,7 +55,7 @@ HTML,
 <li>Order, fulfillment, payment-status, and customer-support records.</li>
 <li>Technical information needed for sessions, cart persistence, security, and abuse prevention.</li>
 </ul>
-<p>Payment card details are handled by Stripe. SOGRATE does not store raw card numbers, card security codes, or full card credentials on its own servers.</p>
+<p>Payment card details are handled by Stripe. Sograte does not store raw card numbers, card security codes, or full card credentials on its own servers.</p>
 <h2>How information is used</h2>
 <ul>
 <li>Process and fulfill orders.</li>
@@ -65,7 +65,7 @@ HTML,
 <li>Maintain business and accounting records.</li>
 </ul>
 <h2>Cookies and sessions</h2>
-<p>SOGRATE uses essential session and security cookies to maintain login state, shopping carts, checkout context, and CSRF protection.</p>
+<p>Sograte uses essential session and security cookies to maintain login state, shopping carts, checkout context, and CSRF protection.</p>
 <h2>Service providers and retention</h2>
 <p>[OWNER/LEGAL REVIEW REQUIRED: Confirm the current hosting, email, payment, backup, and analytics providers; document their data-processing terms and retention periods.]</p>
 <h2>Customer requests</h2>
@@ -77,17 +77,17 @@ HTML,
             [
                 'slug' => 'terms-and-conditions',
                 'title' => 'Terms & Conditions',
-                'excerpt' => 'Draft terms for using the SOGRATE website and placing orders.',
-                'meta_title' => 'Terms & Conditions | SOGRATE',
-                'meta_description' => 'Draft website and ordering terms for SOGRATE customers, pending owner and legal review.',
+                'excerpt' => 'Draft terms for using the Sograte website and placing orders.',
+                'meta_title' => 'Terms & Conditions | Sograte',
+                'meta_description' => 'Draft website and ordering terms for Sograte customers, pending owner and legal review.',
                 'status' => PageStatus::Draft->value,
                 'published_at' => null,
                 'body' => $this->draftNotice('Terms & Conditions').<<<'HTML'
-<p>These terms describe use of the SOGRATE website and ordering process. They are draft terms and require owner and legal approval before publication.</p>
+<p>These terms describe use of the Sograte website and ordering process. They are draft terms and require owner and legal approval before publication.</p>
 <h2>Orders and pricing</h2>
 <p>Product availability, prices, fulfillment options, fees, and taxes are displayed during the ordering process. An order is subject to validation, payment verification, and fulfillment availability.</p>
 <h2>Payments</h2>
-<p>Payments are processed by Stripe. SOGRATE does not store raw card details. A submitted payment is not treated as complete until the payment is verified through the application's payment reconciliation process.</p>
+<p>Payments are processed by Stripe. Sograte does not store raw card details. A submitted payment is not treated as complete until the payment is verified through the application's payment reconciliation process.</p>
 <h2>Accounts</h2>
 <p>Customers are responsible for keeping account credentials secure and for using accurate contact and delivery information. Guest checkout is available for customers who do not create an account.</p>
 <h2>Fulfillment</h2>
@@ -95,7 +95,7 @@ HTML,
 <h2>Acceptable use</h2>
 <p>Customers may not misuse the website, attempt unauthorized access, interfere with checkout or payment processing, or submit false order or contact information.</p>
 <h2>Content and intellectual property</h2>
-<p>SOGRATE branding, product content, photography, and website content may not be copied or used commercially without permission.</p>
+<p>Sograte branding, product content, photography, and website content may not be copied or used commercially without permission.</p>
 <h2>Disclaimers and liability</h2>
 <p>[OWNER/LEGAL REVIEW REQUIRED: Add approved disclaimers, limitation-of-liability language, and any legally required consumer notices applicable to the business.]</p>
 <h2>Governing law and business identity</h2>
@@ -107,13 +107,13 @@ HTML,
             [
                 'slug' => 'shipping-policy',
                 'title' => 'Shipping & Delivery Policy',
-                'excerpt' => 'Draft information about SOGRATE shipping, local delivery, and pickup.',
-                'meta_title' => 'Shipping & Delivery Policy | SOGRATE',
-                'meta_description' => 'Draft shipping, local delivery, and pickup policy information for SOGRATE customers.',
+                'excerpt' => 'Draft information about Sograte shipping, local delivery, and pickup.',
+                'meta_title' => 'Shipping & Delivery Policy | Sograte',
+                'meta_description' => 'Draft shipping, local delivery, and pickup policy information for Sograte customers.',
                 'status' => PageStatus::Draft->value,
                 'published_at' => null,
                 'body' => $this->draftNotice('Shipping & Delivery Policy').<<<'HTML'
-<p>Available shipping, local delivery, and pickup methods are shown during checkout when enabled by SOGRATE.</p>
+<p>Available shipping, local delivery, and pickup methods are shown during checkout when enabled by Sograte.</p>
 <h2>Shipping</h2>
 <p>Eligible destinations, shipping rates, and available methods are displayed during checkout. Delivery estimates, carrier availability, and tracking are not guaranteed unless explicitly shown for the selected shipment. Tracking information is added when available.</p>
 <h2>Local delivery</h2>
@@ -123,19 +123,19 @@ HTML,
 <h2>Food products and destination restrictions</h2>
 <p>[OWNER/REGULATORY REVIEW REQUIRED: Confirm permitted shipping destinations, food-product handling, packaging, delivery expectations, and any interstate or local restrictions.]</p>
 <h2>Damaged or incorrect orders</h2>
-<p>Contact SOGRATE through the <a href="/contact">Contact page</a> with the order reference and details. [OWNER REVIEW REQUIRED: Define the approved resolution process before publication.]</p>
+<p>Contact Sograte through the <a href="/contact">Contact page</a> with the order reference and details. [OWNER REVIEW REQUIRED: Define the approved resolution process before publication.]</p>
 HTML,
             ],
             [
                 'slug' => 'refund-policy',
                 'title' => 'Refund & Cancellation Policy',
-                'excerpt' => 'Draft information about SOGRATE cancellations, refunds, and food-product orders.',
-                'meta_title' => 'Refund & Cancellation Policy | SOGRATE',
-                'meta_description' => 'Draft refund and cancellation information for SOGRATE customers, pending business approval.',
+                'excerpt' => 'Draft information about Sograte cancellations, refunds, and food-product orders.',
+                'meta_title' => 'Refund & Cancellation Policy | Sograte',
+                'meta_description' => 'Draft refund and cancellation information for Sograte customers, pending business approval.',
                 'status' => PageStatus::Draft->value,
                 'published_at' => null,
                 'body' => $this->draftNotice('Refund & Cancellation Policy').<<<'HTML'
-<p>Contact SOGRATE before returning any product or requesting a refund. Do not send food products back without written return instructions and an approved return address.</p>
+<p>Contact Sograte before returning any product or requesting a refund. Do not send food products back without written return instructions and an approved return address.</p>
 <h2>Cancellations</h2>
 <p>Cancellation requests are reviewed against the order and fulfillment state. Once an order has entered fulfillment, cancellation may no longer be possible. Paid orders require additional review before cancellation.</p>
 <h2>Refunds</h2>
@@ -176,7 +176,7 @@ HTML,
             ],
             [
                 'question' => 'What fulfillment methods are available?',
-                'answer' => '<p>SOGRATE supports shipping, local delivery, and pickup when those methods are enabled and available for your order. The checkout page shows the methods, fees, and destinations currently available to you.</p>',
+                'answer' => '<p>Sograte supports shipping, local delivery, and pickup when those methods are enabled and available for your order. The checkout page shows the methods, fees, and destinations currently available to you.</p>',
                 'category' => 'Ordering',
                 'active' => true,
                 'sort_order' => 2,
@@ -196,15 +196,15 @@ HTML,
                 'sort_order' => 4,
             ],
             [
-                'question' => 'How can I contact SOGRATE?',
-                'answer' => '<p>Use the <a href="/contact">Contact page</a> to send a message to the SOGRATE team.</p>',
+                'question' => 'How can I contact Sograte?',
+                'answer' => '<p>Use the <a href="/contact">Contact page</a> to send a message to the Sograte team.</p>',
                 'category' => 'Support',
                 'active' => true,
                 'sort_order' => 5,
             ],
             [
                 'question' => 'How are refunds and cancellations handled?',
-                'answer' => '<p>Refund and cancellation terms require final business approval. Please contact SOGRATE with your order reference before returning a product or requesting a cancellation.</p>',
+                'answer' => '<p>Refund and cancellation terms require final business approval. Please contact Sograte with your order reference before returning a product or requesting a cancellation.</p>',
                 'category' => 'Policies',
                 'active' => false,
                 'sort_order' => 6,

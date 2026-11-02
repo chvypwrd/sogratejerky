@@ -49,7 +49,15 @@
                                         <td>{{ $order->items_count }}</td>
                                         <td><span class="badge bg-{{ $order->order_status->color() }}">{{ $order->order_status->label() }}</span></td>
                                         <td>{{ $order->total_formatted }}</td>
-                                        <td class="text-end"><a href="{{ route('account.orders.show', $order) }}" class="btn btn-sm btn-outline-secondary">View Order</a></td>
+                                        <td class="text-end">
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <a href="{{ route('account.orders.show', $order) }}" class="btn btn-sm btn-outline-secondary">View Order</a>
+                                                <form method="POST" action="{{ route('account.orders.reorder', $order) }}">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-brand-outline">Reorder</button>
+                                                </form>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

@@ -17,7 +17,7 @@
                 <header class="page-header">
                     <span class="eyebrow">Get in touch</span>
                     <h1>Contact Us</h1>
-                    <p class="lead text-muted">Questions about SOGRATE jerky? Send us a message and we will get back to you.</p>
+                    <p class="lead text-muted">Questions about Sograte jerky? Send us a message and we will get back to you.</p>
                 </header>
 
                 @if (session('status'))

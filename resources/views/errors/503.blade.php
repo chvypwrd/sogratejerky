@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Maintenance in Progress | SOGRATE</title>
+    <title>Maintenance in Progress | Sograte</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -32,7 +32,7 @@
 </head>
 <body>
     <div class="container">
-        <img src="{{ asset('brand/sograte-logo-reversed.png') }}" alt="SOGRATE" class="logo">
+        <img src="{{ asset('brand/sograte-logo-reversed.png') }}" alt="Sograte" class="logo">
         <h1>Maintenance in Progress</h1>
         <p>We'll be back shortly.</p>
         <p class="tagline">Texas Made. Seriously Good Jerky.</p>

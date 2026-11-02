@@ -25,6 +25,8 @@ class FakeStripeGateway extends StripeGateway
 
     public array $savedMethods = [];
 
+    public array $setupIntents = [];
+
     public array $refunds = [];
 
     public array $detachedMethods = [];
@@ -102,6 +104,21 @@ class FakeStripeGateway extends StripeGateway
     public function createCustomerSession(string $customerId): string
     {
         return 'cs_test_secret_'.$customerId;
+    }
+
+    public function createSetupIntent(string $customerId, string $idempotencyKey): object
+    {
+        $this->setupIntents[] = [
+            'customer' => $customerId,
+            'idempotency_key' => $idempotencyKey,
+        ];
+
+        $id = 'seti_test_'.Str::lower(Str::random(12));
+
+        return (object) [
+            'id' => $id,
+            'client_secret' => $id.'_secret_'.$id,
+        ];
     }
 
     public function listSavedPaymentMethods(User $user): array

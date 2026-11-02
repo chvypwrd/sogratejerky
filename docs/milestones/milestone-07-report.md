@@ -1,6 +1,6 @@
 # Milestone 07 Completion Report - Customer Accounts & Saved Addresses
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-31  
 **Status:** Ready for acceptance
 
@@ -18,9 +18,9 @@
 - Registration validates input, enforces unique email addresses, hashes passwords, and authenticates the new customer.
 - Login uses the existing guard, login throttling, session regeneration, and generic failure messaging.
 - Logout invalidates the session and regenerates the CSRF token.
-- Customer password recovery reuses Laravel's password broker with a SOGRATE-branded reset notification.
+- Customer password recovery reuses Laravel's password broker with a Sograte-branded reset notification.
 - Password reset requests return a generic response that does not reveal whether an email exists.
-- Added email verification routes, resend support, and a SOGRATE-branded verification notification.
+- Added email verification routes, resend support, and a Sograte-branded verification notification.
 
 ## Profile Management
 
@@ -51,7 +51,7 @@
 
 - Public header now shows Sign In/Create Account for guests and My Account/Sign Out for authenticated customers.
 - Account dashboard links to profile, addresses, cart, and an order-history placeholder.
-- Customer pages use the approved SOGRATE palette, Montserrat typography, Bootstrap forms/cards, and white main content.
+- Customer pages use the approved Sograte palette, Montserrat typography, Bootstrap forms/cards, and white main content.
 - Order history is represented only as a placeholder; no Order models or fake purchases were created.
 
 ## Verification and Automated Tests

@@ -1,4 +1,4 @@
-# SOGRATE Production Readiness
+# Sograte Production Readiness
 
 This document covers the current Laravel 13 / MySQL / Stripe deployment procedure. It does not authorize launch. Use `docs/launch-readiness.md` for the current Go/No-Go checklist.
 
@@ -20,7 +20,7 @@ Start from `.env.production.example` and keep secrets out of Git.
 Required values include:
 
 ```env
-APP_NAME="SOGRATE"
+APP_NAME="Sograte"
 APP_ENV=production
 APP_KEY=<stable generated key>
 APP_DEBUG=false
@@ -52,7 +52,7 @@ MAIL_PORT=587
 MAIL_USERNAME=<user>
 MAIL_PASSWORD=<password>
 MAIL_FROM_ADDRESS=<verified sender>
-MAIL_FROM_NAME="SOGRATE"
+MAIL_FROM_NAME="Sograte"
 
 CHECKOUT_ENABLED=true
 ALLOW_PRODUCTION_CHECKOUT=false

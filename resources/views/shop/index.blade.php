@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Shop Jerky')
-@section('meta_description', 'Shop small-batch SOGRATE beef jerky, made in Texas with bold BBQ flavor.')
+@section('meta_description', 'Shop small-batch Sograte beef jerky, made in Texas with bold BBQ flavor.')
 
 @section('meta')
     @php
@@ -19,7 +19,7 @@
         <header class="page-header">
             <span class="eyebrow">Shop</span>
             <h1>Shop Jerky</h1>
-            <p class="lead text-muted">Small-batch SOGRATE beef jerky, made in Texas.</p>
+            <p class="lead text-muted">Small-batch Sograte beef jerky, made in Texas.</p>
         </header>
 
         @include('shop._filters', ['sort' => $sort, 'categories' => $categories, 'tags' => $tags])

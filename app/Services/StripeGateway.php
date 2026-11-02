@@ -11,6 +11,7 @@ use Stripe\CustomerSession;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 use Stripe\Refund;
+use Stripe\SetupIntent;
 use Stripe\Stripe;
 use Stripe\Webhook;
 
@@ -36,7 +37,7 @@ class StripeGateway
     {
         if (! $this->configured()) {
             throw ValidationException::withMessages([
-                'payment' => 'Online payment is not configured yet. Please contact SOGRATE.',
+                'payment' => 'Online payment is not configured yet. Please contact Sograte.',
             ]);
         }
 
@@ -99,6 +100,20 @@ class StripeGateway
         ]);
 
         return $session->client_secret;
+    }
+
+    public function createSetupIntent(string $customerId, string $idempotencyKey): object
+    {
+        $this->ensureConfigured();
+
+        return SetupIntent::create([
+            'customer' => $customerId,
+            'usage' => 'off_session',
+            'automatic_payment_methods' => ['enabled' => true],
+            'metadata' => ['purpose' => 'saved_payment_method'],
+        ], [
+            'idempotency_key' => $idempotencyKey,
+        ]);
     }
 
     public function listSavedPaymentMethods(User $user): array
@@ -177,6 +192,6 @@ class StripeGateway
     {
         Stripe::setApiKey((string) config('services.stripe.secret'));
         Stripe::setApiVersion((string) config('services.stripe.api_version', '2026-10-28.endive'));
-        Stripe::setAppInfo('SOGRATE', '1.0', config('app.url'));
+        Stripe::setAppInfo('Sograte', '1.0', config('app.url'));
     }
 }

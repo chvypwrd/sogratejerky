@@ -1,12 +1,12 @@
 # Milestone 03 Completion Report - Frontend Brand Refresh
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-30  
 **Status:** Ready for acceptance
 
 ## Branding Changes Completed
 
-- Applied the approved SOGRATE palette: Texas Rust, Olive, Sage, Pale Sage, Warm Cream, Charcoal, and white.
+- Applied the approved Sograte palette: Texas Rust, Olive, Sage, Pale Sage, Warm Cream, Charcoal, and white.
 - Applied Montserrat for headings/UI and Caveat for accents and taglines.
 - Kept the main content area white, using cream, pale sage, and charcoal only as supporting section backgrounds.
 - Refreshed buttons, cards, forms, alerts, accordions, navigation, footer, and public page headers.
@@ -15,7 +15,7 @@
 ## Logo and Favicon Integration
 
 - Added the approved primary horizontal logo.
-- Added the compact SOGRATE wordmark for the header.
+- Added the compact Sograte wordmark for the header.
 - Added a cream-outline reversed logo for the charcoal footer.
 - Added PNG favicons at 32px, 192px, and 512px, an apple-touch icon, and a generated `favicon.ico`.
 - The favicon uses the logo's "S" mark on Warm Cream for legibility at small sizes.

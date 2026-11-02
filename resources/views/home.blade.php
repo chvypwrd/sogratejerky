@@ -39,13 +39,13 @@
                 </div>
             </div>
             <div class="col-lg-5 text-center text-lg-end">
-                <img src="{{ $heroLogo }}" alt="SOGRATE BBQ and Beef Jerky" class="home-hero__logo mx-lg-auto" loading="eager" decoding="async">
+                <img src="{{ $heroLogo }}" alt="Sograte BBQ and Beef Jerky" class="home-hero__logo mx-lg-auto" loading="eager" decoding="async">
             </div>
         </div>
     </div>
 </section>
 
-<section class="home-proof" aria-label="SOGRATE highlights">
+<section class="home-proof" aria-label="Sograte highlights">
     <div class="container">
         <div class="row g-3">
             <div class="col-md-4">
@@ -76,7 +76,7 @@
         <div class="section-heading">
             <span class="eyebrow">Featured Jerky</span>
             <h2 class="section-heading__title">Seriously good jerky, ready to share.</h2>
-            <p class="section-heading__subtitle">Small-batch SOGRATE favorites, made in Texas.</p>
+            <p class="section-heading__subtitle">Small-batch Sograte favorites, made in Texas.</p>
         </div>
 
         <div class="row g-4">
@@ -121,7 +121,7 @@
                 </div>
                 <div class="home-story__text">
                     <p>
-                        SOGRATE began with backyard BBQ and a simple phrase: &ldquo;Man, this is so great.&rdquo;
+                        Sograte began with backyard BBQ and a simple phrase: &ldquo;Man, this is so great.&rdquo;
                         That phrase became our name and carried us into our first BBQ competition.
                     </p>
                     <p>
@@ -138,7 +138,7 @@
             <div class="col-lg-5">
                 <div class="home-story__quote">
                     <p class="home-story__quote-text">&ldquo;Man, this is so great.&rdquo;</p>
-                    <p class="home-story__quote-caption">The phrase that started SOGRATE</p>
+                    <p class="home-story__quote-caption">The phrase that started Sograte</p>
                 </div>
             </div>
         </div>
@@ -169,7 +169,7 @@
     <div class="container">
         <div class="section-heading">
             <span class="eyebrow">From the Blog</span>
-            <h2 class="section-heading__title">Latest from SOGRATE</h2>
+            <h2 class="section-heading__title">Latest from Sograte</h2>
             <p class="section-heading__subtitle">Recipes, brand updates, and behind-the-scenes notes from the pit.</p>
         </div>
 

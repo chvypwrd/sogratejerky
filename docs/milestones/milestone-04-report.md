@@ -1,6 +1,6 @@
 # Milestone 04 Completion Report - Blog & Editorial Publishing
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-30  
 **Status:** Ready for acceptance
 
@@ -36,7 +36,7 @@ Added:
 
 ## Public Frontend
 
-- Blog index, post, category, tag, author, search, and RSS pages use the approved SOGRATE design.
+- Blog index, post, category, tag, author, search, and RSS pages use the approved Sograte design.
 - Main content remains white with cream, sage, and charcoal accents.
 - Blog cards, article headers, metadata, taxonomy links, search, comments, and pagination were styled consistently.
 - Only approved comments are publicly displayed.

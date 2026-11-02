@@ -1,10 +1,10 @@
 @php
     try {
         $settingsService = app(\App\Services\SettingsService::class);
-        $siteName = $settingsService->get('general.site_name', config('app.name', 'SOGRATE'));
+        $siteName = $settingsService->get('general.site_name', config('app.name', 'Sograte'));
         $defaultDescription = $settingsService->get('seo.default_description', '');
     } catch (\Throwable $e) {
-        $siteName = config('app.name', 'SOGRATE');
+        $siteName = config('app.name', 'Sograte');
         $defaultDescription = '';
     }
     $branding = \App\Models\SiteBranding::getOrCreateSafely();

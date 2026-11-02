@@ -89,7 +89,7 @@ class OrderFactory extends Factory
             'fulfillment_address_snapshot' => null,
             'pickup_location_snapshot' => [
                 'id' => 1,
-                'name' => 'SOGRATE Pickup',
+                'name' => 'Sograte Pickup',
                 'address' => '100 Main Street, Austin, TX 78701',
                 'contact_details' => 'Call 555-0100',
                 'instructions' => 'Ask for your order number at the counter.',

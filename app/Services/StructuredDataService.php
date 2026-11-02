@@ -20,7 +20,7 @@ class StructuredDataService
     {
         $data = [
             '@type' => 'Organization',
-            'name' => $this->settings->get('general.site_name', config('app.name', 'SOGRATE')),
+            'name' => $this->settings->get('general.site_name', config('app.name', 'Sograte')),
         ];
 
         $email = $this->settings->get('contact.email');
@@ -67,7 +67,7 @@ class StructuredDataService
     {
         return [
             '@type' => 'WebSite',
-            'name' => $this->settings->get('general.site_name', config('app.name', 'SOGRATE')),
+            'name' => $this->settings->get('general.site_name', config('app.name', 'Sograte')),
             'url' => url('/'),
             'publisher' => [
                 '@id' => url('/#organization'),
@@ -131,7 +131,7 @@ class StructuredDataService
             ],
             'publisher' => [
                 '@type' => 'Organization',
-                'name' => $this->settings->get('general.site_name', config('app.name', 'SOGRATE')),
+                'name' => $this->settings->get('general.site_name', config('app.name', 'Sograte')),
                 'url' => url('/'),
             ],
         ];
@@ -162,7 +162,7 @@ class StructuredDataService
         $description = $product->seoDescriptionText(500);
         $brand = [
             '@type' => 'Brand',
-            'name' => $this->settings->get('general.site_name', config('app.name', 'SOGRATE')),
+            'name' => $this->settings->get('general.site_name', config('app.name', 'Sograte')),
         ];
         $availability = $this->checkoutAvailability->enabled() && $product->isAvailable()
             ? 'https://schema.org/InStock'

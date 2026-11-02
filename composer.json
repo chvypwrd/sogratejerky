@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "sograte/sograte",
     "type": "project",
-    "description": "SOGRATE — BBQ & Beef Jerky ecommerce and CMS application.",
+    "description": "Sograte — BBQ & Beef Jerky ecommerce and CMS application.",
     "keywords": ["sograte", "bbq", "beef jerky", "laravel"],
     "license": "MIT",
     "require": {

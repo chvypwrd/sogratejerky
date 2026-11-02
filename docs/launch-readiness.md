@@ -1,4 +1,4 @@
-# SOGRATE Launch Readiness
+# Sograte Launch Readiness
 
 **Last updated:** 2026-10-31  
 **Software baseline:** Milestone 12 readiness work and setup addendum, pre-checkpoint  

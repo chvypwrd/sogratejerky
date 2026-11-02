@@ -1,6 +1,6 @@
 # Milestone 05 Completion Report - Product Catalog Foundation
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-30  
 **Status:** Ready for acceptance
 
@@ -56,7 +56,7 @@
 - Fresh migrations and seeders passed.
 - Frontend asset build passed.
 - Manually verified catalog, product detail, variant-specific URL selection, category/tag browsing, homepage featured products, sitemap, and admin product/category/tag/variant pages.
-- Checked desktop layouts against the approved SOGRATE styling.
+- Checked desktop layouts against the approved Sograte styling.
 - Full automated suite passed: **605 tests, 1,326 assertions**.
 - Pint passed on touched PHP files.
 

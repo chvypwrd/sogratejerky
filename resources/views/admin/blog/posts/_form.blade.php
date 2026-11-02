@@ -85,7 +85,7 @@
                 <div class="mb-3">
                     <label for="author_id" class="form-label">Author</label>
                     <select class="form-select @error('author_id') is-invalid @enderror" id="author_id" name="author_id">
-                        <option value="">SOGRATE</option>
+                        <option value="">Sograte</option>
                         @foreach($authors as $author)
                             <option value="{{ $author->id }}" {{ (string) old('author_id', $post->author_id) === (string) $author->id ? 'selected' : '' }}>
                                 {{ $author->name }}

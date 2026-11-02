@@ -173,7 +173,7 @@ class CheckoutPaymentService
         $params = [
             'amount' => $order->total_cents,
             'currency' => strtolower($order->currency),
-            'description' => 'SOGRATE order '.$order->order_number,
+            'description' => 'Sograte order '.$order->order_number,
             'receipt_email' => $order->customer_email,
             'metadata' => [
                 'order_id' => (string) $order->id,

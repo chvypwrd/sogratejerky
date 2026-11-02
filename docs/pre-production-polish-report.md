@@ -1,6 +1,6 @@
 # Post-M12 Pre-Production Polish Report
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-31  
 **Starting commit:** `3e842d3` (accepted checkpoint `sograte-m12`)
 **Status:** Ready for acceptance  
@@ -31,7 +31,7 @@
 - Confirmed contact submissions are stored durably before notification dispatch.
 - Confirmed the existing `NewContactMessageNotification` is dispatched to a configurable recipient:
   `contact.notification_email`, then `contact.email`, then `mail.from.address`.
-- Corrected the notification subject encoding to `New contact message - SOGRATE`.
+- Corrected the notification subject encoding to `New contact message - Sograte`.
 - Preserved CSRF, validation, honeypot, timing, duplicate protection, and failure logging.
 - Added focused `Notification::fake()` coverage for the configured recipient.
 

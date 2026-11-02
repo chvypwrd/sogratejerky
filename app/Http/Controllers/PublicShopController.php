@@ -47,7 +47,7 @@ class PublicShopController extends Controller
             'description' => $productCategory->description,
             'archiveType' => 'Category',
             'seoTitle' => $productCategory->seo_title ?: $productCategory->name,
-            'seoDescription' => $productCategory->seo_description ?: $productCategory->description ?: 'Browse '.$productCategory->name.' from SOGRATE, Texas-made beef jerky.',
+            'seoDescription' => $productCategory->seo_description ?: $productCategory->description ?: 'Browse '.$productCategory->name.' from Sograte, Texas-made beef jerky.',
             'categories' => ProductCategory::active()->ordered()->get(),
             'tags' => ProductTag::ordered()->get(),
         ]);
@@ -68,7 +68,7 @@ class PublicShopController extends Controller
             'description' => null,
             'archiveType' => 'Tag',
             'seoTitle' => 'Tag: '.$productTag->name,
-            'seoDescription' => 'Browse SOGRATE beef jerky tagged '.$productTag->name.'.',
+            'seoDescription' => 'Browse Sograte beef jerky tagged '.$productTag->name.'.',
             'categories' => ProductCategory::active()->ordered()->get(),
             'tags' => ProductTag::ordered()->get(),
         ]);

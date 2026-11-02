@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutAccountController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomerAddressController;
@@ -246,6 +247,10 @@ Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confir
     ->name('checkout.confirmation')
     ->middleware('signed');
 
+Route::post('/checkout/confirmation/{order}/create-account', [CheckoutAccountController::class, 'store'])
+    ->name('checkout.confirmation.account')
+    ->middleware('signed');
+
 Route::post('/stripe/webhook', StripeWebhookController::class)->name('stripe.webhook');
 
 Route::get('/quick-order', [QuickOrderController::class, 'index'])->name('quick-order.index');
@@ -280,6 +285,7 @@ Route::middleware('customer.auth')->group(function () {
         Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
 
         Route::get('/orders', [AccountOrderController::class, 'index'])->name('orders.index');
+        Route::post('/orders/{order}/reorder', [AccountOrderController::class, 'reorder'])->name('orders.reorder');
         Route::get('/orders/{order}', [AccountOrderController::class, 'show'])->name('orders.show');
 
         Route::get('/payment-methods', [CustomerPaymentMethodController::class, 'index'])->name('payment-methods.index');

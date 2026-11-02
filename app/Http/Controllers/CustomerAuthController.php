@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\CustomerVerifyEmail;
 use App\Services\LoginRedirectService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -44,6 +45,12 @@ class CustomerAuthController extends Controller
 
         $request->session()->regenerate();
 
+        if ($this->returnsToCheckout($request)) {
+            return redirect()
+                ->route('checkout.index')
+                ->with('status', 'Signed in successfully.');
+        }
+
         return $this->loginRedirects->response($request);
     }
 
@@ -78,9 +85,20 @@ class CustomerAuthController extends Controller
             ]);
         }
 
+        if ($this->returnsToCheckout($request)) {
+            return redirect()
+                ->route('checkout.index')
+                ->with('status', 'Your account has been created. Check your email to verify your address.');
+        }
+
         return redirect()
             ->route('account.dashboard')
             ->with('status', 'Your account has been created. Check your email to verify your address.');
+    }
+
+    private function returnsToCheckout(Request $request): bool
+    {
+        return $request->input('return_to') === 'checkout';
     }
 
     public function logout(): RedirectResponse

@@ -1,6 +1,6 @@
 # Milestone 08 Completion Report - Checkout, Fulfillment & Orders
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-31  
 **Status:** Ready for acceptance
 
@@ -13,7 +13,7 @@
 - Shipping rules reject overlapping active ranges.
 - Added local delivery zones with uppercase ZIP matching and per-zone fees.
 - Added pickup locations with address, contact details, instructions, optional fee, active state, and ordering.
-- Added SOGRATE-styled `/admin/fulfillment` configuration screens with create, edit, delete, and validation feedback.
+- Added Sograte-styled `/admin/fulfillment` configuration screens with create, edit, delete, and validation feedback.
 - Added `fulfillment.view` and `fulfillment.manage` permissions and updated permission-count coverage.
 
 ## Checkout Experience
@@ -24,7 +24,7 @@
 - Unavailable cart items are blocked before checkout display and again during order submission.
 - Added checkout links from the cart and Quick Order flows.
 - Quick Order now redirects successful selections to checkout instead of the cart page.
-- The checkout page is marked `noindex,nofollow` and uses the approved SOGRATE palette and typography.
+- The checkout page is marked `noindex,nofollow` and uses the approved Sograte palette and typography.
 
 ## Order Calculation & Creation
 

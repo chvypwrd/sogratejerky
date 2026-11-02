@@ -44,8 +44,8 @@ class SettingsController extends Controller
 
         // Create pages
         $pageData = [
-            ['title' => 'About Us', 'slug' => 'about-us', 'body' => '<p>We are SOGRATE, a Texas-made BBQ and beef jerky brand.</p>', 'status' => 'published', 'template' => 'default', 'robots' => 'index,follow'],
-            ['title' => 'Our Jerky', 'slug' => 'our-jerky', 'body' => '<p>SOGRATE beef jerky is made in Texas in small batches with serious flavor.</p>', 'status' => 'published', 'template' => 'default', 'robots' => 'index,follow'],
+            ['title' => 'About Us', 'slug' => 'about-us', 'body' => '<p>We are Sograte, a Texas-made BBQ and beef jerky brand.</p>', 'status' => 'published', 'template' => 'default', 'robots' => 'index,follow'],
+            ['title' => 'Our Jerky', 'slug' => 'our-jerky', 'body' => '<p>Sograte beef jerky is made in Texas in small batches with serious flavor.</p>', 'status' => 'published', 'template' => 'default', 'robots' => 'index,follow'],
             ['title' => 'Pricing', 'slug' => 'pricing', 'body' => '<p>Pricing and availability information is coming soon.</p>', 'status' => 'draft', 'template' => 'default', 'robots' => 'index,follow'],
         ];
         foreach ($pageData as $d) {
@@ -55,7 +55,7 @@ class SettingsController extends Controller
         // Create galleries
         $galData = [
             ['title' => 'Made in Texas', 'slug' => 'made-in-texas', 'description' => 'Photos from our Texas kitchen and production process.', 'active' => true],
-            ['title' => 'Behind the Scenes', 'slug' => 'behind-the-scenes', 'description' => 'A look at how SOGRATE is made.', 'active' => true],
+            ['title' => 'Behind the Scenes', 'slug' => 'behind-the-scenes', 'description' => 'A look at how Sograte is made.', 'active' => true],
             ['title' => 'Events', 'slug' => 'events', 'description' => 'Highlights from recent events.', 'active' => true],
         ];
         foreach ($galData as $d) {
@@ -64,7 +64,7 @@ class SettingsController extends Controller
 
         // Create testimonials
         $testData = [
-            ['name' => 'Jessica M.', 'quote' => 'SOGRATE jerky is seriously good. I keep coming back for more.', 'attribution' => 'Customer since 2024', 'active' => true],
+            ['name' => 'Jessica M.', 'quote' => 'Sograte jerky is seriously good. I keep coming back for more.', 'attribution' => 'Customer since 2024', 'active' => true],
             ['name' => 'Amanda R.', 'quote' => 'The flavor is incredible. Best jerky I have had in a long time.', 'attribution' => 'Customer', 'active' => true],
             ['name' => 'Rachel K.', 'quote' => 'I ordered a bundle for a cookout and everyone asked where it came from.', 'attribution' => 'Customer since 2023', 'active' => true],
             ['name' => 'Danielle W.', 'quote' => 'Great flavor, great quality. I look forward to every order.', 'attribution' => 'Customer', 'active' => true],
@@ -77,12 +77,12 @@ class SettingsController extends Controller
 
         // Create FAQs
         $faqData = [
-            ['question' => 'Where is SOGRATE made?', 'answer' => '<p>SOGRATE is a Texas-made BBQ and beef jerky brand.</p>', 'category' => 'General', 'active' => true],
+            ['question' => 'Where is Sograte made?', 'answer' => '<p>Sograte is a Texas-made BBQ and beef jerky brand.</p>', 'category' => 'General', 'active' => true],
             ['question' => 'How should I store my jerky?', 'answer' => '<p>Keep it sealed and store it in a cool, dry place.</p>', 'category' => 'Storage', 'active' => true],
-            ['question' => 'How can I contact SOGRATE?', 'answer' => '<p>Use the contact page to reach the SOGRATE team.</p>', 'category' => 'General', 'active' => true],
+            ['question' => 'How can I contact Sograte?', 'answer' => '<p>Use the contact page to reach the Sograte team.</p>', 'category' => 'General', 'active' => true],
             ['question' => 'Do you offer gift bundles?', 'answer' => '<p>Gift options are coming soon. Contact us for current availability.</p>', 'category' => 'Gifts', 'active' => true],
-            ['question' => 'Can I find SOGRATE locally?', 'answer' => '<p>Contact us for current availability in your area.</p>', 'category' => 'Availability', 'active' => true],
-            ['question' => 'Are ingredients listed?', 'answer' => '<p>Ingredient details are provided on SOGRATE packaging.</p>', 'category' => 'Ingredients', 'active' => true],
+            ['question' => 'Can I find Sograte locally?', 'answer' => '<p>Contact us for current availability in your area.</p>', 'category' => 'Availability', 'active' => true],
+            ['question' => 'Are ingredients listed?', 'answer' => '<p>Ingredient details are provided on Sograte packaging.</p>', 'category' => 'Ingredients', 'active' => true],
         ];
         foreach ($faqData as $d) {
             Faq::create($d + ['created_by' => 1, 'sort_order' => 0, 'active' => true]);

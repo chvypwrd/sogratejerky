@@ -42,7 +42,7 @@
                         @if($mainImageUrl)
                             <img id="product-main-image" src="{{ $mainImageUrl }}" alt="{{ e($mainAlt) }}" width="800" height="600" decoding="async">
                         @else
-                            <div class="product-gallery__placeholder" id="product-main-image">{{ config('app.name', 'SOGRATE') }}</div>
+                            <div class="product-gallery__placeholder" id="product-main-image">{{ config('app.name', 'Sograte') }}</div>
                         @endif
                     </div>
 
@@ -60,7 +60,7 @@
 
             <div class="col-lg-5">
                 <header class="product-detail-header">
-                    <span class="eyebrow">SOGRATE Jerky</span>
+                    <span class="eyebrow">Sograte Jerky</span>
                     <h1>{{ $product->name }}</h1>
                     @if($product->short_description)
                         <p class="lead text-muted">{{ $product->short_description }}</p>

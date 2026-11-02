@@ -1,10 +1,10 @@
-# SOGRATE
+# Sograte
 
 BBQ & Beef Jerky.
 
 Texas Made. Seriously Good Jerky.
 
-SOGRATE is a Laravel 13 application built on the retained Safe and Sound Kickboxing CMS foundation. Milestone 01 establishes the independent project, application identity, environment configuration, and a verified baseline. Commerce, blog, and customer account features are not part of this milestone.
+Sograte is a Laravel 13 application built on the retained Safe and Sound Kickboxing CMS foundation. Milestone 01 establishes the independent project, application identity, environment configuration, and a verified baseline. Commerce, blog, and customer account features are not part of this milestone.
 
 ## Technology Stack
 

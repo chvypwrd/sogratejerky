@@ -52,9 +52,9 @@ class AnalyticsService
 
         return [
             'item_id' => $variant?->sku ?: (string) $variant?->id,
-            'item_name' => $product?->name ?? 'SOGRATE product',
+            'item_name' => $product?->name ?? 'Sograte product',
             'item_variant' => $variant?->name,
-            'item_brand' => 'SOGRATE',
+            'item_brand' => 'Sograte',
             'price' => round(((int) ($variant?->price ?? 0)) / 100, 2),
             'quantity' => (int) $item->quantity,
         ];
@@ -66,7 +66,7 @@ class AnalyticsService
             'item_id' => $item->sku ?: (string) $item->product_variant_id,
             'item_name' => $item->product_name,
             'item_variant' => $item->variant_name,
-            'item_brand' => 'SOGRATE',
+            'item_brand' => 'Sograte',
             'price' => round(((int) $item->unit_price_cents) / 100, 2),
             'quantity' => (int) $item->quantity,
         ];
@@ -78,7 +78,7 @@ class AnalyticsService
             'item_id' => $variant?->sku ?: (string) $variant?->id,
             'item_name' => $product->name,
             'item_variant' => $variant?->name,
-            'item_brand' => 'SOGRATE',
+            'item_brand' => 'Sograte',
             'price' => round(((int) ($variant?->price ?? 0)) / 100, 2),
             'quantity' => 1,
         ];
@@ -90,9 +90,9 @@ class AnalyticsService
 
         return [
             'item_id' => $variant->sku ?: (string) $variant->id,
-            'item_name' => $variant->product?->name ?? 'SOGRATE product',
+            'item_name' => $variant->product?->name ?? 'Sograte product',
             'item_variant' => $variant->name,
-            'item_brand' => 'SOGRATE',
+            'item_brand' => 'Sograte',
             'price' => round($variant->price / 100, 2),
             'quantity' => $quantity,
         ];

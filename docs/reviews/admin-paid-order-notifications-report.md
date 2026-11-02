@@ -19,8 +19,8 @@ Send an administrative email when a Stripe payment succeeds and the order first 
   - Order total
   - Fulfillment method
   - Payment status and Stripe confirmation
-  - Link to the order in SOGRATE Admin
-- Mail content follows the existing `MailMessage`/SOGRATE transactional style.
+  - Link to the order in Sograte Admin
+- Mail content follows the existing `MailMessage`/Sograte transactional style.
 
 ### Settings integration
 

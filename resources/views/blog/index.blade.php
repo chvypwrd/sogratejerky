@@ -19,8 +19,8 @@
             <span class="eyebrow">From the Pit</span>
             <div class="row align-items-end g-3">
                 <div class="col-lg-7">
-                    <h1>SOGRATE Blog</h1>
-                    <p class="lead text-muted">Stories, recipes, and updates from the SOGRATE kitchen.</p>
+                    <h1>Sograte Blog</h1>
+                    <p class="lead text-muted">Stories, recipes, and updates from the Sograte kitchen.</p>
                 </div>
                 <div class="col-lg-5">
                     <form action="{{ route('blog.search') }}" method="GET" class="blog-search" role="search">

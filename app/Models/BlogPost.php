@@ -84,7 +84,7 @@ class BlogPost extends Model implements HasMedia
 
     public function getAuthorDisplayNameAttribute(): string
     {
-        return $this->author_name ?: $this->author?->name ?: 'SOGRATE';
+        return $this->author_name ?: $this->author?->name ?: 'Sograte';
     }
 
     public function scopePublished(Builder $query): Builder

@@ -18,7 +18,7 @@ class AdminUserSeederTest extends TestCase
 
     private const EMAIL = 'owner@sograte.test';
 
-    private const PASSWORD = 'SOGRATE-Admin-2026!';
+    private const PASSWORD = 'Sograte-Admin-2026!';
 
     protected function setUp(): void
     {
@@ -35,7 +35,7 @@ class AdminUserSeederTest extends TestCase
         parent::tearDown();
     }
 
-    private function setCredentials(string $email = self::EMAIL, string $password = self::PASSWORD, ?string $name = 'SOGRATE Owner'): void
+    private function setCredentials(string $email = self::EMAIL, string $password = self::PASSWORD, ?string $name = 'Sograte Owner'): void
     {
         $repository = Env::getRepository();
         $repository->set('ADMIN_SEED_EMAIL', $email);

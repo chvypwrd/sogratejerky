@@ -2,7 +2,7 @@
 
 return [
     'general' => [
-        'site_name' => ['type' => 'string', 'label' => 'Site Name', 'default' => 'SOGRATE', 'validation' => 'required|string|max:255'],
+        'site_name' => ['type' => 'string', 'label' => 'Site Name', 'default' => 'Sograte', 'validation' => 'required|string|max:255'],
         'tagline' => ['type' => 'string', 'label' => 'Tagline', 'default' => 'Texas Made. Seriously Good Jerky.', 'validation' => 'nullable|string|max:255'],
     ],
     'contact' => [
@@ -17,8 +17,8 @@ return [
         'youtube' => ['type' => 'url', 'label' => 'YouTube URL', 'default' => '', 'validation' => 'nullable|url|max:2048'],
     ],
     'seo' => [
-        'default_title' => ['type' => 'string', 'label' => 'Default Title', 'default' => 'SOGRATE | BBQ & Beef Jerky', 'validation' => 'nullable|string|max:255'],
-        'default_description' => ['type' => 'text', 'label' => 'Default Description', 'default' => 'SOGRATE is a Texas-made BBQ and beef jerky brand. Seriously good jerky, made in Texas.', 'validation' => 'nullable|string|max:500'],
+        'default_title' => ['type' => 'string', 'label' => 'Default Title', 'default' => 'Sograte | BBQ & Beef Jerky', 'validation' => 'nullable|string|max:255'],
+        'default_description' => ['type' => 'text', 'label' => 'Default Description', 'default' => 'Sograte is a Texas-made BBQ and beef jerky brand. Seriously good jerky, made in Texas.', 'validation' => 'nullable|string|max:500'],
         'google_site_verification' => ['type' => 'string', 'label' => 'Google Site Verification', 'default' => '', 'validation' => 'nullable|string|max:255'],
     ],
     'analytics' => [

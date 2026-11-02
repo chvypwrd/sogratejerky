@@ -1,4 +1,4 @@
-# SOGRATE Release Freeze
+# Sograte Release Freeze
 
 **Status:** Historical release-freeze record, updated for the Milestone 12 baseline.
 

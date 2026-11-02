@@ -10,7 +10,7 @@
         @if($imageUrl)
             <img src="{{ $imageUrl }}" alt="{{ e($altText) }}" loading="lazy">
         @else
-            <span class="blog-card__placeholder">{{ config('app.name', 'SOGRATE') }}</span>
+            <span class="blog-card__placeholder">{{ config('app.name', 'Sograte') }}</span>
         @endif
     </a>
 

@@ -17,6 +17,7 @@ use App\Services\CheckoutPaymentService;
 use App\Services\StripeGateway;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Tests\Support\FakeStripeGateway;
 use Tests\TestCase;
@@ -230,6 +231,34 @@ class CheckoutTest extends TestCase
         $this->assertSame('North Market', $order->pickup_location_snapshot['name']);
         $this->assertSame('456 Oak Avenue', $order->billing_address_snapshot['address_line_1']);
         $this->assertNull($order->fulfillment_address_snapshot);
+    }
+
+    public function test_account_created_during_checkout_owns_resulting_order(): void
+    {
+        Notification::fake();
+
+        $token = $this->checkoutToken();
+        $this->addCartItem();
+
+        $this->post(route('customer.register.store'), [
+            'name' => 'New Checkout Buyer',
+            'email' => 'new-checkout@example.com',
+            'password' => 'password123456',
+            'password_confirmation' => 'password123456',
+            'return_to' => 'checkout',
+        ])->assertRedirect(route('checkout.index'));
+
+        $this->assertAuthenticated();
+
+        $this->postJson(route('checkout.store'), $this->checkoutPayload($token, [
+            'customer_name' => 'New Checkout Buyer',
+            'customer_email' => 'new-checkout@example.com',
+        ]))->assertOk();
+
+        $order = Order::firstOrFail();
+
+        $this->assertSame(auth()->id(), $order->user_id);
+        $this->assertSame('new-checkout@example.com', $order->customer_email);
     }
 
     public function test_duplicate_checkout_submission_is_idempotent(): void

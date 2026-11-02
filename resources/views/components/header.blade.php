@@ -1,9 +1,9 @@
 @php
     try {
         $settingsService = app(\App\Services\SettingsService::class);
-        $siteName = $settingsService->get('general.site_name', config('app.name', 'SOGRATE'));
+        $siteName = $settingsService->get('general.site_name', config('app.name', 'Sograte'));
     } catch (\Throwable $e) {
-        $siteName = config('app.name', 'SOGRATE');
+        $siteName = config('app.name', 'Sograte');
     }
 
     try {
@@ -56,11 +56,32 @@
 
                 <div class="header-actions">
                     @auth
-                        <a href="{{ route('account.dashboard') }}" class="header-account">My Account</a>
-                        <form method="POST" action="{{ route('customer.logout') }}" class="header-account-form">
-                            @csrf
-                            <button type="submit" class="header-account header-account--button">Sign Out</button>
-                        </form>
+                        <div class="dropdown">
+                            <button
+                                class="header-account dropdown-toggle"
+                                type="button"
+                                id="customer-account-menu"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                aria-haspopup="true"
+                            >
+                                My Account
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="customer-account-menu">
+                                <li><a class="dropdown-item" href="{{ route('account.dashboard') }}">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ route('account.orders.index') }}">Orders</a></li>
+                                <li><a class="dropdown-item" href="{{ route('account.profile.edit') }}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ route('account.addresses.index') }}">Addresses</a></li>
+                                <li><a class="dropdown-item" href="{{ route('account.payment-methods.index') }}">Payment Methods</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ route('customer.logout') }}" class="m-0">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item">Sign Out</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     @else
                         <a href="{{ route('customer.login') }}" class="header-account">Sign In</a>
                         <a href="{{ route('customer.register') }}" class="header-account header-account--strong">Create Account</a>

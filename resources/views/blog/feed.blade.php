@@ -1,9 +1,9 @@
 <?php echo '<?xml version="1.0" encoding="UTF-8"?>'; ?>
 <rss version="2.0">
     <channel>
-        <title>{{ config('app.name', 'SOGRATE') }} Blog</title>
+        <title>{{ config('app.name', 'Sograte') }} Blog</title>
         <link>{{ route('blog.index') }}</link>
-        <description>Stories, recipes, and updates from SOGRATE.</description>
+        <description>Stories, recipes, and updates from Sograte.</description>
         <language>{{ str_replace('_', '-', app()->getLocale()) }}</language>
         @foreach($posts as $post)
             <item>

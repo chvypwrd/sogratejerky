@@ -25,7 +25,7 @@ class AdminPaidOrderNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('New paid SOGRATE order '.$this->order->order_number)
+            ->subject('New paid Sograte order '.$this->order->order_number)
             ->greeting('A customer payment has been confirmed.')
             ->line('Order number: '.$this->order->order_number)
             ->line('Customer name: '.$this->order->customer_name)
@@ -34,7 +34,7 @@ class AdminPaidOrderNotification extends Notification implements ShouldQueue
             ->line('Fulfillment: '.$this->order->fulfillment_method->label())
             ->line('Payment status: '.$this->order->payment_status->label())
             ->line('Payment confirmation: Confirmed by Stripe')
-            ->action('View Order in SOGRATE Admin', route('admin.orders.show', $this->order))
-            ->salutation('- SOGRATE');
+            ->action('View Order in Sograte Admin', route('admin.orders.show', $this->order))
+            ->salutation('- Sograte');
     }
 }

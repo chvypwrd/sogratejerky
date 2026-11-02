@@ -1,6 +1,6 @@
-# SOGRATE Queue Worker Setup for SiteGround
+# Sograte Queue Worker Setup for SiteGround
 
-SOGRATE uses Laravel 13's scheduler and the existing database queue on SiteGround shared hosting. A single cron entry runs the scheduler every minute; the scheduler starts a bounded queue worker that exits when the queue is empty.
+Sograte uses Laravel 13's scheduler and the existing database queue on SiteGround shared hosting. A single cron entry runs the scheduler every minute; the scheduler starts a bounded queue worker that exits when the queue is empty.
 
 ## Laravel 13 Scheduling Location
 

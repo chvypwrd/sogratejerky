@@ -13,7 +13,7 @@
         <header class="page-header">
             <span class="eyebrow">Cart</span>
             <h1>Your Cart</h1>
-            <p class="lead text-muted">Review your SOGRATE jerky selection.</p>
+            <p class="lead text-muted">Review your Sograte jerky selection.</p>
         </header>
 
         @if(session('status'))
@@ -49,7 +49,7 @@
                                     @if($image)
                                         <img src="{{ $image->getUrl('thumb') }}" alt="{{ e($product?->name ?? 'Product') }}" width="400" height="300" loading="lazy" decoding="async">
                                     @else
-                                        <span>{{ config('app.name', 'SOGRATE') }}</span>
+                                        <span>{{ config('app.name', 'Sograte') }}</span>
                                     @endif
                                 </div>
 

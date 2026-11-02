@@ -52,7 +52,7 @@ class PublicLayoutTest extends TestCase
     {
         $response = $this->get(route('home'));
 
-        $response->assertSee('SOGRATE');
+        $response->assertSee('Sograte');
     }
 
     public function test_default_brand_assets_are_rendered(): void

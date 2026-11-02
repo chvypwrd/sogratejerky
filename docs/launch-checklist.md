@@ -1,4 +1,4 @@
-# SOGRATE Launch Checklist
+# Sograte Launch Checklist
 
 This historical checklist is superseded by the current Milestone 12 checklist:
 

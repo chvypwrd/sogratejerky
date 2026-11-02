@@ -46,7 +46,7 @@ class OrderStatusNotification extends Notification implements ShouldQueue
                 $address = $this->order->fulfillment_address_snapshot;
 
                 if ($this->order->fulfillment_method === FulfillmentMethod::Pickup && $pickup) {
-                    $mail->line('Pickup location: '.($pickup['name'] ?? 'SOGRATE pickup'));
+                    $mail->line('Pickup location: '.($pickup['name'] ?? 'Sograte pickup'));
                     $mail->line('We will email you when your order is ready for pickup.');
                 } elseif ($this->order->fulfillment_method === FulfillmentMethod::LocalDelivery) {
                     $mail->line('We will email you when your order is out for delivery.');
@@ -68,7 +68,7 @@ class OrderStatusNotification extends Notification implements ShouldQueue
                 ->line('A refund update is available for this order.'),
             OrderEvent::ReadyForPickup => $this->addPickupDetails($mail),
             OrderEvent::PickedUp => $mail
-                ->line('Your order has been picked up. Thank you for choosing SOGRATE.'),
+                ->line('Your order has been picked up. Thank you for choosing Sograte.'),
             OrderEvent::OutForDelivery => $mail
                 ->line('Your order is out for delivery.'),
             OrderEvent::Delivered => $mail
@@ -77,7 +77,7 @@ class OrderStatusNotification extends Notification implements ShouldQueue
             OrderEvent::OrderCancelled => $this->addCancellationDetails($mail),
         };
 
-        $mail->line('If you have questions about this order, please contact SOGRATE.');
+        $mail->line('If you have questions about this order, please contact Sograte.');
 
         $trackingUrl = $this->order->tracking_url;
 
@@ -86,16 +86,16 @@ class OrderStatusNotification extends Notification implements ShouldQueue
         } elseif ($this->order->user_id) {
             $mail->action('View Order', route('account.orders.show', $this->order));
         } else {
-            $mail->action('Contact SOGRATE', route('contact.show'));
+            $mail->action('Contact Sograte', route('contact.show'));
         }
 
-        return $mail->salutation('- SOGRATE');
+        return $mail->salutation('- Sograte');
     }
 
     private function subject(): string
     {
         return match ($this->event) {
-            OrderEvent::OrderCreated => 'Your SOGRATE order '.$this->order->order_number.' has been placed',
+            OrderEvent::OrderCreated => 'Your Sograte order '.$this->order->order_number.' has been placed',
             OrderEvent::ReadyForPickup => 'Order '.$this->order->order_number.' is ready for pickup',
             OrderEvent::PickedUp => 'Order '.$this->order->order_number.' was picked up',
             OrderEvent::OutForDelivery => 'Order '.$this->order->order_number.' is out for delivery',
@@ -103,7 +103,7 @@ class OrderStatusNotification extends Notification implements ShouldQueue
             OrderEvent::Shipped => 'Order '.$this->order->order_number.' has shipped',
             OrderEvent::OrderCancelled => 'Order '.$this->order->order_number.' has been cancelled',
             OrderEvent::PaymentProcessing => 'Payment for order '.$this->order->order_number.' is processing',
-            OrderEvent::PaymentPaid => 'Your SOGRATE order '.$this->order->order_number.' is confirmed',
+            OrderEvent::PaymentPaid => 'Your Sograte order '.$this->order->order_number.' is confirmed',
             OrderEvent::PaymentFailed => 'Payment attempt failed for order '.$this->order->order_number,
             OrderEvent::RefundRequested, OrderEvent::RefundCompleted => 'Refund update for order '.$this->order->order_number,
         };
@@ -116,7 +116,7 @@ class OrderStatusNotification extends Notification implements ShouldQueue
         $mail->line('Your order is ready for pickup.');
 
         if ($pickup) {
-            $mail->line('Pickup location: '.($pickup['name'] ?? 'SOGRATE pickup'));
+            $mail->line('Pickup location: '.($pickup['name'] ?? 'Sograte pickup'));
 
             if (! empty($pickup['address'])) {
                 $mail->line('Address: '.$pickup['address']);

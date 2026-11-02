@@ -27,7 +27,7 @@ class SettingsAdminTest extends TestCase
     {
         return array_merge([
             'settings' => [
-                'site_name' => 'SOGRATE',
+                'site_name' => 'Sograte',
                 'tagline' => 'Texas Made. Seriously Good Jerky.',
             ],
         ], $overrides);
@@ -143,7 +143,7 @@ class SettingsAdminTest extends TestCase
 
         $this->actingAs($user)->put(route('admin.settings.update'), $this->validSettings([
             'settings' => [
-                'site_name' => 'SOGRATE',
+                'site_name' => 'Sograte',
                 'enabled' => '1',
                 'measurement_id' => 'G-ABC123XYZ',
             ],
@@ -162,7 +162,7 @@ class SettingsAdminTest extends TestCase
             ->from(route('admin.settings.index'))
             ->put(route('admin.settings.update'), $this->validSettings([
                 'settings' => [
-                    'site_name' => 'SOGRATE',
+                    'site_name' => 'Sograte',
                     'enabled' => '1',
                     'measurement_id' => 'UA-12345',
                 ],

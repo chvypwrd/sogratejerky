@@ -50,7 +50,7 @@ class ErrorPageTest extends TestCase
     {
         $rendered = View::make('errors.503')->render();
 
-        $this->assertStringContainsString('SOGRATE', $rendered);
+        $this->assertStringContainsString('Sograte', $rendered);
     }
 
     public function test_503_page_does_not_contain_database_errors(): void

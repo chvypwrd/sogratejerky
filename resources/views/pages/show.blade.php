@@ -31,7 +31,7 @@
         <a href="{{ route('home') }}" class="text-muted small mb-4 d-inline-block">&larr; Back to home</a>
 
         <header class="page-header">
-            <span class="eyebrow">SOGRATE</span>
+            <span class="eyebrow">Sograte</span>
             <h1>{{ $page->title }}</h1>
             @if($page->excerpt)
                 <p class="lead text-muted">{{ $page->excerpt }}</p>

@@ -20,7 +20,7 @@ class ApplicationTest extends TestCase
     public function test_application_name_is_configured(): void
     {
         $this->assertEquals(
-            'SOGRATE',
+            'Sograte',
             config('app.name')
         );
     }

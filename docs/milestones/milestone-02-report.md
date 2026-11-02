@@ -1,6 +1,6 @@
 # Milestone 02 Completion Report - Remove Classes and Instructors
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-30  
 **Status:** Ready for acceptance
 
@@ -29,10 +29,10 @@ Removed the legacy Classes and Instructors business modules while preserving the
 ## Homepage, Sitemap, and CMS
 
 - Removed Classes/Instructors queries and homepage sections.
-- Preserved testimonials, FAQs, shared layout, settings, and transitional SOGRATE content.
+- Preserved testimonials, FAQs, shared layout, settings, and transitional Sograte content.
 - Removed Classes/Instructors sitemap URL generation.
 - Removed `classes` and `instructors` from the reserved CMS page slug list; those slugs can now resolve as normal CMS pages.
-- Updated the development sample-content action to create SOGRATE pages, galleries, testimonials, and FAQs only.
+- Updated the development sample-content action to create Sograte pages, galleries, testimonials, and FAQs only.
 
 ## Verification Performed
 

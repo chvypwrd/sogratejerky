@@ -1,6 +1,6 @@
 # Milestone 06 Completion Report - Persistent Cart & Quick Order
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-30  
 **Status:** Ready for acceptance
 
@@ -41,7 +41,7 @@
 
 - Added Shop Jerky, Quick Order, and Cart to CMS-managed navigation.
 - Converted the homepage Quick Order promotional area into a working Quick Order link.
-- Preserved the CMS-managed menu architecture, SOGRATE styling, and white main-content backgrounds.
+- Preserved the CMS-managed menu architecture, Sograte styling, and white main-content backgrounds.
 
 ## Validation and Security
 

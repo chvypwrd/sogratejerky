@@ -20,7 +20,7 @@ class BlogPostFactory extends Factory
 
         return [
             'author_id' => null,
-            'author_name' => 'SOGRATE',
+            'author_name' => 'Sograte',
             'title' => $title,
             'slug' => Str::slug($title),
             'excerpt' => \Faker\Factory::create()->paragraph(1),

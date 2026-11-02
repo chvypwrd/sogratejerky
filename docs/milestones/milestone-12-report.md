@@ -1,6 +1,6 @@
 # Milestone 12 Completion Report - Production & Launch Readiness
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-31  
 **Software milestone status:** Ready for acceptance  
 **Public launch status:** **NO-GO**
@@ -24,7 +24,7 @@
 - It creates a verified Super Admin, is idempotent, preserves existing administrator passwords, refuses to promote an existing customer account, preserves existing roles and 2FA behavior, and fails clearly if roles/permissions are missing or credentials are invalid.
 - `AdminUserSeeder` is intentionally excluded from `DatabaseSeeder` and must be run explicitly.
 - Added `LaunchContentSeeder` to the normal fresh seed flow, creating About and draft policy pages plus starter FAQ content.
-- About Us is published from the established SOGRATE brand history. Privacy, Terms, Shipping, and Refund pages are drafts pending owner/legal approval.
+- About Us is published from the established Sograte brand history. Privacy, Terms, Shipping, and Refund pages are drafts pending owner/legal approval.
 - Reused the existing `/contact` and `/faq` routes. Added About and Contact links to primary navigation and page-based footer links for About and policies; policy links appear only after publication.
 
 ## Production Configuration

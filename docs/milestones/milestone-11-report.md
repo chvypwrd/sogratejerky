@@ -1,6 +1,6 @@
 # Milestone 11 Completion Report - Commerce SEO, QA & Accessibility
 
-**Project:** SOGRATE - BBQ & Beef Jerky  
+**Project:** Sograte - BBQ & Beef Jerky
 **Date:** 2026-10-31  
 **Status:** Ready for acceptance
 

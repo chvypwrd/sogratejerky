@@ -197,7 +197,7 @@ class ProductPublicTest extends TestCase
 
         $this->get(route('shop.show', ['product' => $product->slug]))
             ->assertOk()
-            ->assertSee('Shop Bare Jerky from SOGRATE');
+            ->assertSee('Shop Bare Jerky from Sograte');
     }
 
     public function test_product_page_emits_one_meta_description_and_product_group_schema(): void

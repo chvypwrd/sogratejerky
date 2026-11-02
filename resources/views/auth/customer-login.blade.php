@@ -14,7 +14,7 @@
                 <header class="page-header">
                     <span class="eyebrow">Account</span>
                     <h1>Sign In</h1>
-                    <p class="lead text-muted">Sign in to access your SOGRATE account and saved cart.</p>
+                    <p class="lead text-muted">Sign in to access your Sograte account and saved cart.</p>
                 </header>
 
                 @if(session('status'))

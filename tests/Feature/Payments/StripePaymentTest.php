@@ -222,7 +222,7 @@ class StripePaymentTest extends TestCase
         $mail = (new AdminPaidOrderNotification($order))->toMail(new AnonymousNotifiable);
         $lines = implode(' ', $mail->introLines);
 
-        $this->assertSame('New paid SOGRATE order '.$order->order_number, $mail->subject);
+        $this->assertSame('New paid Sograte order '.$order->order_number, $mail->subject);
         $this->assertStringContainsString($order->order_number, $lines);
         $this->assertStringContainsString('Taylor Buyer', $lines);
         $this->assertStringContainsString('taylor@example.com', $lines);

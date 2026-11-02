@@ -5,7 +5,7 @@
 @section('meta')
     <link rel="canonical" href="{{ route('gallery.index', [], false) }}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Gallery | {{ config('app.name', 'SOGRATE') }}">
+    <meta property="og:title" content="Gallery | {{ config('app.name', 'Sograte') }}">
     <meta property="og:url" content="{{ route('gallery.index', [], false) }}">
 @endsection
 

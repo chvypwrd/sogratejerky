@@ -14,6 +14,7 @@ use App\Services\AnalyticsService;
 use App\Services\CartService;
 use App\Services\CheckoutAvailability;
 use App\Services\CheckoutPaymentService;
+use App\Services\GuestOrderClaimService;
 use App\Services\PaymentReconciler;
 use App\Services\StripeGateway;
 use Illuminate\Http\JsonResponse;
@@ -34,6 +35,7 @@ class CheckoutController extends Controller
         private PaymentReconciler $reconciler,
         private StripeGateway $gateway,
         private AnalyticsService $analytics,
+        private GuestOrderClaimService $guestOrderClaims,
     ) {}
 
     public function index(Request $request): View|RedirectResponse
@@ -152,6 +154,7 @@ class CheckoutController extends Controller
         }
 
         $order = $order->fresh()->load('items');
+        $this->guestOrderClaims->remember($order);
 
         if ($payment && $order->isTerminalCheckout() && hash_equals((string) session('checkout_token'), (string) $order->checkout_token)) {
             $this->rotateCheckoutToken();
@@ -172,6 +175,24 @@ class CheckoutController extends Controller
     public function confirmation(Request $request, Order $order): View
     {
         $order->load(['items', 'payments']);
+        $this->guestOrderClaims->remember($order);
+
+        $guestAccountAvailable = false;
+        $guestAccountExisting = false;
+        $guestAccountAction = null;
+
+        if (! auth()->check() && $this->guestOrderClaims->allows($order)) {
+            $guestAccountExisting = User::where('email', $order->customer_email)->exists();
+            $guestAccountAvailable = ! $guestAccountExisting;
+
+            if ($guestAccountAvailable) {
+                $guestAccountAction = URL::temporarySignedRoute(
+                    'checkout.confirmation.account',
+                    now()->addDays(7),
+                    ['order' => $order->order_number],
+                );
+            }
+        }
 
         if ($this->analytics->enabled() && $order->ga4_purchase_tracked_at === null && $order->payments->contains(fn ($payment) => $payment->paid_at !== null)) {
             $claimed = Order::query()
@@ -187,6 +208,9 @@ class CheckoutController extends Controller
 
         return view('checkout.confirmation', [
             'order' => $order,
+            'guestAccountAvailable' => $guestAccountAvailable,
+            'guestAccountExisting' => $guestAccountExisting,
+            'guestAccountAction' => $guestAccountAction,
         ]);
     }
 }
