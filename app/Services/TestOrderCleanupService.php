@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DeletedTestOrder;
 use App\Models\DeletedTestOrderPaymentIntent;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\PaymentRefund;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -51,12 +52,9 @@ class TestOrderCleanupService
                     return $this->ineligible('Stripe livemode evidence is missing.', $counts);
                 }
 
-                $usingTestKey = $this->gateway->testModeVerificationConfigured();
-
                 try {
-                    $intent = $usingTestKey
-                        ? $this->gateway->retrieveTestModePaymentIntent($payment->payment_intent_id)
-                        : $this->gateway->retrievePaymentIntent($payment->payment_intent_id);
+                    $verification = $this->gateway->retrievePaymentIntentForTestModeVerification($payment->payment_intent_id);
+                    $intent = $verification['intent'];
                 } catch (Throwable $exception) {
                     report($exception);
 
@@ -69,8 +67,12 @@ class TestOrderCleanupService
                     return $this->ineligible('Stripe payment verification did not return a definitive mode.', $counts);
                 }
 
+                if (! $this->intentMatchesPayment($intent, $payment)) {
+                    return $this->ineligible('Stripe PaymentIntent does not match the stored payment record.', $counts);
+                }
+
                 $payment->update(['stripe_livemode' => $livemode]);
-                $remoteVerificationBasis = $usingTestKey
+                $remoteVerificationBasis = $verification['credential'] === 'test'
                     ? 'read_only_stripe_test_key'
                     : 'read_only_stripe_current_key';
             }
@@ -144,6 +146,25 @@ class TestOrderCleanupService
 
             return $audit;
         });
+    }
+
+    private function intentMatchesPayment(object $intent, Payment $payment): bool
+    {
+        if ((string) data_get($intent, 'id') !== (string) $payment->payment_intent_id) {
+            return false;
+        }
+
+        if ((int) data_get($intent, 'amount') !== (int) $payment->amount_cents) {
+            return false;
+        }
+
+        if (strtoupper((string) data_get($intent, 'currency')) !== strtoupper((string) $payment->currency)) {
+            return false;
+        }
+
+        $metadataOrderId = data_get($intent, 'metadata.order_id');
+
+        return $metadataOrderId === null || (string) $metadataOrderId === (string) $payment->order_id;
     }
 
     private function ineligible(string $reason, array $counts): array

@@ -82,6 +82,33 @@ class StripeGateway
         return PaymentIntent::retrieve($paymentIntentId);
     }
 
+    public function retrievePaymentIntentForTestModeVerification(string $paymentIntentId): array
+    {
+        try {
+            return [
+                'intent' => $this->retrievePaymentIntent($paymentIntentId),
+                'credential' => 'live',
+            ];
+        } catch (\Throwable $liveException) {
+            if (! $this->testModeVerificationConfigured()) {
+                throw $liveException;
+            }
+
+            try {
+                return [
+                    'intent' => $this->retrieveTestModePaymentIntent($paymentIntentId),
+                    'credential' => 'test',
+                ];
+            } catch (\Throwable $testException) {
+                throw new \RuntimeException(
+                    'PaymentIntent could not be retrieved with live or test-mode credentials.',
+                    0,
+                    $testException,
+                );
+            }
+        }
+    }
+
     public function cancelPaymentIntent(string $paymentIntentId): object
     {
         $this->ensureConfigured();

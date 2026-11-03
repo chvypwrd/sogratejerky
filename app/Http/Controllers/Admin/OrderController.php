@@ -15,6 +15,7 @@ use App\Http\Requests\Admin\FulfillmentNoteRequest;
 use App\Http\Requests\Admin\RefundOrderRequest;
 use App\Http\Requests\Admin\ShipOrderRequest;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\SiteBranding;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaymentRefundService;
@@ -345,17 +346,14 @@ class OrderController extends Controller
                 continue;
             }
 
-            $usingTestKey = $gateway->testModeVerificationConfigured();
-
             try {
-                $intent = $usingTestKey
-                    ? $gateway->retrieveTestModePaymentIntent($payment->payment_intent_id)
-                    : $gateway->retrievePaymentIntent($payment->payment_intent_id);
+                $verification = $gateway->retrievePaymentIntentForTestModeVerification($payment->payment_intent_id);
+                $intent = $verification['intent'];
             } catch (Throwable $exception) {
                 report($exception);
 
                 throw ValidationException::withMessages([
-                    'is_test_order' => 'The Stripe payment could not be verified. The order was not marked as a test order.',
+                    'is_test_order' => 'The Stripe payment could not be verified with live or test-mode credentials. Check STRIPE_TEST_SECRET and PaymentIntents Read permission.',
                 ]);
             }
 
@@ -365,8 +363,33 @@ class OrderController extends Controller
                 ]);
             }
 
+            if (! $this->intentMatchesPayment($intent, $payment)) {
+                throw ValidationException::withMessages([
+                    'is_test_order' => 'The Stripe PaymentIntent does not match the stored payment record.',
+                ]);
+            }
+
             $payment->update(['stripe_livemode' => false]);
         }
+    }
+
+    private function intentMatchesPayment(object $intent, Payment $payment): bool
+    {
+        if ((string) data_get($intent, 'id') !== (string) $payment->payment_intent_id) {
+            return false;
+        }
+
+        if ((int) data_get($intent, 'amount') !== (int) $payment->amount_cents) {
+            return false;
+        }
+
+        if (strtoupper((string) data_get($intent, 'currency')) !== strtoupper((string) $payment->currency)) {
+            return false;
+        }
+
+        $metadataOrderId = data_get($intent, 'metadata.order_id');
+
+        return $metadataOrderId === null || (string) $metadataOrderId === (string) $payment->order_id;
     }
 
     private function printData(Order $order): array

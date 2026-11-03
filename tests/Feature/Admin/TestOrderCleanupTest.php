@@ -200,6 +200,9 @@ class TestOrderCleanupTest extends TestCase
         $this->stripe->testModeIntents[$payment->payment_intent_id] = (object) [
             'id' => $payment->payment_intent_id,
             'livemode' => false,
+            'amount' => $payment->amount_cents,
+            'currency' => strtolower($payment->currency),
+            'metadata' => (object) ['order_id' => (string) $order->id],
         ];
 
         $this->actingAs($this->admin())

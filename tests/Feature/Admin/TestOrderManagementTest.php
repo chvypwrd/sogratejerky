@@ -58,6 +58,9 @@ class TestOrderManagementTest extends TestCase
         $this->stripe->intents[$intentId] = (object) [
             'id' => $intentId,
             'livemode' => $livemode,
+            'amount' => $order->total_cents,
+            'currency' => strtolower($order->currency),
+            'metadata' => (object) ['order_id' => (string) $order->id],
         ];
 
         return $order;
@@ -104,6 +107,9 @@ class TestOrderManagementTest extends TestCase
         $this->stripe->testModeIntents[$intentId] = (object) [
             'id' => $intentId,
             'livemode' => false,
+            'amount' => $payment->amount_cents,
+            'currency' => strtolower($payment->currency),
+            'metadata' => (object) ['order_id' => (string) $order->id],
         ];
 
         $this->actingAs($admin)
@@ -125,6 +131,66 @@ class TestOrderManagementTest extends TestCase
         $gateway = new StripeGateway;
 
         $this->assertTrue($gateway->testModeVerificationConfigured());
+    }
+
+    public function test_unverifiable_historical_order_returns_actionable_validation_message(): void
+    {
+        $order = Order::factory()->paid()->shipping()->create();
+        $intentId = 'pi_unverifiable_'.Str::lower(Str::random(10));
+
+        Payment::create([
+            'order_id' => $order->id,
+            'provider' => 'stripe',
+            'payment_intent_id' => $intentId,
+            'amount_cents' => $order->total_cents,
+            'currency' => 'USD',
+            'status' => PaymentStatus::Paid,
+            'paid_at' => now(),
+            'stripe_livemode' => null,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.orders.show', $order))
+            ->post(route('admin.orders.test-status', $order), ['is_test_order' => '1'])
+            ->assertSessionHasErrors('is_test_order');
+
+        $this->assertStringContainsString(
+            'STRIPE_TEST_SECRET',
+            session('errors')->first('is_test_order'),
+        );
+    }
+
+    public function test_test_mode_intent_must_match_the_stored_payment_record(): void
+    {
+        $order = Order::factory()->paid()->shipping()->create();
+        $intentId = 'pi_mismatch_'.Str::lower(Str::random(10));
+
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'provider' => 'stripe',
+            'payment_intent_id' => $intentId,
+            'amount_cents' => $order->total_cents,
+            'currency' => 'USD',
+            'status' => PaymentStatus::Paid,
+            'paid_at' => now(),
+            'stripe_livemode' => null,
+        ]);
+
+        $this->stripe->hasTestVerificationKey = true;
+        $this->stripe->testModeIntents[$intentId] = (object) [
+            'id' => $intentId,
+            'livemode' => false,
+            'amount' => $payment->amount_cents + 1,
+            'currency' => 'usd',
+            'metadata' => (object) ['order_id' => (string) $order->id],
+        ];
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.orders.show', $order))
+            ->post(route('admin.orders.test-status', $order), ['is_test_order' => '1'])
+            ->assertSessionHasErrors('is_test_order');
+
+        $this->assertFalse($order->fresh()->is_test_order);
     }
 
     public function test_live_stripe_order_cannot_be_marked_as_test(): void
