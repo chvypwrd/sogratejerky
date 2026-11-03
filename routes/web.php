@@ -186,12 +186,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'noindex.admin'])->g
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index')->middleware('can:orders.view');
-    Route::get('/orders/test-cleanup', [OrderController::class, 'testCleanup'])->name('orders.test-cleanup')->middleware('can:orders.refund');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show')->middleware('can:orders.view');
     Route::get('/orders/{order}/work-order', [OrderController::class, 'workOrder'])->name('orders.work-order')->middleware('can:orders.view');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice')->middleware('can:orders.view');
-    Route::get('/orders/{order}/delete-test', [OrderController::class, 'previewTestCleanup'])->name('orders.test-cleanup.preview')->middleware('can:orders.refund');
-    Route::delete('/orders/{order}/delete-test', [OrderController::class, 'destroyTestOrder'])->name('orders.test-cleanup.destroy')->middleware('can:orders.refund');
+    Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy')->middleware('can:orders.refund');
+    Route::delete('/orders/{order}/legacy-delete', [OrderController::class, 'destroyLegacy'])->name('orders.legacy-destroy')->middleware('can:orders.refund');
 
     Route::post('/orders/{order}/test-status', [OrderController::class, 'updateTestStatus'])->name('orders.test-status')->middleware('can:orders.fulfill');
     Route::post('/orders/{order}/ready-for-pickup', [OrderController::class, 'markReadyForPickup'])->name('orders.ready-for-pickup')->middleware('can:orders.fulfill');

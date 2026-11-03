@@ -17,11 +17,11 @@ use App\Http\Requests\Admin\ShipOrderRequest;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\SiteBranding;
+use App\Services\OrderDeletionService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaymentRefundService;
 use App\Services\SettingsService;
 use App\Services\StripeGateway;
-use App\Services\TestOrderCleanupService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -124,7 +124,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Order $order, TestOrderCleanupService $cleanup): View
+    public function show(Order $order, OrderDeletionService $deletion): View
     {
         $this->authorize('view', $order);
 
@@ -133,39 +133,12 @@ class OrderController extends Controller
         return view('admin.orders.show', [
             'order' => $order,
             'carriers' => ShippingCarrier::cases(),
-            'testCleanup' => $order->is_test_order ? $cleanup->inspect($order, true) : null,
+            'deletionInspection' => $order->is_test_order ? $deletion->inspectClassified($order) : null,
+            'legacyDeletionInspection' => ! $order->is_test_order ? $deletion->inspectLegacy($order) : null,
         ]);
     }
 
-    public function testCleanup(Request $request, TestOrderCleanupService $cleanup): View
-    {
-        $this->authorize('viewAny', Order::class);
-
-        $orders = Order::testOrders()
-            ->latest('placed_at')
-            ->paginate(25)
-            ->withQueryString();
-
-        $orders->getCollection()->transform(function (Order $order) use ($cleanup) {
-            $order->setAttribute('test_cleanup', $cleanup->inspect($order, true));
-
-            return $order;
-        });
-
-        return view('admin.orders.test-cleanup.index', compact('orders'));
-    }
-
-    public function previewTestCleanup(Order $order, TestOrderCleanupService $cleanup): View
-    {
-        $this->authorize('refund', $order);
-
-        return view('admin.orders.test-cleanup.preview', [
-            'order' => $order,
-            'inspection' => $cleanup->inspect($order, true),
-        ]);
-    }
-
-    public function destroyTestOrder(Request $request, Order $order, TestOrderCleanupService $cleanup): RedirectResponse
+    public function destroy(Request $request, Order $order, OrderDeletionService $deletion): RedirectResponse
     {
         $this->authorize('refund', $order);
 
@@ -179,11 +152,48 @@ class OrderController extends Controller
             ]);
         }
 
-        $audit = $cleanup->delete($order, $request->user());
+        $audit = $deletion->delete($order, $request->user());
 
         return redirect()
-            ->route('admin.orders.test-cleanup')
-            ->with('status', 'Test order '.$audit->order_number.' permanently deleted. Audit record #'.$audit->id.'.');
+            ->route('admin.orders.index')
+            ->with('status', 'Order '.$audit->order_number.' permanently deleted. Audit record #'.$audit->id.'.');
+    }
+
+    public function destroyLegacy(Request $request, Order $order, OrderDeletionService $deletion): RedirectResponse
+    {
+        $this->authorize('refund', $order);
+
+        $request->validate([
+            'confirm_order_number' => ['required', 'string'],
+            'legacy_override' => ['nullable', 'boolean'],
+            'override_reason' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        if ($request->input('confirm_order_number') !== $order->order_number) {
+            throw ValidationException::withMessages([
+                'confirm_order_number' => 'Enter the exact order number to confirm permanent deletion.',
+            ]);
+        }
+
+        $inspection = $deletion->inspectLegacy($order);
+
+        if ($inspection['requires_override'] && ! $request->boolean('legacy_override')) {
+            throw ValidationException::withMessages([
+                'legacy_override' => 'Confirm that this specific order was independently identified as a historical test order.',
+            ]);
+        }
+
+        if ($inspection['requires_override'] && trim((string) $request->input('override_reason')) === '') {
+            throw ValidationException::withMessages([
+                'override_reason' => 'Provide the administrator override reason for this ambiguous legacy order.',
+            ]);
+        }
+
+        $audit = $deletion->deleteLegacy($order, $request->user(), $request->input('override_reason'));
+
+        return redirect()
+            ->route('admin.orders.index')
+            ->with('status', 'Legacy test order '.$audit->order_number.' permanently deleted. Audit record #'.$audit->id.'.');
     }
 
     public function updateTestStatus(Request $request, Order $order, StripeGateway $gateway): RedirectResponse

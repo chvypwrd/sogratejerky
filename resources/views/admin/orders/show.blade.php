@@ -32,7 +32,7 @@
     <div>
         <div class="text-muted small">Order</div>
         <h1 class="h3 mb-1">{{ $order->order_number }}</h1>
-        <div class="text-muted">Placed {{ $order->placed_at?->format('F j, Y g:i A') ?? '—' }}</div>
+        <div class="text-muted">Placed {{ $order->placed_at?->format('F j, Y g:i A') ?? 'â€”' }}</div>
     </div>
     <div class="text-end">
         <div class="mb-2">
@@ -76,18 +76,98 @@
                 </button>
             </form>
 
-            @if($order->is_test_order)
-                @can('refund', $order)
-                    @if($testCleanup && $testCleanup['eligible'])
-                        <a href="{{ route('admin.orders.test-cleanup.preview', $order) }}" class="btn btn-sm btn-outline-danger mt-3">Delete Test Order</a>
-                    @else
-                        <p class="small text-muted mt-3 mb-0">Permanent deletion unavailable: {{ $testCleanup['reason'] ?? 'verification is unavailable.' }}</p>
-                    @endif
-                @endcan
-            @endif
+
         </div>
     </div>
 @endcan
+
+@if($order->is_test_order && $deletionInspection)
+    @can('refund', $order)
+        <div class="card border-danger mb-4">
+            <div class="card-header"><strong>{{ $deletionInspection['eligible'] ? 'Delete Order' : 'Deletion Unavailable' }}</strong></div>
+            <div class="card-body">
+                @if($deletionInspection['eligible'])
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Permanent deletion.</strong>
+                        This removes the order, items, payments, refunds, fulfillment history, and activity history from the local database. No Stripe request is made.
+                    </div>
+                    <p class="small text-muted">
+                        {{ $deletionInspection['counts']['order_items'] }} items &middot;
+                        {{ $deletionInspection['counts']['payments'] }} payments &middot;
+                        {{ $deletionInspection['counts']['refunds'] }} refunds &middot;
+                        {{ $deletionInspection['counts']['activities'] }} activities
+                    </p>
+                    <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return confirm('Permanently delete order {{ $order->order_number }}?')">
+                        @csrf
+                        @method('DELETE')
+                        <div class="mb-3">
+                            <label for="confirm_order_number" class="form-label">Type <strong>{{ $order->order_number }}</strong> to confirm</label>
+                            <input type="text" class="form-control @error('confirm_order_number') is-invalid @enderror" id="confirm_order_number" name="confirm_order_number" autocomplete="off" required>
+                            @error('confirm_order_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <button type="submit" class="btn btn-danger">Delete Order</button>
+                    </form>
+                @else
+                    <div class="alert alert-warning mb-0" role="alert">
+                        Deletion unavailable: {{ $deletionInspection['reason'] }}
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endcan
+@endif
+
+@if(! $order->is_test_order && $legacyDeletionInspection)
+    @can('refund', $order)
+        <div class="card border-danger mb-4">
+            <div class="card-header"><strong>{{ $legacyDeletionInspection['eligible'] ? 'Legacy Test Order Deletion' : 'Legacy Deletion Unavailable' }}</strong></div>
+            <div class="card-body">
+                @if($legacyDeletionInspection['eligible'])
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Permanent legacy cleanup.</strong>
+                        This order is not classified as a test order. Deletion removes the local order, items, payments, refunds, fulfillment history, and activity history. No Stripe request is made.
+                        @if($legacyDeletionInspection['requires_override'])
+                            <br><strong>The application cannot independently verify this order's payment mode.</strong>
+                            Confirm only if this specific order was independently identified as a historical test order.
+                        @endif
+                    </div>
+                    <p class="small text-muted">
+                        {{ $legacyDeletionInspection['counts']['order_items'] }} items &middot;
+                        {{ $legacyDeletionInspection['counts']['payments'] }} payments &middot;
+                        {{ $legacyDeletionInspection['counts']['refunds'] }} refunds &middot;
+                        {{ $legacyDeletionInspection['counts']['activities'] }} activities
+                    </p>
+                    <form method="POST" action="{{ route('admin.orders.legacy-destroy', $order) }}" onsubmit="return confirm('Permanently delete legacy order {{ $order->order_number }}?')">
+                        @csrf
+                        @method('DELETE')
+                        <div class="mb-3">
+                            <label for="legacy_confirm_order_number" class="form-label">Type <strong>{{ $order->order_number }}</strong> to confirm</label>
+                            <input type="text" class="form-control @error('confirm_order_number') is-invalid @enderror" id="legacy_confirm_order_number" name="confirm_order_number" autocomplete="off" required>
+                            @error('confirm_order_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        @if($legacyDeletionInspection['requires_override'])
+                            <div class="form-check mb-3">
+                                <input class="form-check-input @error('legacy_override') is-invalid @enderror" type="checkbox" name="legacy_override" id="legacy_override" value="1">
+                                <label class="form-check-label" for="legacy_override">I independently identified this specific order as a historical test order.</label>
+                                @error('legacy_override')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="mb-3">
+                                <label for="override_reason" class="form-label">Override reason</label>
+                                <textarea class="form-control @error('override_reason') is-invalid @enderror" id="override_reason" name="override_reason" rows="2" required></textarea>
+                                @error('override_reason')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        @endif
+                        <button type="submit" class="btn btn-danger">Delete Legacy Test Order</button>
+                    </form>
+                @else
+                    <div class="alert alert-warning mb-0" role="alert">
+                        Legacy deletion unavailable: {{ $legacyDeletionInspection['reason'] }}
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endcan
+@endif
 
 <div class="row g-4 mb-4">
     <div class="col-lg-8">
@@ -105,13 +185,13 @@
                     </div>
                     <div class="col-md-6">
                         <div class="text-muted small">Phone</div>
-                        <div>{{ $order->customer_phone ?: '—' }}</div>
+                        <div>{{ $order->customer_phone ?: 'â€”' }}</div>
                     </div>
                     <div class="col-md-6">
                         <div class="text-muted small">Customer account</div>
                         <div>
                             @if($order->user)
-                                Account #{{ $order->user->id }} — {{ $order->user->name }}
+                                Account #{{ $order->user->id }} â€” {{ $order->user->name }}
                             @else
                                 <span class="badge bg-secondary">Guest</span>
                             @endif
@@ -158,7 +238,7 @@
                         <td class="text-center">{{ $item->quantity }}</td>
                         <td class="text-end">{{ $item->unit_price_formatted }}</td>
                         <td class="text-end">{{ $item->line_total_formatted }}</td>
-                        <td class="text-end">{{ $item->weight_grams ? $item->weight_grams.' g' : '—' }}</td>
+                        <td class="text-end">{{ $item->weight_grams ? $item->weight_grams.' g' : 'â€”' }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -363,11 +443,11 @@
                 </div>
                 <div class="col-md-6">
                     <div class="text-muted small">Stripe PaymentIntent</div>
-                    <div class="text-break">{{ $payment->payment_intent_id ?: '—' }}</div>
+                    <div class="text-break">{{ $payment->payment_intent_id ?: 'â€”' }}</div>
                 </div>
                 <div class="col-md-6">
                     <div class="text-muted small">Paid at</div>
-                    <div>{{ $payment->paid_at?->format('M j, Y g:i A') ?? '—' }}</div>
+                    <div>{{ $payment->paid_at?->format('M j, Y g:i A') ?? 'â€”' }}</div>
                 </div>
             </div>
 
@@ -389,8 +469,8 @@
                                     <td class="text-nowrap">{{ $refund->created_at->format('M j, Y g:i A') }}</td>
                                     <td>{{ $refund->amount_formatted }}</td>
                                     <td><span class="badge bg-{{ $refund->status->color() }}">{{ $refund->status->label() }}</span></td>
-                                    <td>{{ $refund->reason ?: '—' }}</td>
-                                    <td>{{ $refund->requester?->name ?? '—' }}</td>
+                                    <td>{{ $refund->reason ?: 'â€”' }}</td>
+                                    <td>{{ $refund->requester?->name ?? 'â€”' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -445,10 +525,10 @@
                     <tr>
                         <td class="text-nowrap">{{ $activity->occurred_at->format('M j, Y g:i A') }}</td>
                         <td>{{ $activity->event->label() }}</td>
-                        <td>{{ $activity->previous_status ? \Illuminate\Support\Str::headline($activity->previous_status) : '—' }}</td>
-                        <td>{{ $activity->new_status ? \Illuminate\Support\Str::headline($activity->new_status) : '—' }}</td>
+                        <td>{{ $activity->previous_status ? \Illuminate\Support\Str::headline($activity->previous_status) : 'â€”' }}</td>
+                        <td>{{ $activity->new_status ? \Illuminate\Support\Str::headline($activity->new_status) : 'â€”' }}</td>
                         <td>{{ $activity->actor_name ?: ($activity->actor?->name ?? 'System') }}</td>
-                        <td>{{ $activity->note ?: '—' }}</td>
+                        <td>{{ $activity->note ?: 'â€”' }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="text-center text-muted py-4">No activity recorded.</td></tr>

@@ -13,6 +13,8 @@ class DeletedTestOrder extends Model
         'original_total_cents',
         'original_placed_at',
         'verification_basis',
+        'local_payment_evidence',
+        'override_reason',
         'record_counts',
         'deleted_by',
         'deleted_by_name',
@@ -24,6 +26,7 @@ class DeletedTestOrder extends Model
         return [
             'original_total_cents' => 'integer',
             'original_placed_at' => 'datetime',
+            'local_payment_evidence' => 'array',
             'record_counts' => 'array',
             'deleted_at' => 'datetime',
         ];
