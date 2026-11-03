@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\FulfillmentMethod;
 use App\Enums\FulfillmentStatus;
-use App\Enums\OrderEvent;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RefundStatus;
@@ -15,19 +14,14 @@ use App\Http\Requests\Admin\FulfillmentNoteRequest;
 use App\Http\Requests\Admin\RefundOrderRequest;
 use App\Http\Requests\Admin\ShipOrderRequest;
 use App\Models\Order;
-use App\Models\Payment;
 use App\Models\SiteBranding;
-use App\Services\OrderDeletionService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaymentRefundService;
 use App\Services\SettingsService;
-use App\Services\StripeGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Throwable;
 
 class OrderController extends Controller
 {
@@ -49,19 +43,11 @@ class OrderController extends Controller
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'sort' => ['nullable', Rule::in(['newest', 'oldest'])],
-            'order_type' => ['nullable', Rule::in(['regular', 'test', 'all'])],
         ]);
 
         $search = trim((string) ($validated['search'] ?? ''));
-        $orderType = $validated['order_type'] ?? 'regular';
 
-        $query = Order::query()->withCount('items');
-
-        if ($orderType === 'regular') {
-            $query->regular();
-        } elseif ($orderType === 'test') {
-            $query->testOrders();
-        }
+        $query = Order::regular()->withCount('items');
 
         if ($search !== '') {
             $query->where(function ($query) use ($search) {
@@ -111,8 +97,6 @@ class OrderController extends Controller
                 ->count(),
         ];
 
-        $validated['order_type'] = $orderType;
-
         return view('admin.orders.index', [
             'orders' => $orders,
             'summary' => $summary,
@@ -124,7 +108,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Order $order, OrderDeletionService $deletion): View
+    public function show(Order $order): View
     {
         $this->authorize('view', $order);
 
@@ -133,102 +117,7 @@ class OrderController extends Controller
         return view('admin.orders.show', [
             'order' => $order,
             'carriers' => ShippingCarrier::cases(),
-            'deletionInspection' => $order->is_test_order ? $deletion->inspectClassified($order) : null,
-            'legacyDeletionInspection' => ! $order->is_test_order ? $deletion->inspectLegacy($order) : null,
         ]);
-    }
-
-    public function destroy(Request $request, Order $order, OrderDeletionService $deletion): RedirectResponse
-    {
-        $this->authorize('refund', $order);
-
-        $request->validate([
-            'confirm_order_number' => ['required', 'string'],
-        ]);
-
-        if ($request->input('confirm_order_number') !== $order->order_number) {
-            throw ValidationException::withMessages([
-                'confirm_order_number' => 'Enter the exact order number to confirm permanent deletion.',
-            ]);
-        }
-
-        $audit = $deletion->delete($order, $request->user());
-
-        return redirect()
-            ->route('admin.orders.index')
-            ->with('status', 'Order '.$audit->order_number.' permanently deleted. Audit record #'.$audit->id.'.');
-    }
-
-    public function destroyLegacy(Request $request, Order $order, OrderDeletionService $deletion): RedirectResponse
-    {
-        $this->authorize('refund', $order);
-
-        $request->validate([
-            'confirm_order_number' => ['required', 'string'],
-            'legacy_override' => ['nullable', 'boolean'],
-            'override_reason' => ['nullable', 'string', 'max:1000'],
-        ]);
-
-        if ($request->input('confirm_order_number') !== $order->order_number) {
-            throw ValidationException::withMessages([
-                'confirm_order_number' => 'Enter the exact order number to confirm permanent deletion.',
-            ]);
-        }
-
-        $inspection = $deletion->inspectLegacy($order);
-
-        if ($inspection['requires_override'] && ! $request->boolean('legacy_override')) {
-            throw ValidationException::withMessages([
-                'legacy_override' => 'Confirm that this specific order was independently identified as a historical test order.',
-            ]);
-        }
-
-        if ($inspection['requires_override'] && trim((string) $request->input('override_reason')) === '') {
-            throw ValidationException::withMessages([
-                'override_reason' => 'Provide the administrator override reason for this ambiguous legacy order.',
-            ]);
-        }
-
-        $audit = $deletion->deleteLegacy($order, $request->user(), $request->input('override_reason'));
-
-        return redirect()
-            ->route('admin.orders.index')
-            ->with('status', 'Legacy test order '.$audit->order_number.' permanently deleted. Audit record #'.$audit->id.'.');
-    }
-
-    public function updateTestStatus(Request $request, Order $order, StripeGateway $gateway): RedirectResponse
-    {
-        $this->authorize('fulfill', $order);
-
-        $request->validate([
-            'is_test_order' => ['required', 'boolean'],
-        ]);
-
-        $isTestOrder = $request->boolean('is_test_order');
-
-        if ($isTestOrder && ! $order->is_test_order) {
-            $this->assertVerifiedTestOrder($order, $gateway);
-        }
-
-        $previous = (bool) $order->is_test_order;
-
-        if ($previous !== $isTestOrder) {
-            $order->update(['is_test_order' => $isTestOrder]);
-
-            $order->activities()->create([
-                'event' => ($isTestOrder ? OrderEvent::TestOrderMarked : OrderEvent::TestOrderUnmarked)->value,
-                'previous_status' => $previous ? 'test' : 'regular',
-                'new_status' => $isTestOrder ? 'test' : 'regular',
-                'actor_id' => $request->user()->id,
-                'actor_name' => $request->user()->name,
-                'note' => $isTestOrder
-                    ? 'Order marked as a test order after Stripe test-mode verification.'
-                    : 'Test order classification removed.',
-                'occurred_at' => now(),
-            ]);
-        }
-
-        return back()->with('status', $isTestOrder ? 'Order marked as a test order.' : 'Test order flag removed.');
     }
 
     public function workOrder(Order $order): View
@@ -331,75 +220,6 @@ class OrderController extends Controller
         );
 
         return back()->with('status', 'Refund request submitted.');
-    }
-
-    private function assertVerifiedTestOrder(Order $order, StripeGateway $gateway): void
-    {
-        $payments = $order->payments()
-            ->whereNotNull('payment_intent_id')
-            ->get();
-
-        if ($payments->isEmpty()) {
-            throw ValidationException::withMessages([
-                'is_test_order' => 'This order has no Stripe PaymentIntent to verify as a test order.',
-            ]);
-        }
-
-        foreach ($payments as $payment) {
-            if ($payment->stripe_livemode === true) {
-                throw ValidationException::withMessages([
-                    'is_test_order' => 'This order contains live Stripe payments and cannot be marked as a test order.',
-                ]);
-            }
-
-            if ($payment->stripe_livemode === false) {
-                continue;
-            }
-
-            try {
-                $verification = $gateway->retrievePaymentIntentForTestModeVerification($payment->payment_intent_id);
-                $intent = $verification['intent'];
-            } catch (Throwable $exception) {
-                report($exception);
-
-                throw ValidationException::withMessages([
-                    'is_test_order' => 'The Stripe payment could not be verified with live or test-mode credentials. Check STRIPE_TEST_SECRET and PaymentIntents Read permission.',
-                ]);
-            }
-
-            if (data_get($intent, 'livemode') !== false) {
-                throw ValidationException::withMessages([
-                    'is_test_order' => 'This order contains live Stripe payments and cannot be marked as a test order.',
-                ]);
-            }
-
-            if (! $this->intentMatchesPayment($intent, $payment)) {
-                throw ValidationException::withMessages([
-                    'is_test_order' => 'The Stripe PaymentIntent does not match the stored payment record.',
-                ]);
-            }
-
-            $payment->update(['stripe_livemode' => false]);
-        }
-    }
-
-    private function intentMatchesPayment(object $intent, Payment $payment): bool
-    {
-        if ((string) data_get($intent, 'id') !== (string) $payment->payment_intent_id) {
-            return false;
-        }
-
-        if ((int) data_get($intent, 'amount') !== (int) $payment->amount_cents) {
-            return false;
-        }
-
-        if (strtoupper((string) data_get($intent, 'currency')) !== strtoupper((string) $payment->currency)) {
-            return false;
-        }
-
-        $metadataOrderId = data_get($intent, 'metadata.order_id');
-
-        return $metadataOrderId === null || (string) $metadataOrderId === (string) $payment->order_id;
     }
 
     private function printData(Order $order): array

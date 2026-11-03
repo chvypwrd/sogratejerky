@@ -61,14 +61,6 @@
                 <input type="text" class="form-control" id="search" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Order number, name, or email">
             </div>
             <div class="col-md-4 col-lg-2">
-                <label for="order_type" class="form-label">Order type</label>
-                <select class="form-select" id="order_type" name="order_type">
-                    <option value="regular" @selected(($filters['order_type'] ?? 'regular') === 'regular')>Regular</option>
-                    <option value="test" @selected(($filters['order_type'] ?? '') === 'test')>Test Orders</option>
-                    <option value="all" @selected(($filters['order_type'] ?? '') === 'all')>All</option>
-                </select>
-            </div>
-            <div class="col-md-4 col-lg-2">
                 <label for="order_status" class="form-label">Order status</label>
                 <select class="form-select" id="order_status" name="order_status">
                     <option value="">All</option>
@@ -148,9 +140,6 @@
                     <tr>
                         <td>
                             <a href="{{ route('admin.orders.show', $order) }}" class="fw-medium text-decoration-none">{{ $order->order_number }}</a>
-                            @if($order->is_test_order)
-                                <span class="badge bg-warning text-dark ms-1">Test Order</span>
-                            @endif
                         </td>
                         <td class="text-nowrap">{{ $order->placed_at?->format('M j, Y') ?? $order->created_at->format('M j, Y') }}</td>
                         <td>
