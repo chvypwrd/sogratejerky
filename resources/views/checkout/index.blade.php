@@ -192,7 +192,7 @@
                                         <input type="radio" name="fulfillment_method" value="shipping" @checked(old('fulfillment_method', $defaultMethod) === 'shipping')>
                                         <span>
                                             <strong>Shipping</strong>
-                                            <small>Delivered to your address.</small>
+                                            <small>Delivered to your address, within the 48 states.</small>
                                         </span>
                                     </label>
                                 @endif
