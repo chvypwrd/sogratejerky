@@ -13,11 +13,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Order extends Model
+class Order extends Model implements HasMedia
 {
     /** @use HasFactory<OrderFactory> */
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'order_number',
@@ -164,5 +167,26 @@ class Order extends Model
     public function isFulfillmentComplete(): bool
     {
         return $this->fulfilled_at !== null;
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('delivery_proof')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+
+        $this->addMediaCollection('pickup_proof')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(640)
+            ->height(640)
+            ->nonQueued();
     }
 }

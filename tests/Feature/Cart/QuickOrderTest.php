@@ -46,6 +46,8 @@ class QuickOrderTest extends TestCase
             ->assertOk()
             ->assertSee($product->name)
             ->assertSee($active->sku)
+            ->assertSee('data-label="Variant"', false)
+            ->assertSee('data-label="Quantity"', false)
             ->assertDontSee($inactiveVariant->sku)
             ->assertDontSee($inactiveProduct->name);
     }

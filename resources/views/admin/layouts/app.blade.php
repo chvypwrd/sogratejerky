@@ -58,6 +58,28 @@
         .sortable-chosen {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
+        .proof-preview img {
+            max-height: 220px;
+            object-fit: contain;
+        }
+        @media (max-width: 767.98px) {
+            .admin-content {
+                overflow-x: hidden;
+            }
+            .admin-content .btn {
+                min-height: 44px;
+            }
+            .admin-content .d-flex.gap-2 {
+                flex-wrap: wrap;
+            }
+            .admin-content .d-flex.gap-2 > .btn,
+            .admin-content .d-flex.gap-2 > form {
+                flex: 1 1 12rem;
+            }
+            .admin-content form .row > [class*="col-"] {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>

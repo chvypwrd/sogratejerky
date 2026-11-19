@@ -257,3 +257,72 @@
         width: 90px;
     }
 }
+
+@media (max-width: 767.98px) {
+    .quick-order-groups {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quick-order-group {
+        overflow: hidden;
+        padding: 1rem;
+    }
+
+    .quick-order-table {
+        min-width: 0;
+    }
+
+    .quick-order-table thead {
+        display: none;
+    }
+
+    .quick-order-table tbody,
+    .quick-order-table tr,
+    .quick-order-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .quick-order-table tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.45rem 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid $pale-sage;
+    }
+
+    .quick-order-table tr:last-child {
+        border-bottom: 0;
+    }
+
+    .quick-order-table td {
+        padding: 0;
+        border: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .quick-order-table td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 0.1rem;
+        color: $text-muted;
+        font-size: $font-size-eyebrow;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .quick-order-table .quick-order-table__qty {
+        grid-column: 1 / -1;
+        width: auto;
+        text-align: left;
+    }
+
+    .quick-order-table .quick-order-table__qty input {
+        min-height: 44px;
+        max-width: 9rem;
+    }
+
+    .quick-order-actions .btn {
+        min-height: 44px;
+    }
+}

@@ -119,7 +119,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card d-none d-lg-block">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead>
@@ -161,6 +161,32 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="d-lg-none">
+    @forelse($orders as $order)
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <a href="{{ route('admin.orders.show', $order) }}" class="fw-semibold text-decoration-none">{{ $order->order_number }}</a>
+                    <span class="badge bg-{{ $order->payment_status->color() }}">{{ $order->payment_status->label() }}</span>
+                </div>
+                <div class="small text-muted mb-2">
+                    {{ $order->customer_name }} · {{ $order->placed_at?->format('M j, Y') ?? $order->created_at->format('M j, Y') }}
+                </div>
+                <div class="row g-2 small mb-3">
+                    <div class="col-6"><span class="text-muted">Method</span><div>{{ $order->fulfillment_method->label() }}</div></div>
+                    <div class="col-6"><span class="text-muted">Total</span><div>{{ $order->total_formatted }}</div></div>
+                    <div class="col-6"><span class="text-muted">Order</span><div><span class="badge bg-{{ $order->order_status->color() }}">{{ $order->order_status->label() }}</span></div></div>
+                    <div class="col-6"><span class="text-muted">Fulfillment</span><div><span class="badge bg-{{ $order->fulfillment_status->color() }}">{{ $order->fulfillment_status->label() }}</span></div></div>
+                    <div class="col-6"><span class="text-muted">Items</span><div>{{ $order->items_count }}</div></div>
+                </div>
+                <a href="{{ route('admin.orders.show', $order) }}" class="btn btn-primary w-100">Manage Order</a>
+            </div>
+        </div>
+    @empty
+        <div class="card"><div class="card-body text-center text-muted py-4">No orders match the current filters.</div></div>
+    @endforelse
 </div>
 
 <div class="mt-4">{{ $orders->links() }}</div>

@@ -10,6 +10,7 @@ use App\Enums\RefundStatus;
 use App\Enums\ShippingCarrier;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CancelOrderRequest;
+use App\Http\Requests\Admin\CompleteFulfillmentRequest;
 use App\Http\Requests\Admin\FulfillmentNoteRequest;
 use App\Http\Requests\Admin\RefundOrderRequest;
 use App\Http\Requests\Admin\ShipOrderRequest;
@@ -20,8 +21,14 @@ use App\Services\PaymentRefundService;
 use App\Services\SettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Spatie\Image\Image;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class OrderController extends Controller
 {
@@ -112,7 +119,7 @@ class OrderController extends Controller
     {
         $this->authorize('view', $order);
 
-        $order->load(['items', 'activities.actor', 'user', 'payments.refunds.requester']);
+        $order->load(['items', 'activities.actor', 'user', 'payments.refunds.requester', 'media']);
 
         return view('admin.orders.show', [
             'order' => $order,
@@ -134,6 +141,30 @@ class OrderController extends Controller
         return view('admin.orders.print.invoice', $this->printData($order));
     }
 
+    public function proof(Order $order, Media $media, Request $request): Response
+    {
+        $this->authorize('view', $order);
+
+        abort_unless(
+            $media->model_type === $order->getMorphClass()
+            && (int) $media->model_id === (int) $order->id
+            && in_array($media->collection_name, ['delivery_proof', 'pickup_proof'], true),
+            404,
+        );
+
+        try {
+            $path = $request->boolean('preview') && $media->hasGeneratedConversion('thumb')
+                ? $media->getPath('thumb')
+                : $media->getPath();
+        } catch (Throwable) {
+            abort(404);
+        }
+
+        abort_unless(is_file($path), 404);
+
+        return response()->file($path);
+    }
+
     public function markReadyForPickup(FulfillmentNoteRequest $request, Order $order): RedirectResponse
     {
         $this->authorize('fulfill', $order);
@@ -143,11 +174,23 @@ class OrderController extends Controller
         return back()->with('status', 'Order marked ready for pickup.');
     }
 
-    public function markPickedUp(FulfillmentNoteRequest $request, Order $order): RedirectResponse
+    public function markPickedUp(CompleteFulfillmentRequest $request, Order $order): RedirectResponse
     {
         $this->authorize('fulfill', $order);
 
-        $this->fulfillmentService->markPickedUp($order, $request->user(), $request->validated('note'));
+        if ($order->fulfillment_status === FulfillmentStatus::PickedUp) {
+            return back()->with('status', 'Order is already marked picked up.');
+        }
+
+        $media = $this->attachProofPhoto($request, $order, 'pickup_proof');
+
+        try {
+            $this->fulfillmentService->markPickedUp($order, $request->user(), $request->validated('note'));
+        } catch (Throwable $exception) {
+            $media?->delete();
+
+            throw $exception;
+        }
 
         return back()->with('status', 'Order marked picked up.');
     }
@@ -161,11 +204,23 @@ class OrderController extends Controller
         return back()->with('status', 'Order marked out for delivery.');
     }
 
-    public function markDelivered(FulfillmentNoteRequest $request, Order $order): RedirectResponse
+    public function markDelivered(CompleteFulfillmentRequest $request, Order $order): RedirectResponse
     {
         $this->authorize('fulfill', $order);
 
-        $this->fulfillmentService->markDelivered($order, $request->user(), $request->validated('note'));
+        if ($order->fulfillment_status === FulfillmentStatus::Delivered) {
+            return back()->with('status', 'Order is already marked delivered.');
+        }
+
+        $media = $this->attachProofPhoto($request, $order, 'delivery_proof');
+
+        try {
+            $this->fulfillmentService->markDelivered($order, $request->user(), $request->validated('note'));
+        } catch (Throwable $exception) {
+            $media?->delete();
+
+            throw $exception;
+        }
 
         return back()->with('status', 'Order marked delivered.');
     }
@@ -220,6 +275,40 @@ class OrderController extends Controller
         );
 
         return back()->with('status', 'Refund request submitted.');
+    }
+
+    private function attachProofPhoto(CompleteFulfillmentRequest $request, Order $order, string $collection): ?Media
+    {
+        if (! $request->hasFile('proof_photo')) {
+            return null;
+        }
+
+        $media = null;
+
+        try {
+            $extension = $request->file('proof_photo')->guessExtension() ?: 'jpg';
+
+            $media = $order->addMediaFromRequest('proof_photo')
+                ->usingFileName(Str::uuid().'.'.$extension)
+                ->withCustomProperties([
+                    'fulfillment_method' => $order->fulfillment_method->value,
+                    'note' => $request->validated('note'),
+                    'uploaded_by' => (string) $request->user()->id,
+                    'uploaded_by_name' => $request->user()->name,
+                    'captured_at' => now()->toIso8601String(),
+                ])
+                ->toMediaCollection($collection, 'local');
+
+            Image::load($media->getPath())->save($media->getPath());
+
+            return $media;
+        } catch (Throwable $exception) {
+            $media?->delete();
+
+            throw ValidationException::withMessages([
+                'proof_photo' => 'The proof photo could not be processed. Please choose a JPEG, PNG, or WebP image.',
+            ]);
+        }
     }
 
     private function printData(Order $order): array

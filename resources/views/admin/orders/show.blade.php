@@ -26,6 +26,8 @@
     $payment = $order->payments->first();
     $refundable = $payment?->refundable_cents ?? 0;
     $pickup = $order->pickup_location_snapshot;
+    $proofCollection = $isPickup ? 'pickup_proof' : ($isLocalDelivery ? 'delivery_proof' : null);
+    $proofPhotos = $proofCollection ? $order->getMedia($proofCollection) : collect();
 @endphp
 
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
@@ -35,13 +37,30 @@
         <div class="text-muted">Placed {{ $order->placed_at?->format('F j, Y g:i A') ?? 'Ã¢â‚¬â€' }}</div>
     </div>
     <div class="text-end">
-        <div class="mb-2">
+        <div class="mb-2 d-flex flex-wrap gap-2 justify-content-end">
             <a href="{{ route('admin.orders.work-order', $order) }}" class="btn btn-sm btn-outline-dark" target="_blank" rel="noopener">Print Work Order</a>
             <a href="{{ route('admin.orders.invoice', $order) }}" class="btn btn-sm btn-outline-dark" target="_blank" rel="noopener">Print Invoice / Receipt</a>
         </div>
         <span class="badge bg-{{ $order->order_status->color() }}">{{ $order->order_status->label() }}</span>
         <span class="badge bg-{{ $order->payment_status->color() }}">{{ $order->payment_status->label() }}</span>
         <span class="badge bg-{{ $order->fulfillment_status->color() }}">{{ $order->fulfillment_status->label() }}</span>
+    </div>
+</div>
+
+<div class="d-lg-none card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between gap-2 mb-2">
+            <strong>{{ $order->order_number }}</strong>
+            <span class="badge bg-{{ $order->fulfillment_status->color() }}">{{ $order->fulfillment_status->label() }}</span>
+        </div>
+        <div class="small mb-1"><span class="text-muted">Fulfillment:</span> {{ $order->fulfillment_method->label() }}</div>
+        @if($pickup)
+            <div class="small mb-1">{{ $pickup['name'] ?? 'Pickup location' }} · {{ $pickup['address'] ?? '' }}</div>
+        @elseif($fulfillmentAddress)
+            <div class="small mb-1">{{ $fulfillmentAddress['address_line_1'] ?? '' }}, {{ $fulfillmentAddress['city'] ?? '' }} {{ $fulfillmentAddress['postal_code'] ?? '' }}</div>
+        @endif
+        <div class="small mb-3"><span class="text-muted">Items:</span> {{ $order->items->count() }}</div>
+        <a href="#fulfillment-actions" class="btn btn-sm btn-primary w-100">Manage Fulfillment</a>
     </div>
 </div>
 
@@ -213,7 +232,7 @@
 
 <div class="row g-4 mb-4">
     <div class="col-lg-6">
-        <div class="card h-100">
+        <div class="card h-100" id="fulfillment-actions">
             <div class="card-header"><strong>Fulfillment Actions</strong></div>
             <div class="card-body">
                 @if($order->isCancelled())
@@ -232,10 +251,19 @@
                                 <button type="submit" class="btn btn-primary" onclick="return confirm('Mark this order ready for pickup?')">Mark Ready for Pickup</button>
                             </form>
                         @elseif($isPickup && $isReady)
-                            <form method="POST" action="{{ route('admin.orders.picked-up', $order) }}">
+                            <form method="POST" action="{{ route('admin.orders.picked-up', $order) }}" enctype="multipart/form-data">
                                 @csrf
-                                <label for="picked-note" class="form-label">Operational note <span class="text-muted">(optional)</span></label>
+                                <label for="picked-note" class="form-label">Pickup handoff note <span class="text-muted">(optional)</span></label>
                                 <textarea class="form-control mb-2" id="picked-note" name="note" rows="2"></textarea>
+                                <div class="proof-photo-field mb-2">
+                                    <label for="pickup-proof-photo" class="form-label">Proof of pickup photo <span class="text-muted">(optional)</span></label>
+                                    <input type="file" class="form-control @error('proof_photo') is-invalid @enderror" id="pickup-proof-photo" name="proof_photo" accept="image/*" data-proof-input>
+                                    @error('proof_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <div class="proof-preview d-none mt-2" data-proof-preview>
+                                        <img src="" alt="Selected proof of pickup" class="img-fluid rounded border" data-proof-image>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-proof-remove>Remove selected photo</button>
+                                    </div>
+                                </div>
                                 <button type="submit" class="btn btn-primary" onclick="return confirm('Confirm this order was picked up?')">Mark Picked Up</button>
                             </form>
                         @elseif($isLocalDelivery && $isUnfulfilled)
@@ -246,10 +274,19 @@
                                 <button type="submit" class="btn btn-primary" onclick="return confirm('Mark this order out for delivery?')">Mark Out for Delivery</button>
                             </form>
                         @elseif($isLocalDelivery && $isOutForDelivery)
-                            <form method="POST" action="{{ route('admin.orders.delivered', $order) }}">
+                            <form method="POST" action="{{ route('admin.orders.delivered', $order) }}" enctype="multipart/form-data">
                                 @csrf
-                                <label for="delivered-note" class="form-label">Operational note <span class="text-muted">(optional)</span></label>
+                                <label for="delivered-note" class="form-label">Delivery note <span class="text-muted">(optional)</span></label>
                                 <textarea class="form-control mb-2" id="delivered-note" name="note" rows="2"></textarea>
+                                <div class="proof-photo-field mb-2">
+                                    <label for="delivery-proof-photo" class="form-label">Proof of delivery photo <span class="text-muted">(optional)</span></label>
+                                    <input type="file" class="form-control @error('proof_photo') is-invalid @enderror" id="delivery-proof-photo" name="proof_photo" accept="image/*" data-proof-input>
+                                    @error('proof_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <div class="proof-preview d-none mt-2" data-proof-preview>
+                                        <img src="" alt="Selected proof of delivery" class="img-fluid rounded border" data-proof-image>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-proof-remove>Remove selected photo</button>
+                                    </div>
+                                </div>
                                 <button type="submit" class="btn btn-primary" onclick="return confirm('Confirm this order was delivered?')">Mark Delivered</button>
                             </form>
                         @elseif($isShipping && $isUnfulfilled)
@@ -306,6 +343,37 @@
         </div>
     </div>
 </div>
+
+@if($proofCollection)
+    <div class="card mb-4">
+        <div class="card-header"><strong>Proof of {{ $isPickup ? 'Pickup' : 'Delivery' }}</strong></div>
+        <div class="card-body">
+            @if($proofPhotos->isEmpty())
+                <p class="text-muted mb-0">No proof photo has been uploaded.</p>
+            @else
+                <div class="row g-3">
+                    @foreach($proofPhotos as $proof)
+                        <div class="col-md-6 col-xl-4">
+                            <a href="{{ route('admin.orders.proof', [$order, $proof]) }}" target="_blank" rel="noopener">
+                                <img src="{{ route('admin.orders.proof', [$order, $proof, 'preview' => 1]) }}" alt="Proof of {{ $isPickup ? 'pickup' : 'delivery' }}" class="img-fluid rounded border" loading="lazy">
+                            </a>
+                            <div class="small text-muted mt-2">
+                                Uploaded {{ $proof->created_at?->format('M j, Y g:i A') ?? 'unknown time' }}
+                                @if($proof->getCustomProperty('uploaded_by_name'))
+                                    by {{ $proof->getCustomProperty('uploaded_by_name') }}
+                                @endif
+                            </div>
+                            <div class="small text-muted">Fulfillment: {{ ucfirst(str_replace('_', ' ', $proof->getCustomProperty('fulfillment_method', $order->fulfillment_method->value))) }}</div>
+                            @if($proof->getCustomProperty('note'))
+                                <div class="small mt-1">{{ $proof->getCustomProperty('note') }}</div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+@endif
 
 @if($payment)
     <div class="card mb-4">
@@ -447,3 +515,41 @@
 
 <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary mt-2">Back to Orders</a>
 @endsection
+
+@push('scripts')
+<script>
+document.querySelectorAll('[data-proof-input]').forEach(function (input) {
+    const field = input.closest('.proof-photo-field');
+    const preview = field?.querySelector('[data-proof-preview]');
+    const image = field?.querySelector('[data-proof-image]');
+    const remove = field?.querySelector('[data-proof-remove]');
+
+    input.addEventListener('change', function () {
+        const file = input.files && input.files[0];
+        if (!file || !preview || !image) {
+            return;
+        }
+
+        if (image.dataset.objectUrl) {
+            URL.revokeObjectURL(image.dataset.objectUrl);
+        }
+
+        image.dataset.objectUrl = URL.createObjectURL(file);
+        image.src = image.dataset.objectUrl;
+        preview.classList.remove('d-none');
+    });
+
+    remove?.addEventListener('click', function () {
+        input.value = '';
+        if (image?.dataset.objectUrl) {
+            URL.revokeObjectURL(image.dataset.objectUrl);
+            delete image.dataset.objectUrl;
+        }
+        if (image) {
+            image.removeAttribute('src');
+        }
+        preview?.classList.add('d-none');
+    });
+});
+</script>
+@endpush

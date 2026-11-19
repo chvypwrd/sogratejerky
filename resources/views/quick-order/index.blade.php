@@ -63,11 +63,11 @@
                                     <tbody>
                                         @foreach($product->availableVariants as $variant)
                                             <tr>
-                                                <td>{{ $variant->name }}</td>
-                                                <td>{{ $variant->sku }}</td>
-                                                <td>{{ $variant->weight_display }}</td>
-                                                <td>{{ $variant->price_formatted }}</td>
-                                                <td class="quick-order-table__qty">
+                                                <td data-label="Variant">{{ $variant->name }}</td>
+                                                <td data-label="SKU">{{ $variant->sku }}</td>
+                                                <td data-label="Weight">{{ $variant->weight_display }}</td>
+                                                <td data-label="Price">{{ $variant->price_formatted }}</td>
+                                                <td class="quick-order-table__qty" data-label="Quantity">
                                                     <label for="variant-{{ $variant->id }}" class="visually-hidden">Quantity for {{ $product->name }} {{ $variant->name }}</label>
                                                     <input type="number" class="form-control form-control-sm" id="variant-{{ $variant->id }}" name="items[{{ $variant->id }}]" value="{{ old('items.'.$variant->id, 0) }}" min="0" max="{{ config('cart.max_quantity', 99) }}">
                                                 </td>

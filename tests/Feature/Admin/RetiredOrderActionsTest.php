@@ -124,7 +124,8 @@ class RetiredOrderActionsTest extends TestCase
             ->assertOk()
             ->assertSee('Request Refund')
             ->assertSee('Mark Shipped')
-            ->assertSee('Order Activity');
+            ->assertSee('Order Activity')
+            ->assertSee('Manage Fulfillment');
 
         $this->actingAs($admin)
             ->get(route('admin.orders.work-order', $order))
@@ -135,6 +136,34 @@ class RetiredOrderActionsTest extends TestCase
             ->get(route('admin.orders.invoice', $order))
             ->assertOk()
             ->assertSee('Receipt');
+    }
+
+    public function test_order_detail_renders_only_one_session_success_alert(): void
+    {
+        $order = $this->paidOrder();
+
+        $response = $this->actingAs($this->admin())
+            ->withSession(['status' => 'Order updated successfully.'])
+            ->get(route('admin.orders.show', $order))
+            ->assertOk();
+
+        $this->assertSame(
+            1,
+            substr_count($response->getContent(), 'Order updated successfully.'),
+        );
+    }
+
+    public function test_order_list_contains_mobile_card_layout_and_desktop_table(): void
+    {
+        $order = $this->paidOrder();
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.orders.index'))
+            ->assertOk()
+            ->assertSee('d-lg-none', false)
+            ->assertSee('d-none d-lg-block', false)
+            ->assertSee('Manage Order')
+            ->assertSee($order->order_number);
     }
 
     public function test_order_list_excludes_test_orders_and_removes_test_order_filter(): void
