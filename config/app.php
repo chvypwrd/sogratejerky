@@ -67,6 +67,8 @@ return [
 
     'timezone' => 'UTC',
 
+    'admin_timezone' => env('ADMIN_TIMEZONE', 'America/Chicago'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

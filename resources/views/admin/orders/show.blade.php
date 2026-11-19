@@ -34,7 +34,7 @@
     <div>
         <div class="text-muted small">Order</div>
         <h1 class="h3 mb-1">{{ $order->order_number }}</h1>
-        <div class="text-muted">Placed {{ $order->placed_at?->format('F j, Y g:i A') ?? 'Ã¢â‚¬â€' }}</div>
+        <div class="text-muted">Placed {{ \App\Support\AdminDateTime::format($order->placed_at, 'F j, Y g:i A') }}</div>
     </div>
     <div class="text-end">
         <div class="mb-2 d-flex flex-wrap gap-2 justify-content-end">
@@ -91,13 +91,13 @@
                     </div>
                     <div class="col-md-6">
                         <div class="text-muted small">Phone</div>
-                        <div>{{ $order->customer_phone ?: 'Ã¢â‚¬â€' }}</div>
+                        <div>{{ $order->customer_phone ?: \App\Support\AdminDateTime::PLACEHOLDER }}</div>
                     </div>
                     <div class="col-md-6">
                         <div class="text-muted small">Customer account</div>
                         <div>
                             @if($order->user)
-                                Account #{{ $order->user->id }} Ã¢â‚¬â€ {{ $order->user->name }}
+                                Account #{{ $order->user->id }} {{ \App\Support\AdminDateTime::PLACEHOLDER }} {{ $order->user->name }}
                             @else
                                 <span class="badge bg-secondary">Guest</span>
                             @endif
@@ -144,7 +144,7 @@
                         <td class="text-center">{{ $item->quantity }}</td>
                         <td class="text-end">{{ $item->unit_price_formatted }}</td>
                         <td class="text-end">{{ $item->line_total_formatted }}</td>
-                        <td class="text-end">{{ $item->weight_grams ? $item->weight_grams.' g' : 'Ã¢â‚¬â€' }}</td>
+                        <td class="text-end">{{ $item->weight_grams ? $item->weight_grams.' g' : \App\Support\AdminDateTime::PLACEHOLDER }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -334,7 +334,7 @@
                         @foreach($timeline as $label => $timestamp)
                             <li class="d-flex justify-content-between border-bottom py-2">
                                 <span>{{ $label }}</span>
-                                <span class="text-muted">{{ $timestamp->format('M j, Y g:i A') }}</span>
+                                <span class="text-muted">{{ \App\Support\AdminDateTime::format($timestamp) }}</span>
                             </li>
                         @endforeach
                     </ul>
@@ -358,7 +358,7 @@
                                 <img src="{{ route('admin.orders.proof', [$order, $proof, 'preview' => 1]) }}" alt="Proof of {{ $isPickup ? 'pickup' : 'delivery' }}" class="img-fluid rounded border" loading="lazy">
                             </a>
                             <div class="small text-muted mt-2">
-                                Uploaded {{ $proof->created_at?->format('M j, Y g:i A') ?? 'unknown time' }}
+                                Uploaded {{ \App\Support\AdminDateTime::format($proof->created_at) }}
                                 @if($proof->getCustomProperty('uploaded_by_name'))
                                     by {{ $proof->getCustomProperty('uploaded_by_name') }}
                                 @endif
@@ -386,7 +386,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="text-muted small">Captured</div>
-                    <div>{{ $payment->amount_formatted }}</div>
+                    <div>{{ $payment->captured_formatted }}</div>
                 </div>
                 <div class="col-md-3">
                     <div class="text-muted small">Refunded</div>
@@ -398,11 +398,11 @@
                 </div>
                 <div class="col-md-6">
                     <div class="text-muted small">Stripe PaymentIntent</div>
-                    <div class="text-break">{{ $payment->payment_intent_id ?: 'Ã¢â‚¬â€' }}</div>
+                    <div class="text-break">{{ $payment->payment_intent_id ?: \App\Support\AdminDateTime::PLACEHOLDER }}</div>
                 </div>
                 <div class="col-md-6">
                     <div class="text-muted small">Paid at</div>
-                    <div>{{ $payment->paid_at?->format('M j, Y g:i A') ?? 'Ã¢â‚¬â€' }}</div>
+                    <div>{{ \App\Support\AdminDateTime::format($payment->paid_at) }}</div>
                 </div>
             </div>
 
@@ -421,11 +421,11 @@
                         <tbody>
                             @foreach($payment->refunds as $refund)
                                 <tr>
-                                    <td class="text-nowrap">{{ $refund->created_at->format('M j, Y g:i A') }}</td>
+                                    <td class="text-nowrap">{{ \App\Support\AdminDateTime::format($refund->refunded_at ?? $refund->created_at) }}</td>
                                     <td>{{ $refund->amount_formatted }}</td>
                                     <td><span class="badge bg-{{ $refund->status->color() }}">{{ $refund->status->label() }}</span></td>
-                                    <td>{{ $refund->reason ?: 'Ã¢â‚¬â€' }}</td>
-                                    <td>{{ $refund->requester?->name ?? 'Ã¢â‚¬â€' }}</td>
+                                    <td>{{ $refund->reason ?: \App\Support\AdminDateTime::PLACEHOLDER }}</td>
+                                    <td>{{ $refund->requester?->name ?? \App\Support\AdminDateTime::PLACEHOLDER }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -478,12 +478,12 @@
             <tbody>
                 @forelse($order->activities as $activity)
                     <tr>
-                        <td class="text-nowrap">{{ $activity->occurred_at->format('M j, Y g:i A') }}</td>
+                        <td class="text-nowrap">{{ \App\Support\AdminDateTime::format($activity->occurred_at) }}</td>
                         <td>{{ $activity->event->label() }}</td>
-                        <td>{{ $activity->previous_status ? \Illuminate\Support\Str::headline($activity->previous_status) : 'Ã¢â‚¬â€' }}</td>
-                        <td>{{ $activity->new_status ? \Illuminate\Support\Str::headline($activity->new_status) : 'Ã¢â‚¬â€' }}</td>
+                        <td>{{ $activity->previous_status ? \Illuminate\Support\Str::headline($activity->previous_status) : \App\Support\AdminDateTime::PLACEHOLDER }}</td>
+                        <td>{{ $activity->new_status ? \Illuminate\Support\Str::headline($activity->new_status) : \App\Support\AdminDateTime::PLACEHOLDER }}</td>
                         <td>{{ $activity->actor_name ?: ($activity->actor?->name ?? 'System') }}</td>
-                        <td>{{ $activity->note ?: 'Ã¢â‚¬â€' }}</td>
+                        <td>{{ $activity->note ?: \App\Support\AdminDateTime::PLACEHOLDER }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="text-center text-muted py-4">No activity recorded.</td></tr>

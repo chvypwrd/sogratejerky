@@ -110,6 +110,35 @@ class AdminDashboardTest extends TestCase
         $this->assertSame(2, $peppered->units);
     }
 
+    public function test_dashboard_excludes_non_captured_payments_from_financial_totals(): void
+    {
+        $order = Order::factory()->create([
+            'payment_status' => PaymentStatus::Failed,
+            'order_status' => OrderStatus::PendingPayment,
+            'total_cents' => 9900,
+            'placed_at' => now(),
+        ]);
+
+        Payment::create([
+            'order_id' => $order->id,
+            'provider' => 'stripe',
+            'payment_intent_id' => 'pi_dashboard_failed',
+            'amount_cents' => 9900,
+            'currency' => 'USD',
+            'status' => PaymentStatus::Failed,
+            'paid_at' => now(),
+        ]);
+
+        $report = $this->actingAs($this->admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->viewData('report');
+
+        $this->assertSame(0, $report['grossToday']);
+        $this->assertSame(0, $report['grossMonth']);
+        $this->assertSame(0, $report['netMonth']);
+    }
+
     public function test_dashboard_excludes_test_orders_from_financial_and_operational_reports(): void
     {
         $regular = $this->paidOrder(2500, now()->format('Y-m-d H:i:s'));

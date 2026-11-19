@@ -14,7 +14,7 @@
     $refunds = $payment
         ? $payment->refunds->filter(fn ($refund) => $refund->status === \App\Enums\RefundStatus::Succeeded)
         : collect();
-    $amountPaid = $payment?->amount_cents ?? 0;
+    $amountPaid = $payment?->captured_cents ?? 0;
     $netPaid = max(0, $amountPaid - $refundedCents);
 @endphp
 <!DOCTYPE html>
@@ -44,7 +44,7 @@
             <div class="print-meta">
                 <h1>{{ $documentTitle }}</h1>
                 <div class="print-value">{{ $order->order_number }}</div>
-                <div class="muted">{{ $order->placed_at?->format('F j, Y g:i A') ?? $order->created_at->format('F j, Y g:i A') }}</div>
+                <div class="muted">{{ \App\Support\AdminDateTime::format($order->placed_at ?? $order->created_at, 'F j, Y g:i A') }}</div>
             </div>
         </header>
 
@@ -59,7 +59,7 @@
                 <div class="print-label">Payment status</div>
                 <span class="status">{{ $order->payment_status->label() }}</span>
                 @if($payment?->paid_at)
-                    <div class="muted" style="margin-top: 4px;">Paid {{ $payment->paid_at->format('F j, Y') }}</div>
+                    <div class="muted" style="margin-top: 4px;">Paid {{ \App\Support\AdminDateTime::formatDate($payment->paid_at) }}</div>
                 @endif
             </div>
         </div>
@@ -129,7 +129,7 @@
                     <tbody>
                         @foreach($refunds as $refund)
                             <tr>
-                                <td>{{ $refund->refunded_at?->format('M j, Y') ?? $refund->created_at->format('M j, Y') }}</td>
+                                <td>{{ \App\Support\AdminDateTime::formatDate($refund->refunded_at ?? $refund->created_at) }}</td>
                                 <td>{{ $refund->amount_formatted }}</td>
                                 <td>{{ $refund->status->label() }}</td>
                                 <td>{{ $refund->reason ?: '-' }}</td>

@@ -63,8 +63,8 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td>{{ $page->creator->name ?? '—' }}</td>
-                                <td>{{ $page->published_at?->format('M d, Y H:i') ?? '—' }}</td>
+                                <td>{{ $page->creator->name ?? \App\Support\AdminDateTime::PLACEHOLDER }}</td>
+                                <td>{{ \App\Support\AdminDateTime::format($page->published_at, 'M d, Y H:i') }}</td>
                                 <td>{{ $page->media_count }}</td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">

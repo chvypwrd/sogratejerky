@@ -56,11 +56,7 @@ class PaymentRefundService
                 ]);
             }
 
-            $reserved = (int) $payment->refunds()
-                ->whereIn('status', [RefundStatus::Pending->value, RefundStatus::Succeeded->value])
-                ->sum('amount_cents');
-
-            $refundable = max(0, $payment->amount_cents - $reserved);
+            $refundable = $payment->refundable_cents;
 
             if ($amountCents < 1 || $amountCents > $refundable) {
                 throw ValidationException::withMessages([

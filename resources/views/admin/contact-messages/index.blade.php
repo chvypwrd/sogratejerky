@@ -60,7 +60,7 @@
                                 {{ $message->subject ?: '(No subject)' }}
                             </a>
                         </td>
-                        <td class="text-nowrap">{{ $message->created_at->format('M j, Y g:i A') }}</td>
+                        <td class="text-nowrap">{{ \App\Support\AdminDateTime::format($message->created_at) }}</td>
                         <td>
                             <span class="badge bg-{{ $message->status->color() }}">
                                 {{ $message->status->label() }}

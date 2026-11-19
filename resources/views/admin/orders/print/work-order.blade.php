@@ -28,7 +28,7 @@
             <div class="print-meta">
                 <h1>Work Order</h1>
                 <div class="print-value">{{ $order->order_number }}</div>
-                <div class="muted">{{ $order->placed_at?->format('F j, Y g:i A') ?? $order->created_at->format('F j, Y g:i A') }}</div>
+                <div class="muted">{{ \App\Support\AdminDateTime::format($order->placed_at ?? $order->created_at, 'F j, Y g:i A') }}</div>
             </div>
         </header>
 

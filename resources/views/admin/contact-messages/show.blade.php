@@ -95,16 +95,16 @@
                     @endif
 
                     <dt>Received</dt>
-                    <dd>{{ $message->created_at->format('M j, Y g:i A') }}</dd>
+                    <dd>{{ \App\Support\AdminDateTime::format($message->created_at) }}</dd>
 
                     @if ($message->read_at)
                         <dt>Read</dt>
-                        <dd>{{ $message->read_at->format('M j, Y g:i A') }}</dd>
+                        <dd>{{ \App\Support\AdminDateTime::format($message->read_at) }}</dd>
                     @endif
 
                     @if ($message->replied_at)
                         <dt>Replied</dt>
-                        <dd>{{ $message->replied_at->format('M j, Y g:i A') }}</dd>
+                        <dd>{{ \App\Support\AdminDateTime::format($message->replied_at) }}</dd>
                     @endif
                 </dl>
             </div>

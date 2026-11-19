@@ -141,7 +141,7 @@
                                     @else
                                         {{ $order->order_number }}
                                     @endcan
-                                    <div class="small text-muted">{{ $order->placed_at?->format('M j, Y g:i A') }}</div>
+                                    <div class="small text-muted">{{ \App\Support\AdminDateTime::format($order->placed_at) }}</div>
                                 </td>
                                 <td>{{ $order->customer_name }}</td>
                                 <td>

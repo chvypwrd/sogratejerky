@@ -141,7 +141,7 @@
                         <td>
                             <a href="{{ route('admin.orders.show', $order) }}" class="fw-medium text-decoration-none">{{ $order->order_number }}</a>
                         </td>
-                        <td class="text-nowrap">{{ $order->placed_at?->format('M j, Y') ?? $order->created_at->format('M j, Y') }}</td>
+                        <td class="text-nowrap">{{ \App\Support\AdminDateTime::formatDate($order->placed_at ?? $order->created_at) }}</td>
                         <td>
                             {{ $order->customer_name }}
                             <div class="small text-muted">{{ $order->customer_email }}</div>
@@ -172,7 +172,7 @@
                     <span class="badge bg-{{ $order->payment_status->color() }}">{{ $order->payment_status->label() }}</span>
                 </div>
                 <div class="small text-muted mb-2">
-                    {{ $order->customer_name }} · {{ $order->placed_at?->format('M j, Y') ?? $order->created_at->format('M j, Y') }}
+                    {{ $order->customer_name }} &middot; {{ \App\Support\AdminDateTime::formatDate($order->placed_at ?? $order->created_at) }}
                 </div>
                 <div class="row g-2 small mb-3">
                     <div class="col-6"><span class="text-muted">Method</span><div>{{ $order->fulfillment_method->label() }}</div></div>

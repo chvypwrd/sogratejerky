@@ -6,7 +6,6 @@ use App\Enums\FulfillmentMethod;
 use App\Enums\FulfillmentStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\RefundStatus;
 use App\Enums\ShippingCarrier;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CancelOrderRequest;
@@ -319,11 +318,7 @@ class OrderController extends Controller
         $settings = app(SettingsService::class);
         $payment = $order->payments->first(fn ($payment) => $payment->paid_at !== null)
             ?? $order->payments->first();
-        $refundedCents = $payment
-            ? (int) $payment->refunds
-                ->filter(fn ($refund) => $refund->status === RefundStatus::Succeeded)
-                ->sum('amount_cents')
-            : 0;
+        $refundedCents = $payment?->refunded_cents ?? 0;
 
         return [
             'order' => $order,

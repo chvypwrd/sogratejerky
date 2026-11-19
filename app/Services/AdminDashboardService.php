@@ -76,6 +76,7 @@ class AdminDashboardService
     {
         return (int) Payment::query()
             ->whereHas('order', fn ($query) => $query->regular())
+            ->whereIn('status', Payment::capturedStatusValues())
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$from, $to])
             ->sum('amount_cents');
@@ -94,6 +95,7 @@ class AdminDashboardService
     {
         return Payment::query()
             ->whereHas('order', fn ($query) => $query->regular())
+            ->whereIn('status', Payment::capturedStatusValues())
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$from, $to])
             ->selectRaw('DATE(paid_at) as report_date, SUM(amount_cents) as total')
