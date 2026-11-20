@@ -1,0 +1,57 @@
+Product Variant SEO & Structured Data Corrections - Test Results
+Date: 2026-11-20
+Repository commit: 1ee2f37
+Working tree before export: modified implementation and tests, not committed
+
+Focused SEO, Shop, Cart, and Checkout tests:
+php artisan test tests\Feature\Seo tests\Feature\Shop tests\Feature\Cart
+
+Result: PASS
+Tests: 109
+Assertions: 455
+Risky: 3 (no failures)
+
+Changed-file code style:
+vendor\bin\pint --dirty
+
+Result: PASS
+
+Diff validation:
+git diff --check
+
+Result: PASS
+
+Blade compilation:
+php artisan view:cache
+
+Result: PASS
+INFO Blade templates cached successfully.
+
+Coverage added:
+- Clean parent product URL remains unchanged on initial load
+- Valid ?variant={id} links retain the selected variant
+- Invalid and inactive variant IDs redirect to the clean parent URL
+- Selected variant SKU and price are rendered correctly
+- ProductGroup includes productGroupID, variesBy, hasVariant, and variant size
+- Variant descriptions use existing catalog information
+- Null variant/group images are omitted
+- JSON-LD Offer URLs include the correct variant ID
+- JSON-LD and visible availability agree when checkout is disabled
+- Add to Cart controls are absent when checkout is disabled
+- Canonical URLs and sitemap entries use the configured hostname
+- Sitemap excludes ?variant= URLs
+- Existing cart and checkout tests pass
+
+Database:
+No migrations were added.
+No catalog data, inventory, pricing, payment, tax, refund, or checkout processing changes were made.
+
+Merchant Center:
+No feed, Content API integration, or Merchant Center configuration was added.
+
+Deployment:
+Set APP_URL to the production HTTPS canonical hostname.
+Clear the sitemap cache after changing the hostname: php artisan cache:forget sitemap.xml
+Rebuild production configuration and compiled views.
+
+No commit, push, or deployment was performed.

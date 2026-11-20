@@ -7,7 +7,9 @@ use App\Models\ProductCategory;
 use App\Models\ProductTag;
 use App\Models\ProductVariant;
 use App\Services\AnalyticsService;
+use App\Services\CheckoutAvailability;
 use App\Services\PageSlugRedirectService;
+use App\Support\CanonicalUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,6 +18,7 @@ class PublicShopController extends Controller
 {
     public function __construct(
         private AnalyticsService $analytics,
+        private CheckoutAvailability $checkoutAvailability,
     ) {}
 
     public function index(Request $request): View
@@ -88,7 +91,18 @@ class PublicShopController extends Controller
             ->firstOrFail();
 
         $variants = $product->availableVariants;
-        $selectedVariant = $variants->firstWhere('id', $request->integer('variant')) ?? $variants->first();
+
+        if ($request->has('variant')) {
+            $selectedVariant = $variants->firstWhere('id', $request->integer('variant'));
+
+            if (! $selectedVariant) {
+                return redirect()->to(CanonicalUrl::route('shop.show', ['product' => $product->slug]));
+            }
+        } else {
+            $selectedVariant = $variants->first();
+        }
+
+        $purchasable = $this->checkoutAvailability->productIsPurchasable($product);
 
         if ($selectedVariant) {
             $this->analytics->queue('view_item', [
@@ -108,12 +122,12 @@ class PublicShopController extends Controller
                     'weight' => $variant->weight_display,
                     'image' => $variant->getFirstMediaUrl('image', 'card')
                         ?: $product->getPrimaryImage()?->getUrl('card'),
-                    'url' => route('shop.show', ['product' => $product->slug, 'variant' => $variant->id]),
+                    'url' => CanonicalUrl::route('shop.show', ['product' => $product->slug, 'variant' => $variant->id]),
                 ],
             ];
         });
 
-        return view('shop.show', compact('product', 'variants', 'selectedVariant', 'variantData'));
+        return view('shop.show', compact('product', 'variants', 'selectedVariant', 'variantData', 'purchasable'));
     }
 
     private function productQuery(Request $request)

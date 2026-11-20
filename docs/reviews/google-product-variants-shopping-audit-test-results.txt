@@ -1,0 +1,61 @@
+Google Product Variants & Shopping Visibility Audit - Test Results
+Date: 2026-11-20
+Repository commit: 1ee2f37
+Working tree before export: clean
+
+Focused SEO and catalog tests:
+php artisan test tests\Feature\Seo tests\Feature\Shop
+
+Result: PASS
+Tests: 71
+Assertions: 204
+Risky: 3 (no failures)
+
+Relevant code style:
+vendor\bin\pint --test app\Services\StructuredDataService.php app\Http\Controllers\PublicShopController.php app\Services\SitemapService.php app\Models\Product.php app\Models\ProductVariant.php tests\Feature\Seo tests\Feature\Shop
+
+Result: PASS
+
+Full repository code style:
+vendor\bin\pint --test
+
+Result: FAIL (pre-existing, unrelated to SEO/catalog audit)
+Files:
+- database\factories\ContactMessageFactory.php (line_ending)
+- database\factories\FaqFactory.php (line_ending)
+- database\factories\GalleryFactory.php (line_ending)
+- database\factories\MenuFactory.php (line_ending)
+- database\factories\PageFactory.php (line_ending)
+- database\factories\SettingFactory.php (line_ending)
+- database\factories\TestimonialFactory.php (line_ending)
+- database\factories\UserFactory.php (line_ending)
+- tests\Feature\Blog\BlogPublicTest.php (no_unused_imports)
+
+Blade compilation:
+php artisan view:cache
+
+Result: PASS
+INFO Blade templates cached successfully.
+
+Transactional product page check:
+- Created temporary product with two active variants inside a database transaction.
+- Requested the parent product URL.
+- Requested the same URL with ?variant=<large variant ID>.
+- Parent URL: HTTP 200, canonical pointed to parent product URL, default variant rendered.
+- Variant URL: HTTP 200, canonical pointed to parent product URL, large variant SKU and price rendered.
+- Transaction rolled back.
+- Post-check database counts: 0 products, 0 product variants.
+
+Transactional JSON-LD check:
+- Generated ProductGroup markup with productGroupID, variesBy, and hasVariant.
+- Confirmed each variant has SKU, price, priceCurrency, availability, itemCondition, and variant Offer URL.
+- Confirmed generated variant image is null when no media exists.
+- Confirmed variant size and variant description are not emitted.
+- Transaction rolled back; no persistent catalog changes.
+
+Google Rich Results Test:
+Not run.
+Reason: no public production URL is present in the repository, and the local .test host is not eligible for the public Rich Results Test.
+
+No application code, catalog, checkout, cart, Stripe, pricing, inventory, or production configuration changes were made.
+No commit, push, or deployment was performed.

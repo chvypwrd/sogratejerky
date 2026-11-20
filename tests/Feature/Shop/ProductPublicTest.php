@@ -39,6 +39,19 @@ class ProductPublicTest extends TestCase
         return $product;
     }
 
+    private function productJsonLd($response): array
+    {
+        preg_match('/<script type="application\/ld\+json">(.+?)<\/script>/s', $response->getContent(), $matches);
+
+        $this->assertNotEmpty($matches, 'No product JSON-LD script was found.');
+
+        $data = json_decode($matches[1], true);
+
+        $this->assertIsArray($data, 'Product JSON-LD is not valid JSON.');
+
+        return $data;
+    }
+
     public function test_catalog_only_shows_active_products_with_active_variants(): void
     {
         $visible = $this->availableProduct(['name' => 'Visible Jerky']);
@@ -69,6 +82,7 @@ class ProductPublicTest extends TestCase
             'product_id' => $product->id,
             'name' => 'Active Size',
             'sku' => 'SGR-ACTIVE-1',
+            'price' => 3499,
             'is_active' => true,
         ]);
         $inactive = ProductVariant::factory()->create([
@@ -86,8 +100,132 @@ class ProductPublicTest extends TestCase
         $response->assertOk();
         $response->assertSee($product->name);
         $response->assertSee($active->sku);
+        $response->assertSee('$34.99');
         $response->assertDontSee($inactive->sku);
         $response->assertSee('value="'.$active->id.'" selected', false);
+    }
+
+    public function test_invalid_or_inactive_variant_url_redirects_to_clean_product_url(): void
+    {
+        $product = Product::factory()->create(['name' => 'Variant Redirect Jerky']);
+        ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'is_active' => true,
+        ]);
+        $inactive = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'is_active' => false,
+        ]);
+
+        $canonical = route('shop.show', ['product' => $product->slug]);
+
+        $this->get(route('shop.show', ['product' => $product->slug, 'variant' => $inactive->id]))
+            ->assertRedirect($canonical);
+
+        $this->get(route('shop.show', ['product' => $product->slug, 'variant' => 999999]))
+            ->assertRedirect($canonical);
+    }
+
+    public function test_clean_product_url_is_not_rewritten_to_the_default_variant_on_load(): void
+    {
+        $product = $this->availableProduct(['name' => 'Clean URL Jerky']);
+
+        $response = $this->get(route('shop.show', ['product' => $product->slug]));
+
+        $response->assertOk();
+        $this->assertSame(1, substr_count($response->getContent(), 'window.history.replaceState'));
+        $response->assertDontSee("url.searchParams.get('variant') !== select.value", false);
+    }
+
+    public function test_product_canonical_and_sitemap_use_the_configured_hostname(): void
+    {
+        config(['app.url' => 'https://shop.example.test']);
+
+        $product = $this->availableProduct(['name' => 'Canonical Host Jerky']);
+        $variant = $product->availableVariants()->firstOrFail();
+
+        $canonical = 'https://shop.example.test/shop/'.$product->slug;
+
+        $parentResponse = $this->get(route('shop.show', ['product' => $product->slug]));
+        $parentResponse->assertOk();
+        preg_match('/<link rel="canonical" href="([^"]+)"/', $parentResponse->getContent(), $parentMatches);
+        $this->assertSame($canonical, $parentMatches[1] ?? null);
+
+        $variantResponse = $this->get(route('shop.show', [
+            'product' => $product->slug,
+            'variant' => $variant->id,
+        ]));
+
+        $variantResponse->assertOk();
+        preg_match('/<link rel="canonical" href="([^"]+)"/', $variantResponse->getContent(), $variantMatches);
+        $this->assertSame($canonical, $variantMatches[1] ?? null);
+
+        $jsonLd = $this->productJsonLd($variantResponse);
+        $this->assertSame(
+            'https://shop.example.test/shop/'.$product->slug.'?variant='.$variant->id,
+            $jsonLd['offers']['url']
+        );
+
+        $this->get(route('sitemap'))
+            ->assertOk()
+            ->assertSee('https://shop.example.test/shop/'.$product->slug, false)
+            ->assertDontSee('https://shop.example.test/shop/'.$product->slug.'?variant=', false);
+    }
+
+    public function test_product_group_variant_markup_includes_size_descriptions_and_no_null_images(): void
+    {
+        $product = Product::factory()->create([
+            'name' => 'Structured Group Jerky',
+            'short_description' => 'Structured group description.',
+        ]);
+        $small = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'name' => '3 oz Bag',
+            'sku' => 'SGR-GROUP-SMALL',
+            'price' => 1499,
+            'weight' => 85,
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+        $large = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'name' => '6 Pack',
+            'sku' => 'SGR-GROUP-LARGE',
+            'price' => 7499,
+            'weight' => 510,
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        $data = $this->productJsonLd(
+            $this->get(route('shop.show', ['product' => $product->slug]))
+        );
+
+        $this->assertSame('ProductGroup', $data['@type']);
+        $this->assertSame($product->slug, $data['productGroupID']);
+        $this->assertSame('https://schema.org/size', $data['variesBy']);
+        $this->assertArrayNotHasKey('image', $data);
+        $this->assertCount(2, $data['hasVariant']);
+
+        $smallData = $data['hasVariant'][0];
+        $largeData = $data['hasVariant'][1];
+
+        $this->assertSame('3 oz Bag', $smallData['size']);
+        $this->assertSame('SGR-GROUP-SMALL', $smallData['sku']);
+        $this->assertStringContainsString('3 oz Bag', $smallData['description']);
+        $this->assertStringContainsString('Structured group description.', $smallData['description']);
+        $this->assertArrayNotHasKey('image', $smallData);
+        $this->assertStringContainsString('?variant='.$small->id, $smallData['offers']['url']);
+        $this->assertSame('14.99', $smallData['offers']['price']);
+        $this->assertSame('USD', $smallData['offers']['priceCurrency']);
+        $this->assertSame('https://schema.org/InStock', $smallData['offers']['availability']);
+        $this->assertSame('SGR-GROUP-SMALL', $smallData['offers']['sku']);
+
+        $this->assertSame('6 Pack', $largeData['size']);
+        $this->assertSame('SGR-GROUP-LARGE', $largeData['sku']);
+        $this->assertStringContainsString('?variant='.$large->id, $largeData['offers']['url']);
+        $this->assertSame('74.99', $largeData['offers']['price']);
+        $this->assertArrayNotHasKey('image', $largeData);
     }
 
     public function test_inactive_product_direct_url_returns_not_found(): void
@@ -182,6 +320,8 @@ class ProductPublicTest extends TestCase
         $response->assertSee('SEO product description.');
         $response->assertSee('priceCurrency', false);
         $response->assertSee('InStock', false);
+        $response->assertSee('Available');
+        $response->assertSee('Add to Cart');
         $response->assertSee(route('shop.show', ['product' => $product->slug]), false);
     }
 
@@ -222,7 +362,9 @@ class ProductPublicTest extends TestCase
 
         $this->get(route('shop.show', ['product' => $product->slug]))
             ->assertOk()
-            ->assertSee('OutOfStock', false);
+            ->assertSee('OutOfStock', false)
+            ->assertSee('Unavailable for online purchase')
+            ->assertDontSee('Add to Cart');
     }
 
     public function test_sitemap_includes_product_tags_with_catalog_products(): void

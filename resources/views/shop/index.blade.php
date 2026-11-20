@@ -5,7 +5,9 @@
 
 @section('meta')
     @php
-        $canonicalUrl = $products->currentPage() > 1 ? $products->url($products->currentPage()) : route('shop.index');
+        $canonicalUrl = $products->currentPage() > 1
+            ? \App\Support\CanonicalUrl::to('/shop?page='.$products->currentPage())
+            : \App\Support\CanonicalUrl::route('shop.index');
     @endphp
     <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:type" content="website">

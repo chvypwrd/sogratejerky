@@ -6,7 +6,7 @@
 @section('meta')
     @php
         $seoDescription = $product->seoDescriptionText();
-        $canonicalUrl = route('shop.show', ['product' => $product->slug]);
+        $canonicalUrl = \App\Support\CanonicalUrl::route('shop.show', ['product' => $product->slug]);
         $featuredMedia = $product->getPrimaryImage();
     @endphp
 
@@ -83,9 +83,11 @@
                 @endif
 
                 @if($variants->count() > 0)
-                    <form action="{{ route('cart.items.store') }}" method="POST" class="product-purchase-info">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <form @if($purchasable) action="{{ route('cart.items.store') }}" method="POST" @else onsubmit="return false" @endif class="product-purchase-info">
+                        @if($purchasable)
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        @endif
 
                         <div class="product-price product-price--large" id="product-price">{{ $selectedVariant?->price_formatted }}</div>
 
@@ -112,25 +114,31 @@
                             </div>
                             <div>
                                 <dt>Availability</dt>
-                                <dd id="product-availability">Available</dd>
+                                <dd id="product-availability">{{ $purchasable ? 'Available' : 'Unavailable for online purchase' }}</dd>
                             </div>
                         </dl>
 
-                        <div class="row g-3 align-items-end">
-                            <div class="col-4">
-                                <label for="quantity" class="form-label">Quantity</label>
-                                <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity', 1) }}" min="1" max="{{ config('cart.max_quantity', 99) }}" required>
-                                @error('quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        @if($purchasable)
+                            <div class="row g-3 align-items-end">
+                                <div class="col-4">
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity', 1) }}" min="1" max="{{ config('cart.max_quantity', 99) }}" required>
+                                    @error('quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-8">
+                                    <button type="submit" class="btn btn-brand btn-lg w-100">Add to Cart</button>
+                                </div>
                             </div>
-                            <div class="col-8">
-                                <button type="submit" class="btn btn-brand btn-lg w-100">Add to Cart</button>
-                            </div>
-                        </div>
 
-                        <div class="product-cart-links">
-                            <a href="{{ route('cart.index') }}">View Cart</a>
-                            <a href="{{ route('quick-order.index') }}">Quick Order</a>
-                        </div>
+                            <div class="product-cart-links">
+                                <a href="{{ route('cart.index') }}">View Cart</a>
+                                <a href="{{ route('quick-order.index') }}">Quick Order</a>
+                            </div>
+                        @else
+                            <div class="alert alert-warning mb-0" role="status">
+                                Online ordering is currently unavailable. Please check back later or contact us for availability.
+                            </div>
+                        @endif
                     </form>
                 @else
                     <div class="alert alert-warning">
@@ -170,6 +178,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const variants = @json($variantData);
+    const defaultVariantId = @json($variants->first()?->id);
     const select = document.getElementById('variant-select');
     const mainImage = document.getElementById('product-main-image');
 
@@ -189,24 +198,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 mainImage.alt = data.name;
             }
         }
-
-        const url = new URL(window.location.href);
-        url.searchParams.set('variant', id);
-        window.history.replaceState({}, '', url.toString());
     }
 
     if (select) {
         select.addEventListener('change', function () {
             updateVariant(this.value);
-        });
 
-        if (select.value) {
             const url = new URL(window.location.href);
-            if (url.searchParams.get('variant') !== select.value) {
-                url.searchParams.set('variant', select.value);
-                window.history.replaceState({}, '', url.toString());
+
+            if (String(this.value) === String(defaultVariantId)) {
+                url.searchParams.delete('variant');
+            } else {
+                url.searchParams.set('variant', this.value);
             }
-        }
+
+            window.history.replaceState({}, '', url.toString());
+        });
     }
 
     document.querySelectorAll('[data-gallery-image]').forEach(function (button) {

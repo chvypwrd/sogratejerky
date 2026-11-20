@@ -6,6 +6,8 @@ use App\Models\BlogPost;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\SiteBranding;
+use App\Support\CanonicalUrl;
+use Illuminate\Support\Str;
 
 class StructuredDataService
 {
@@ -164,28 +166,43 @@ class StructuredDataService
             '@type' => 'Brand',
             'name' => $this->settings->get('general.site_name', config('app.name', 'Sograte')),
         ];
-        $availability = $this->checkoutAvailability->enabled() && $product->isAvailable()
+        $availability = $this->checkoutAvailability->productIsPurchasable($product)
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock';
         $primaryImage = $product->getPrimaryImage();
         $primaryImageUrl = $primaryImage?->getUrl('card');
 
-        $variantOffers = $variants->map(function (ProductVariant $variant) use ($product, $availability, $primaryImageUrl) {
-            return [
+        $variantOffers = $variants->map(function (ProductVariant $variant) use ($product, $availability, $primaryImageUrl, $description) {
+            $variantImageUrl = $variant->getFirstMediaUrl('image', 'card') ?: $primaryImageUrl;
+            $variantDescription = Str::limit(trim(implode(' ', array_filter([
+                $product->name.' - '.$variant->name.'.',
+                $variant->weight ? $variant->weight_display.'.' : null,
+                $description,
+            ]))), 500);
+
+            $variantData = [
                 '@type' => 'Product',
                 'name' => $product->name.' - '.$variant->name,
+                'description' => $variantDescription,
+                'size' => $variant->name,
                 'sku' => $variant->sku,
-                'image' => $variant->getFirstMediaUrl('image', 'card') ?: $primaryImageUrl,
-                'offers' => [
-                    '@type' => 'Offer',
-                    'url' => route('shop.show', ['product' => $product->slug, 'variant' => $variant->id]),
-                    'price' => number_format($variant->price / 100, 2, '.', ''),
-                    'priceCurrency' => 'USD',
-                    'availability' => $availability,
-                    'itemCondition' => 'https://schema.org/NewCondition',
-                    'sku' => $variant->sku,
-                ],
             ];
+
+            if ($variantImageUrl) {
+                $variantData['image'] = $variantImageUrl;
+            }
+
+            $variantData['offers'] = [
+                '@type' => 'Offer',
+                'url' => CanonicalUrl::route('shop.show', ['product' => $product->slug, 'variant' => $variant->id]),
+                'price' => number_format($variant->price / 100, 2, '.', ''),
+                'priceCurrency' => 'USD',
+                'availability' => $availability,
+                'itemCondition' => 'https://schema.org/NewCondition',
+                'sku' => $variant->sku,
+            ];
+
+            return $variantData;
         })->all();
 
         if ($variants->count() > 1) {
@@ -194,7 +211,7 @@ class StructuredDataService
                 '@type' => 'ProductGroup',
                 'name' => $product->name,
                 'description' => $description,
-                'url' => route('shop.show', ['product' => $product->slug]),
+                'url' => CanonicalUrl::route('shop.show', ['product' => $product->slug]),
                 'productGroupID' => $product->slug,
                 'brand' => $brand,
                 'variesBy' => 'https://schema.org/size',
@@ -213,7 +230,7 @@ class StructuredDataService
             '@type' => 'Product',
             'name' => $product->name,
             'description' => $description,
-            'url' => route('shop.show', ['product' => $product->slug]),
+            'url' => CanonicalUrl::route('shop.show', ['product' => $product->slug]),
             'brand' => $brand,
         ];
 

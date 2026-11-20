@@ -5,7 +5,7 @@
 
 @section('meta')
     @php
-        $canonicalUrl = $products->currentPage() > 1 ? $products->url($products->currentPage()) : url()->current();
+        $canonicalUrl = \App\Support\CanonicalUrl::to('/'.request()->path().($products->currentPage() > 1 ? '?page='.$products->currentPage() : ''));
     @endphp
     <link rel="canonical" href="{{ $canonicalUrl }}">
     @if($products->isEmpty())

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Product;
+
 class CheckoutAvailability
 {
     public function enabled(): bool
@@ -19,6 +21,11 @@ class CheckoutAvailability
         }
 
         return true;
+    }
+
+    public function productIsPurchasable(Product $product): bool
+    {
+        return $this->enabled() && $product->isAvailable();
     }
 
     public function ensureEnabled(): void

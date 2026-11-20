@@ -9,6 +9,7 @@ use App\Models\Page;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
+use App\Support\CanonicalUrl;
 use Illuminate\Support\Facades\Cache;
 
 class SitemapService
@@ -21,7 +22,7 @@ class SitemapService
     {
         return Cache::remember('sitemap.xml', now()->addHour(), function (): array {
             $urls = [];
-            $baseUrl = config('app.url');
+            $baseUrl = CanonicalUrl::base();
 
             $urls[] = [
                 'url' => $baseUrl,
